@@ -1,0 +1,83 @@
+flowchart TD
+    APP[应用层] --> SSM[存储服务管理器]
+    SSM --> MS[消息存储]
+    SSM --> US[用户存储]
+    SSM --> CS[会话存储]
+    SSM --> SS[设置存储]
+    SSM --> MES[媒体存储]
+    SSM --> CAS[缓存存储]
+    
+    subgraph "存储服务层"
+    SSM
+    MS
+    US
+    CS
+    SS
+    MES
+    CAS
+    end
+    
+    MS --> MR[消息仓库]
+    US --> UR[用户仓库]
+    CS --> CR[会话仓库]
+    SS --> SR[设置仓库]
+    MES --> MER[媒体仓库]
+    CAS --> CAR[缓存仓库]
+    
+    subgraph "数据仓库层"
+    MR
+    UR
+    CR
+    SR
+    MER
+    CAR
+    end
+    
+    subgraph "数据访问层"
+    DAL[数据访问层]
+    end
+    
+    MR --> DAL
+    UR --> DAL
+    CR --> DAL
+    SR --> DAL
+    MER --> DAL
+    CAR --> DAL
+    
+    DAL --> SE1[SQLite存储引擎]
+    DAL --> SE2[文件存储引擎]
+    DAL --> SE3[内存缓存引擎]
+    DAL --> SE4[SharedPreferences引擎]
+    
+    subgraph "存储引擎层"
+    SE1
+    SE2
+    SE3
+    SE4
+    end
+    
+    SE1 --> EL[加密层]
+    SE2 --> EL
+    SE4 --> EL
+    
+    EL --> OS[操作系统存储]
+    
+    subgraph "同步层"
+    SL[同步管理器]
+    end
+    
+    MR --- SL
+    UR --- SL
+    CR --- SL
+    MER --- SL
+    
+    SL <--> NET[网络/云存储]
+
+    classDef service fill:#f9f,stroke:#333,stroke-width:2px
+    classDef repository fill:#bbf,stroke:#333,stroke-width:1px
+    classDef engine fill:#bfb,stroke:#333,stroke-width:1px
+    
+    class SSM,MS,US,CS,SS,MES,CAS service
+    class MR,UR,CR,SR,MER,CAR repository
+    class SE1,SE2,SE3,SE4 engine
+</rewritten_file> 

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- 这是一个包含前端架构图的SVG文件，由于当前环境无法直接输出实际的SVG内容，
+       请将生成的真实Mermaid SVG内容替换此占位符。实际部署时，
+       可以使用工具如mermaid-cli将Mermaid图表转换成真实的SVG文件。 -->
+  
+  <!-- 图表结构如下：
+  flowchart TB
+    subgraph "表现层 (UI Layer)"
+        UI[Pages & Widgets]
+        Theme[Theme System]
+    end
+    
+    subgraph "业务逻辑层 (BLoC Layer)"
+        BLoC[BLoC/Provider]
+        Events[Events]
+        States[States]
+    end
+    
+    subgraph "数据层 (Data Layer)"
+        Repo[Repository]
+        API[API Client]
+        Local[Local Storage]
+    end
+    
+    subgraph "核心层 (Core Layer)"
+        Utils[Utils]
+        Constants[Constants]
+        Config[Config]
+    end
+    
+    subgraph "后端服务"
+        REST[HTTP REST API]
+        WS[WebSocket]
+        WRTC[WebRTC]
+    end
+    
+    UI --> BLoC
+    UI --> Theme
+    BLoC --> Events
+    BLoC --> States
+    BLoC --> Repo
+    Repo --> API
+    Repo --> Local
+    Repo --> Utils
+    API --> REST
+    API --> WS
+    API --> WRTC
+    Local --> Utils
+    BLoC --> Utils
+    BLoC --> Constants
+    UI --> Utils
+    API --> Config
+  -->
+</svg> 

@@ -1,0 +1,39 @@
+sequenceDiagram
+    participant App as 应用组件
+    participant SS as 存储服务
+    participant Repo as 数据仓库
+    participant Cache as 内存缓存
+    participant Local as 本地存储
+    participant Server as 服务器
+    
+    App->>SS: 请求数据 getData(id)
+    SS->>Repo: 转发请求 get(id)
+    Repo->>Cache: 检查缓存 lookup(id)
+    
+    alt 缓存命中
+        Cache-->>Repo: 返回缓存数据
+        Repo-->>SS: 返回数据
+        SS-->>App: 返回数据
+    else 缓存未命中
+        Cache-->>Repo: null/缓存未命中
+        Repo->>Local: 从本地加载 read(id)
+        
+        alt 本地存在
+            Local-->>Repo: 返回本地数据
+            Repo->>Cache: 更新缓存 update(id, data)
+            Repo-->>SS: 返回数据
+            SS-->>App: 返回数据
+        else 本地不存在且在线
+            Local-->>Repo: null/不存在
+            Repo->>Server: 从服务器获取 fetch(id)
+            Server-->>Repo: 返回服务器数据
+            Repo->>Local: 保存到本地 save(id, data)
+            Repo->>Cache: 更新缓存 update(id, data)
+            Repo-->>SS: 返回数据
+            SS-->>App: 返回数据
+        else 本地不存在且离线
+            Local-->>Repo: null/不存在
+            Repo-->>SS: 返回null/错误
+            SS-->>App: 返回null/错误
+        end
+    end 

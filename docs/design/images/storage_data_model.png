@@ -1,0 +1,63 @@
+erDiagram
+    USER {
+        string id
+        string username
+        string avatar
+        datetime lastSeen
+        int status
+    }
+    
+    CONVERSATION {
+        string id
+        string title
+        datetime createdAt
+        datetime lastActivity
+        int type
+    }
+    
+    MESSAGE {
+        string id
+        string content
+        datetime timestamp
+        int status
+        int type
+    }
+    
+    MEDIA {
+        string id
+        string url
+        string localPath
+        int size
+        string mimeType
+        int type
+    }
+    
+    USER ||--o{ MESSAGE : sends
+    USER }|--o{ CONVERSATION : participates
+    CONVERSATION ||--o{ MESSAGE : contains
+    MESSAGE }o--o{ MEDIA : includes
+    
+    CONTACT {
+        string userId
+        string contactId
+        string nickname
+        int relationship
+    }
+    
+    USER ||--o{ CONTACT : has
+    
+    SETTINGS {
+        string userId
+        json preferences
+    }
+    
+    USER ||--|| SETTINGS : has
+    
+    ATTACHMENT {
+        string id
+        string messageId
+        string mediaId
+    }
+    
+    MESSAGE ||--o{ ATTACHMENT : has
+    MEDIA ||--o{ ATTACHMENT : referenced-by 

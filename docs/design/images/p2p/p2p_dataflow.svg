@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- 这是P2P数据流图的SVG占位符，将在实际实现阶段替换为真实图表 -->
+  <rect width="800" height="600" fill="#f0f8ff"/>
+  <text x="400" y="300" font-family="Arial" font-size="24" text-anchor="middle">P2P数据流图占位符</text>
+  <text x="400" y="340" font-family="Arial" font-size="16" text-anchor="middle">将在具体实现阶段用实际图表替换</text>
+</svg> 

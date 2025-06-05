@@ -1,0 +1,39 @@
+sequenceDiagram
+    participant App as 应用
+    participant SyncMgr as 同步管理器
+    participant Local as 本地存储
+    participant Server as 服务器
+    
+    App->>SyncMgr: 触发同步 synchronize()
+    SyncMgr->>SyncMgr: 获取上次同步时间 lastSync
+    
+    par 本地变更查询
+        SyncMgr->>Local: 查询本地变更 getChangesSince(lastSync)
+        Local-->>SyncMgr: 本地变更数据 localChanges
+    and 服务器变更查询
+        SyncMgr->>Server: 查询服务器变更 getChangesSince(lastSync, deviceId)
+        Server-->>SyncMgr: 服务器变更数据 serverChanges
+    end
+    
+    SyncMgr->>SyncMgr: 比较变更、检测冲突 detectConflicts(localChanges, serverChanges)
+    
+    alt 存在冲突
+        SyncMgr->>App: 请求解决冲突 requestConflictResolution(conflicts)
+        App-->>SyncMgr: 冲突解决方案 resolutions
+        SyncMgr->>SyncMgr: 应用冲突解决方案 applyResolutions(resolutions)
+    end
+    
+    SyncMgr->>Local: 应用服务器变更 applyServerChanges(serverChanges)
+    Local-->>SyncMgr: 应用结果 localResult
+    
+    SyncMgr->>Server: 上传本地变更 pushLocalChanges(localChanges)
+    Server-->>SyncMgr: 上传结果 pushResult
+    
+    alt 同步成功
+        SyncMgr->>SyncMgr: 更新同步时间戳 updateLastSyncTime(now)
+        SyncMgr-->>App: 同步成功 SyncResult.success
+    else 同步部分成功
+        SyncMgr-->>App: 部分同步成功 SyncResult.partialSuccess
+    else 同步失败
+        SyncMgr-->>App: 同步失败 SyncResult.failure
+    end 
