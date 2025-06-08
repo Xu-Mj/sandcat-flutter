@@ -13,9 +13,10 @@ void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 初始化配置
+  // 初始化配置（开发环境）
   AppConfig.initialize(
-    appName: 'SandCat',
+    environment: Environment.development,
+    appName: 'SandCat Dev',
     appVersion: '1.0.0',
     buildNumber: '1',
   );
@@ -59,9 +60,9 @@ class IMApp extends StatelessWidget {
     final router = AppRouter.createRouter();
 
     return CupertinoApp.router(
-      title: AppConfig.instance.appName,
+      title: '${AppConfig.instance.appName} (Dev)',
       theme: AppTheme.lightTheme,
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: true, // 显示debug标识
       routerConfig: router,
     );
   }

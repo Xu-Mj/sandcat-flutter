@@ -1,45 +1,194 @@
-# IM Flutter
+# IM Flutter SDK
 
-基于Flutter开发的跨平台即时通讯应用，支持桌面端和移动端。
+A modular Flutter SDK for instant messaging applications, inspired by Rust's sandcat-sdk architecture.
 
-## 项目概述
+## Architecture
 
-这个项目是将原有的Rust WebAssembly前端重构为Flutter实现，保持与Rust后端API的兼容性，同时提供更好的移动端支持和用户体验。
-
-## 开发环境
-
-- Flutter SDK
-- Dart
-- VS Code/Android Studio/IntelliJ IDEA
-- Rust后端API
-
-## 项目结构
+The SDK follows a clean architecture approach with clearly defined layers:
 
 ```
-im-flutter/
-├── docs/               # 项目文档
-│   ├── requirements/   # 需求文档
-│   ├── architecture/   # 架构设计
-│   ├── design/         # UI/UX设计
-│   └── api/            # API接口文档
-├── assets/             # 静态资源
-├── lib/                # 应用代码
-└── test/               # 测试代码
+lib/sdk/
+    ├── models/         # Data models using Dart features
+    ├── repositories/   # Data access layer
+    ├── services/       # Business logic
+    ├── utils/          # Utility classes
+    ├── storage/        # Local storage
+    ├── network/        # Network requests
+    ├── providers/      # State management (Riverpod)
+    └── sdk.dart        # SDK entry point
 ```
 
-## 开发计划
+## Setup
 
-1. 需求分析与规格说明
-2. 系统架构设计
-3. UI/UX设计
-4. 核心功能实现
-5. 测试与优化
-6. 发布部署
+1. Add the SDK to your project
+   - Include it as a local dependency or publish it to a private repository
 
-## 贡献指南
+2. Initialize the SDK
+   ```dart
+   import 'package:im/sdk/sdk.dart';
+   
+   void main() async {
+     // Initialize the SDK before running the app
+     await IMSDK().initialize(
+       config: IMSdkConfig(
+         baseUrl: 'https://your-api-base-url.com/api',
+         enableLogging: true,
+       ),
+     );
+     
+     // Run your app wrapped with the SDK providers
+     runApp(
+       IMSDK().wrapWithProviders(
+         child: MyApp(),
+       ),
+     );
+   }
+   ```
 
-请参阅 [CONTRIBUTING.md](./CONTRIBUTING.md) 文件了解如何参与项目开发。
+3. Generate required code files
+   - Run the code generator to create the necessary files:
+   ```
+   flutter pub run build_runner build --delete-conflicting-outputs
+   ```
+   - This will generate files like `database.g.dart` required by Drift
 
-## 许可证
+## Usage Examples
 
-本项目采用 [LICENSE](./LICENSE) 许可证。 
+### Authentication
+
+```dart
+// Login
+final result = await IMSDK().auth.login('user@example.com', 'password');
+result.fold(
+  (user) => print('Logged in as ${user.name}'),
+  (error) => print('Login failed: ${error.message}'),
+);
+
+// Get current user
+final currentUserResult = await IMSDK().auth.getCurrentUser();
+currentUserResult.fold(
+  (user) => user != null 
+      ? print('Current user: ${user.name}') 
+      : print('No user logged in'),
+  (error) => print('Error: ${error.message}'),
+);
+
+// Monitor authentication state
+IMSDK().auth.authStateChanges().listen((user) {
+  if (user != null) {
+    print('User logged in: ${user.name}');
+  } else {
+    print('User logged out');
+  }
+});
+```
+
+### Chat Management
+
+```dart
+// Get all chats
+final chatsResult = await IMSDK().chats.getAllChats();
+chatsResult.fold(
+  (chats) => print('Found ${chats.length} chats'),
+  (error) => print('Error: ${error.message}'),
+);
+
+// Create a private chat
+final newChatResult = await IMSDK().chats.createPrivateChat('user123');
+newChatResult.fold(
+  (chat) => print('Created chat with ID: ${chat.id}'),
+  (error) => print('Error: ${error.message}'),
+);
+
+// Watch for chat updates
+IMSDK().chats.watchChat('chat123').listen((chat) {
+  if (chat != null) {
+    print('Chat updated: ${chat.name}');
+  } else {
+    print('Chat deleted or not found');
+  }
+});
+```
+
+### Messaging
+
+```dart
+// Send a text message
+final messageResult = await IMSDK().messages.sendTextMessage(
+  'chat123',
+  'Hello, world!',
+);
+messageResult.fold(
+  (message) => print('Message sent with ID: ${message.id}'),
+  (error) => print('Error: ${error.message}'),
+);
+
+// Get messages for a chat
+final messagesResult = await IMSDK().messages.getMessagesForChat('chat123');
+messagesResult.fold(
+  (messages) => print('Found ${messages.length} messages'),
+  (error) => print('Error: ${error.message}'),
+);
+
+// Watch for new messages
+IMSDK().messages.watchNewMessages().listen((message) {
+  print('New message: ${message.text}');
+});
+```
+
+### Using Riverpod Providers
+
+The SDK includes Riverpod providers for easy state management:
+
+```dart
+// In a ConsumerWidget
+class ChatScreen extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final chatState = ref.watch(chatStateProvider);
+    final messageState = ref.watch(messageStateProvider);
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(chatState.currentChat?.name ?? 'Chat'),
+      ),
+      body: ListView.builder(
+        itemCount: messageState.currentChatMessages.length,
+        itemBuilder: (context, index) {
+          final message = messageState.currentChatMessages[index];
+          return ListTile(
+            title: Text(message.text ?? ''),
+            subtitle: Text(message.senderId),
+          );
+        },
+      ),
+    );
+  }
+}
+```
+
+## Database Generation
+
+The SDK uses Drift for local database storage. To generate the required database code files, run:
+
+```
+dart run generate.dart
+```
+
+or manually:
+
+```
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+## Features
+
+- User authentication and management
+- Chat creation and management
+- Messaging with various types (text, image, file)
+- Offline data storage
+- Real-time updates using streams
+- Robust error handling with Result type
+- State management with Riverpod
+- Network requests with Dio
+- Secure storage for sensitive data 

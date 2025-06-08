@@ -13,8 +13,9 @@ void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 初始化配置
+  // 初始化配置（生产环境）
   AppConfig.initialize(
+    environment: Environment.production,
     appName: 'SandCat',
     appVersion: '1.0.0',
     buildNumber: '1',
