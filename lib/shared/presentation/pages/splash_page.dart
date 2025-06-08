@@ -1,16 +1,18 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:im_flutter/features/auth/presentation/providers/auth_provider.dart';
 
 /// Splash screen shown when the app starts
-class SplashPage extends StatefulWidget {
+class SplashPage extends ConsumerStatefulWidget {
   /// Creates a splash page
   const SplashPage({super.key});
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
+  ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends ConsumerState<SplashPage> {
   @override
   void initState() {
     super.initState();
@@ -21,14 +23,14 @@ class _SplashPageState extends State<SplashPage> {
     // Simulate loading time
     await Future.delayed(const Duration(seconds: 1));
 
-    // Check if user is logged in
-    const isLoggedIn = false; // 修改为false，默认跳转登录页面
+    // 检查认证状态提供者中的状态
+    final authState = ref.read(authStateProvider);
 
     if (mounted) {
-      if (isLoggedIn) {
+      if (authState.state == AuthState.authenticated) {
         context.go('/home');
       } else {
-        context.go('/login'); // 跳转到登录页面
+        context.go('/login');
       }
     }
   }

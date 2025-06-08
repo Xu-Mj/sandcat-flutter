@@ -26,9 +26,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   // 控制显示登录还是注册表单
   bool _showRegisterForm = false;
 
-  // 错误提示
-  String? _errorMessage;
-
   @override
   void initState() {
     super.initState();
@@ -57,15 +54,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void _login() async {
     // 表单验证
     if (_accountController.text.isEmpty || _passwordController.text.isEmpty) {
-      setState(() {
-        _errorMessage = '请输入账号和密码';
-      });
+      _showErrorDialog('请输入账号和密码');
       return;
     }
-
-    setState(() {
-      _errorMessage = null;
-    });
 
     try {
       final authNotifier = ref.read(authStateProvider.notifier);
@@ -80,26 +71,37 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       } else {
         // 显示错误信息
         final authState = ref.read(authStateProvider);
-        setState(() {
-          _errorMessage = authState.error ?? '登录失败，请重试';
-        });
+        _showErrorDialog(authState.error ?? '登录失败，请重试');
       }
     } catch (e) {
       log.e('登录过程中发生错误', error: e, tag: 'LoginPage');
-      setState(() {
-        _errorMessage = '登录过程中发生错误: ${e.toString()}';
-      });
+      _showErrorDialog('登录过程中发生错误: ${e.toString()}');
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('登录失败'),
+        content: Text(message),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('确定'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
   }
 
   void _toggleAuthForm() {
     // 使用AnimationController避免在状态变化中失去焦点
     setState(() {
       _showRegisterForm = !_showRegisterForm;
-      _errorMessage = null;
     });
 
-    // 重置错误提示
+    // 重置焦点
     FocusScope.of(context).unfocus();
   }
 
@@ -171,24 +173,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
 
               const SizedBox(height: 40),
-
-              // 错误提示
-              if (_errorMessage != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.systemRed.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _errorMessage!,
-                    style: const TextStyle(
-                      color: CupertinoColors.systemRed,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
 
               // 账号输入框
               CupertinoTextField(
@@ -457,24 +441,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
           ),
           const SizedBox(height: 40),
-
-          // 错误提示
-          if (_errorMessage != null) ...[
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: CupertinoColors.systemRed.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                _errorMessage!,
-                style: const TextStyle(
-                  color: CupertinoColors.systemRed,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
 
           // 账号输入框
           const Text(
