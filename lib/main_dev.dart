@@ -51,13 +51,13 @@ void main() async {
   );
 }
 
-class IMApp extends StatelessWidget {
+class IMApp extends ConsumerWidget {
   const IMApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // 创建路由器
-    final router = AppRouter.createRouter();
+    final router = AppRouter.createRouter(ref);
 
     return CupertinoApp.router(
       title: '${AppConfig.instance.appName} (Dev)',
