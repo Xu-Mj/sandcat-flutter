@@ -4,9 +4,18 @@ import 'package:dio/dio.dart';
 import 'package:im_flutter/core/errors/exceptions.dart';
 import 'package:im_flutter/core/errors/failures.dart';
 import 'package:injectable/injectable.dart';
+import '../services/logger_service.dart';
 
 @injectable
 class ErrorHandler {
+  final LoggerService _logger;
+
+  /// 创建错误处理器实例
+  /// [logger] 日志服务，用于记录错误
+  ErrorHandler({
+    required LoggerService logger,
+  }) : _logger = logger;
+
   Failure handleException(dynamic exception) {
     if (exception is ServerException) {
       return Failure.server(exception.message);
@@ -47,5 +56,11 @@ class ErrorHandler {
       default:
         return Failure.unexpected(exception.toString());
     }
+  }
+
+  /// 处理一般错误
+  void handleError(dynamic error, [StackTrace? stackTrace]) {
+    _logger.e('Error occurred', error: error, stackTrace: stackTrace);
+    // 这里可以添加错误报告、分析等逻辑
   }
 }
