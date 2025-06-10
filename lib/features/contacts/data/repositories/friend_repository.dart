@@ -1,9 +1,6 @@
-import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:im_flutter/core/services/logger_service.dart';
 import 'package:im_flutter/core/storage/database/app.dart';
-import 'package:im_flutter/core/storage/database/tables/friends_table.dart'
-    hide FriendRequestStatus;
 import 'package:im_flutter/features/contacts/data/models/friend_model.dart';
 import 'package:injectable/injectable.dart';
 
