@@ -9,6 +9,12 @@ class AuthRepository {
   /// API服务
   final AuthApi _authApi;
 
+  /// 当前认证令牌
+  AuthToken? _currentToken;
+
+  /// 当前用户ID
+  String? get userId => _currentToken?.userId;
+
   /// 创建仓库
   AuthRepository({required AuthApi authApi}) : _authApi = authApi;
 
@@ -53,9 +59,21 @@ class AuthRepository {
         account: account,
         password: password,
       );
-      return await _authApi.login(request);
+      final token = await _authApi.login(request);
+      _currentToken = token;
+      return token;
     } catch (e) {
       rethrow;
     }
+  }
+
+  /// 设置当前令牌
+  void setToken(AuthToken token) {
+    _currentToken = token;
+  }
+
+  /// 清除令牌
+  void clearToken() {
+    _currentToken = null;
   }
 }
