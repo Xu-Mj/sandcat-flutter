@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:im_flutter/features/auth/data/services/auth_service.dart';
-import 'package:im_flutter/features/auth/data/models/auth_token.dart';
 import 'package:im_flutter/core/services/logger_service.dart';
 import 'package:im_flutter/app/di/injection.dart';
 
@@ -148,7 +147,7 @@ class AuthNotifier extends StateNotifier<AuthStateData> {
     state = state.authenticating();
 
     try {
-      final token = await _authService.login(
+      await _authService.login(
         account: account,
         password: password,
         rememberMe: rememberMe,
