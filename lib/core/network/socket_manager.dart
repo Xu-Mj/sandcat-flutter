@@ -5,6 +5,7 @@ import 'package:im_flutter/core/services/logger_service.dart';
 import 'package:im_flutter/core/utils/device_utils.dart';
 import 'package:im_flutter/features/auth/data/models/auth_token.dart';
 import 'package:im_flutter/features/chat/data/models/message_model.dart';
+import 'package:injectable/injectable.dart';
 
 /// WebSocket连接管理器状态监听
 typedef SocketStateListener = void Function(ConnectionState state);
@@ -13,6 +14,7 @@ typedef SocketStateListener = void Function(ConnectionState state);
 typedef SocketMessageListener = void Function(Map<String, dynamic> message);
 
 /// WebSocket连接管理器
+@lazySingleton
 class SocketManager {
   /// 构造函数
   SocketManager({
