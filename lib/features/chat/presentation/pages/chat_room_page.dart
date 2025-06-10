@@ -334,6 +334,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     // 独立页面模式 - 使用CupertinoPageScaffold
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        heroTag: 'chat_room',
+        transitionBetweenRoutes: false,
         // 上下padding给10
         middle: Text(
           _chatInfo['name'],

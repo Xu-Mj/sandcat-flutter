@@ -72,8 +72,6 @@ class _ChatListPageState extends State<ChatListPage> {
               onPressed: () async {
                 // 在异步操作前获取路由信息
                 final navigator = Navigator.of(context);
-                final router = GoRouter.of(context);
-                const loginRoute = '/login';
 
                 navigator.pop(); // 关闭对话框
 
@@ -84,12 +82,14 @@ class _ChatListPageState extends State<ChatListPage> {
 
                   // 导航到登录页
                   if (mounted) {
-                    router.go(loginRoute);
+                    navigator.pushNamedAndRemoveUntil(
+                        '/login', (route) => false);
                   }
                 } catch (e) {
                   // 如果退出登录失败，也强制导航到登录页
                   if (mounted) {
-                    router.go(loginRoute);
+                    navigator.pushNamedAndRemoveUntil(
+                        '/login', (route) => false);
                   }
                 }
               },
@@ -145,6 +145,7 @@ class _ChatListPageState extends State<ChatListPage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        transitionBetweenRoutes: false,
         middle: _isSearching
             ? CupertinoSearchTextField(
                 controller: _searchController,
