@@ -97,9 +97,9 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   static const VerificationMeta _lastLoginTimeMeta =
       const VerificationMeta('lastLoginTime');
   @override
-  late final GeneratedColumn<BigInt> lastLoginTime = GeneratedColumn<BigInt>(
+  late final GeneratedColumn<int> lastLoginTime = GeneratedColumn<int>(
       'last_login_time', aliasedName, true,
-      type: DriftSqlType.bigInt, requiredDuringInsert: false);
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _lastLoginIpMeta =
       const VerificationMeta('lastLoginIp');
   @override
@@ -441,7 +441,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       updateTime: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}update_time'])!,
       lastLoginTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.bigInt, data['${effectivePrefix}last_login_time']),
+          .read(DriftSqlType.int, data['${effectivePrefix}last_login_time']),
       lastLoginIp: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}last_login_ip']),
       twoFactorEnabled: attachedDatabase.typeMapping.read(
@@ -496,7 +496,7 @@ class User extends DataClass implements Insertable<User> {
   final int? birthday;
   final int createTime;
   final int updateTime;
-  final BigInt? lastLoginTime;
+  final int? lastLoginTime;
   final String? lastLoginIp;
   final bool twoFactorEnabled;
   final String accountStatus;
@@ -571,7 +571,7 @@ class User extends DataClass implements Insertable<User> {
     map['create_time'] = Variable<int>(createTime);
     map['update_time'] = Variable<int>(updateTime);
     if (!nullToAbsent || lastLoginTime != null) {
-      map['last_login_time'] = Variable<BigInt>(lastLoginTime);
+      map['last_login_time'] = Variable<int>(lastLoginTime);
     }
     if (!nullToAbsent || lastLoginIp != null) {
       map['last_login_ip'] = Variable<String>(lastLoginIp);
@@ -665,7 +665,7 @@ class User extends DataClass implements Insertable<User> {
       birthday: serializer.fromJson<int?>(json['birthday']),
       createTime: serializer.fromJson<int>(json['createTime']),
       updateTime: serializer.fromJson<int>(json['updateTime']),
-      lastLoginTime: serializer.fromJson<BigInt?>(json['lastLoginTime']),
+      lastLoginTime: serializer.fromJson<int?>(json['lastLoginTime']),
       lastLoginIp: serializer.fromJson<String?>(json['lastLoginIp']),
       twoFactorEnabled: serializer.fromJson<bool>(json['twoFactorEnabled']),
       accountStatus: serializer.fromJson<String>(json['accountStatus']),
@@ -702,7 +702,7 @@ class User extends DataClass implements Insertable<User> {
       'birthday': serializer.toJson<int?>(birthday),
       'createTime': serializer.toJson<int>(createTime),
       'updateTime': serializer.toJson<int>(updateTime),
-      'lastLoginTime': serializer.toJson<BigInt?>(lastLoginTime),
+      'lastLoginTime': serializer.toJson<int?>(lastLoginTime),
       'lastLoginIp': serializer.toJson<String?>(lastLoginIp),
       'twoFactorEnabled': serializer.toJson<bool>(twoFactorEnabled),
       'accountStatus': serializer.toJson<String>(accountStatus),
@@ -735,7 +735,7 @@ class User extends DataClass implements Insertable<User> {
           Value<int?> birthday = const Value.absent(),
           int? createTime,
           int? updateTime,
-          Value<BigInt?> lastLoginTime = const Value.absent(),
+          Value<int?> lastLoginTime = const Value.absent(),
           Value<String?> lastLoginIp = const Value.absent(),
           bool? twoFactorEnabled,
           String? accountStatus,
@@ -958,7 +958,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<int?> birthday;
   final Value<int> createTime;
   final Value<int> updateTime;
-  final Value<BigInt?> lastLoginTime;
+  final Value<int?> lastLoginTime;
   final Value<String?> lastLoginIp;
   final Value<bool> twoFactorEnabled;
   final Value<String> accountStatus;
@@ -1059,7 +1059,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<int>? birthday,
     Expression<int>? createTime,
     Expression<int>? updateTime,
-    Expression<BigInt>? lastLoginTime,
+    Expression<int>? lastLoginTime,
     Expression<String>? lastLoginIp,
     Expression<bool>? twoFactorEnabled,
     Expression<String>? accountStatus,
@@ -1127,7 +1127,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       Value<int?>? birthday,
       Value<int>? createTime,
       Value<int>? updateTime,
-      Value<BigInt?>? lastLoginTime,
+      Value<int?>? lastLoginTime,
       Value<String?>? lastLoginIp,
       Value<bool>? twoFactorEnabled,
       Value<String>? accountStatus,
@@ -1224,7 +1224,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       map['update_time'] = Variable<int>(updateTime.value);
     }
     if (lastLoginTime.present) {
-      map['last_login_time'] = Variable<BigInt>(lastLoginTime.value);
+      map['last_login_time'] = Variable<int>(lastLoginTime.value);
     }
     if (lastLoginIp.present) {
       map['last_login_ip'] = Variable<String>(lastLoginIp.value);
@@ -1340,7 +1340,7 @@ typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
   Value<int?> birthday,
   required int createTime,
   required int updateTime,
-  Value<BigInt?> lastLoginTime,
+  Value<int?> lastLoginTime,
   Value<String?> lastLoginIp,
   Value<bool> twoFactorEnabled,
   Value<String> accountStatus,
@@ -1372,7 +1372,7 @@ typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
   Value<int?> birthday,
   Value<int> createTime,
   Value<int> updateTime,
-  Value<BigInt?> lastLoginTime,
+  Value<int?> lastLoginTime,
   Value<String?> lastLoginIp,
   Value<bool> twoFactorEnabled,
   Value<String> accountStatus,
@@ -1421,7 +1421,7 @@ class $$UsersTableTableManager extends RootTableManager<
             Value<int?> birthday = const Value.absent(),
             Value<int> createTime = const Value.absent(),
             Value<int> updateTime = const Value.absent(),
-            Value<BigInt?> lastLoginTime = const Value.absent(),
+            Value<int?> lastLoginTime = const Value.absent(),
             Value<String?> lastLoginIp = const Value.absent(),
             Value<bool> twoFactorEnabled = const Value.absent(),
             Value<String> accountStatus = const Value.absent(),
@@ -1485,7 +1485,7 @@ class $$UsersTableTableManager extends RootTableManager<
             Value<int?> birthday = const Value.absent(),
             required int createTime,
             required int updateTime,
-            Value<BigInt?> lastLoginTime = const Value.absent(),
+            Value<int?> lastLoginTime = const Value.absent(),
             Value<String?> lastLoginIp = const Value.absent(),
             Value<bool> twoFactorEnabled = const Value.absent(),
             Value<String> accountStatus = const Value.absent(),
@@ -1610,7 +1610,7 @@ class $$UsersTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<BigInt> get lastLoginTime => $state.composableBuilder(
+  ColumnFilters<int> get lastLoginTime => $state.composableBuilder(
       column: $state.table.lastLoginTime,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
@@ -1759,7 +1759,7 @@ class $$UsersTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<BigInt> get lastLoginTime => $state.composableBuilder(
+  ColumnOrderings<int> get lastLoginTime => $state.composableBuilder(
       column: $state.table.lastLoginTime,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
