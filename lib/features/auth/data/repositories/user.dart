@@ -18,7 +18,7 @@ abstract class UserRepository {
 
 @LazySingleton(as: UserRepository)
 class UserRepositoryImpl implements UserRepository {
-  final AppDatabase Function() _databaseFactory;
+  final DatabaseFactory _databaseFactory;
   final LoggerService log;
 
   // 注意这里接收的是工厂函数，不是实例
