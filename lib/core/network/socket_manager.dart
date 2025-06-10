@@ -1,136 +1,296 @@
 import 'dart:async';
 
-import '../constants/app_constants.dart';
-import 'connection_manager.dart';
-import 'websocket_client.dart';
+import 'package:im_flutter/core/network/websocket_client.dart';
+import 'package:im_flutter/core/services/logger_service.dart';
+import 'package:im_flutter/core/utils/device_utils.dart';
+import 'package:im_flutter/features/auth/data/models/auth_token.dart';
+import 'package:im_flutter/features/chat/data/models/message_model.dart';
 
-/// Manager for handling WebSocket connections with automatic reconnection
+/// WebSocket连接管理器状态监听
+typedef SocketStateListener = void Function(ConnectionState state);
+
+/// WebSocket消息监听
+typedef SocketMessageListener = void Function(Map<String, dynamic> message);
+
+/// WebSocket连接管理器
 class SocketManager {
-  final WebSocketClient _webSocketClient;
-  final ConnectionManager _connectionManager;
+  /// 构造函数
+  SocketManager({
+    required this.logger,
+  });
 
-  /// Stream controller for connection state
-  final _connectionStateController = StreamController<bool>.broadcast();
+  final LoggerService logger;
 
-  /// Timer for reconnection attempts
+  // 私有变量
+  String? _wsEndpoint;
+  WebSocketClient? _client;
+  AuthToken? _token;
+  String? _userId;
+  String? _deviceId;
+  final List<SocketStateListener> _stateListeners = [];
+  final List<SocketMessageListener> _messageListeners = [];
+  final Map<String, StreamController<dynamic>> _topicControllers = {};
   Timer? _reconnectTimer;
 
-  /// Current reconnection attempt count
-  int _reconnectAttempt = 0;
+  /// 状态流，供外部监听 - 新增
+  Stream<ConnectionStatusInfo> get statusStream =>
+      _client?.statusStream ?? const Stream.empty();
 
-  /// Maximum reconnection attempts
-  final int _maxReconnectAttempts;
+  /// 当前状态信息 - 新增
+  ConnectionStatusInfo? get currentStatus => _client?.currentStatus;
 
-  /// Base delay for reconnection attempts (with exponential backoff)
-  final Duration _reconnectDelay;
+  /// 当前连接状态
+  ConnectionState get state => _client?.state ?? ConnectionState.disconnected;
 
-  /// WebSocket endpoint URL
-  final String _wsUrl;
+  /// 是否已连接
+  bool get isConnected => _client?.isConnected ?? false;
 
-  /// Creates a new socket manager
-  SocketManager({
-    required WebSocketClient webSocketClient,
-    required ConnectionManager connectionManager,
-    required String wsUrl,
-    int maxReconnectAttempts = 5,
-    Duration reconnectDelay = const Duration(seconds: 2),
-  })  : _webSocketClient = webSocketClient,
-        _connectionManager = connectionManager,
-        _wsUrl = wsUrl,
-        _maxReconnectAttempts = maxReconnectAttempts,
-        _reconnectDelay = reconnectDelay {
-    _init();
+  /// 初始化WebSocket连接
+  Future<bool> initialize(AuthToken token) async {
+    logger.i('SocketManager initializing with token: $token');
+    _token = token;
+    _userId = token.userId;
+    _wsEndpoint = token.wsEndpoint;
+
+    try {
+      _deviceId ??= await DeviceUtils.getDeviceId();
+      return await _connect();
+    } catch (e) {
+      logger.e('Socket initialize error', error: e);
+      return false;
+    }
   }
 
-  /// Stream of WebSocket messages
-  Stream<dynamic> get messageStream => _webSocketClient.messageStream;
+  /// 连接WebSocket
+  Future<bool> _connect() async {
+    if (_client != null && _client!.isConnected) {
+      return true;
+    }
 
-  /// Stream of connection state changes (true = connected, false = disconnected)
-  Stream<bool> get connectionStateStream => _connectionStateController.stream;
+    if (_token == null || _userId == null || _deviceId == null) {
+      logger.e('Cannot connect: missing token, userId or deviceId');
+      return false;
+    }
 
-  /// Whether the WebSocket is currently connected
-  bool get isConnected => _webSocketClient.isConnected;
+    _disposeClient();
 
-  /// Initialize the socket manager
-  void _init() {
-    // Listen for network connectivity changes
-    _connectionManager.connectionStream.listen((state) {
-      if (state == ConnectionState.connected && !_webSocketClient.isConnected) {
-        connect();
+    _client = WebSocketClient(
+      wsEndpoint: _wsEndpoint!,
+      logger: logger,
+      token: _token!,
+      userId: _userId!,
+      deviceId: _deviceId!,
+      onEvent: _handleSocketEvent,
+      onMessage: _handleSocketMessage,
+    );
+
+    final result = await _client!.connect();
+    _notifyStateListeners();
+    return result;
+  }
+
+  /// 手动连接 - 新增公开方法
+  Future<bool> connect() async {
+    return await _connect();
+  }
+
+  /// 断开WebSocket连接
+  Future<void> disconnect() async {
+    _reconnectTimer?.cancel();
+    await _client?.disconnect();
+    _notifyStateListeners();
+  }
+
+  /// 重新连接
+  Future<bool> reconnect() async {
+    _reconnectTimer?.cancel();
+
+    if (_client != null) {
+      // 使用 WebSocketClient 的 reconnect 方法而不是手动断开重连
+      await _client!.reconnect();
+    } else {
+      await _connect();
+    }
+
+    _notifyStateListeners();
+    return isConnected;
+  }
+
+  /// 发送消息
+  Future<bool> sendMessage(MessageModel message) async {
+    if (!isConnected) {
+      logger.w('Cannot send message, socket not connected');
+      return false;
+    }
+
+    try {
+      final payload = {
+        'type': 'message',
+        'payload': message.toJson(),
+      };
+
+      return await _client!.send(payload);
+    } catch (e) {
+      logger.e('Error sending message', error: e);
+      return false;
+    }
+  }
+
+  /// 发送原始消息数据
+  Future<bool> sendRaw(Map<String, dynamic> data) async {
+    if (!isConnected) {
+      logger.w('Cannot send raw data, socket not connected');
+      return false;
+    }
+
+    try {
+      return await _client!.send(data);
+    } catch (e) {
+      logger.e('Error sending raw data', error: e);
+      return false;
+    }
+  }
+
+  /// 发送输入状态
+  Future<bool> sendTypingStatus(String receiverId, bool isTyping) async {
+    return sendRaw({
+      'type': 'typing',
+      'payload': {
+        'receiver_id': receiverId,
+        'is_typing': isTyping,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
       }
     });
   }
 
-  /// Connect to the WebSocket server
-  Future<void> connect() async {
-    if (_webSocketClient.isConnected) {
-      return;
-    }
-
-    try {
-      await _webSocketClient.connect(_wsUrl);
-      _connectionStateController.add(true);
-      _reconnectAttempt = 0;
-      _cancelReconnectTimer();
-    } catch (e) {
-      _connectionStateController.add(false);
-      _scheduleReconnect();
-    }
-  }
-
-  /// Disconnect from the WebSocket server
-  Future<void> disconnect() async {
-    _cancelReconnectTimer();
-    if (_webSocketClient.isConnected) {
-      await _webSocketClient.disconnect();
-      _connectionStateController.add(false);
-    }
-  }
-
-  /// Send a message through the WebSocket
-  Future<void> send(dynamic message) async {
-    if (!_webSocketClient.isConnected) {
-      await connect();
-    }
-
-    try {
-      await _webSocketClient.send(message);
-    } catch (e) {
-      _connectionStateController.add(false);
-      _scheduleReconnect();
-      rethrow;
-    }
-  }
-
-  /// Schedule a reconnection attempt
-  void _scheduleReconnect() {
-    if (_reconnectAttempt >= _maxReconnectAttempts) {
-      return;
-    }
-
-    _cancelReconnectTimer();
-
-    // Calculate delay with exponential backoff
-    final delay = Duration(
-      milliseconds: _reconnectDelay.inMilliseconds * (1 << _reconnectAttempt),
-    );
-
-    _reconnectTimer = Timer(delay, () async {
-      _reconnectAttempt++;
-      await connect();
+  /// 发送已读回执
+  Future<bool> sendReadReceipt(String messageId, String senderId) async {
+    return sendRaw({
+      'type': 'receipt',
+      'payload': {
+        'message_id': messageId,
+        'sender_id': senderId,
+        'status': 'read',
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      }
     });
   }
 
-  /// Cancel the reconnection timer
-  void _cancelReconnectTimer() {
-    _reconnectTimer?.cancel();
-    _reconnectTimer = null;
+  /// 订阅特定主题的消息
+  Stream<dynamic> subscribeToTopic(String topic) {
+    if (!_topicControllers.containsKey(topic)) {
+      _topicControllers[topic] = StreamController<dynamic>.broadcast();
+    }
+    return _topicControllers[topic]!.stream;
   }
 
-  /// Dispose resources
+  /// 添加状态监听器
+  void addStateListener(SocketStateListener listener) {
+    if (!_stateListeners.contains(listener)) {
+      _stateListeners.add(listener);
+    }
+  }
+
+  /// 移除状态监听器
+  void removeStateListener(SocketStateListener listener) {
+    _stateListeners.remove(listener);
+  }
+
+  /// 添加消息监听器
+  void addMessageListener(SocketMessageListener listener) {
+    if (!_messageListeners.contains(listener)) {
+      _messageListeners.add(listener);
+    }
+  }
+
+  /// 移除消息监听器
+  void removeMessageListener(SocketMessageListener listener) {
+    _messageListeners.remove(listener);
+  }
+
+  /// 处理WebSocket事件
+  void _handleSocketEvent(WebSocketEvent event, {dynamic data}) {
+    switch (event) {
+      case WebSocketEvent.connected:
+        logger.i('Socket connected');
+        _reconnectTimer?.cancel(); // 连接成功时取消重连定时器
+        break;
+      case WebSocketEvent.disconnected:
+        logger.i('Socket disconnected: $data');
+        break;
+      case WebSocketEvent.reconnecting:
+        logger.i('Socket reconnecting, attempt: $data');
+        break;
+      case WebSocketEvent.reconnected:
+        logger.i('Socket reconnected');
+        break;
+      case WebSocketEvent.error:
+        logger.e('Socket error', error: data);
+        break;
+      case WebSocketEvent.messageSent:
+        // 消息已发送，无需特殊处理
+        break;
+      case WebSocketEvent.messageReceived:
+        // 消息接收由onMessage回调处理
+        break;
+    }
+
+    _notifyStateListeners();
+  }
+
+  /// 处理接收到的WebSocket消息
+  void _handleSocketMessage(Map<String, dynamic> message) {
+    try {
+      // 通知所有消息监听器
+      for (var listener in _messageListeners) {
+        listener(message);
+      }
+
+      // 获取消息类型
+      final type = message['type'] as String?;
+      if (type == null) {
+        logger.w('Received message without type: $message');
+        return;
+      }
+
+      // 转发到特定主题的流
+      if (_topicControllers.containsKey(type)) {
+        _topicControllers[type]!.add(message['payload']);
+      }
+    } catch (e) {
+      logger.e('Error handling socket message', error: e);
+    }
+  }
+
+  /// 通知所有状态监听器
+  void _notifyStateListeners() {
+    final currentState = state;
+    for (var listener in _stateListeners) {
+      try {
+        listener(currentState);
+      } catch (e) {
+        logger.e('Error notifying state listener', error: e);
+      }
+    }
+  }
+
+  /// 释放客户端资源
+  void _disposeClient() {
+    _client?.dispose();
+    _client = null;
+  }
+
+  /// 释放所有资源
   void dispose() {
-    _cancelReconnectTimer();
-    _connectionStateController.close();
-    _webSocketClient.disconnect();
+    _reconnectTimer?.cancel();
+    _disposeClient();
+
+    for (var controller in _topicControllers.values) {
+      controller.close();
+    }
+    _topicControllers.clear();
+
+    _stateListeners.clear();
+    _messageListeners.clear();
   }
 }
