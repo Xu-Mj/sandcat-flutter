@@ -371,13 +371,16 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      widget.formatTimeFunc(widget.message['timestamp']),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: isMe
-                            ? CupertinoColors.white.withValues(alpha: 0.7)
-                            : CupertinoColors.systemGrey,
+                    Flexible(
+                      child: Text(
+                        widget.formatTimeFunc(widget.message['timestamp']),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isMe
+                              ? CupertinoColors.white.withValues(alpha: 0.7)
+                              : CupertinoColors.systemGrey,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (isMe) ...[
