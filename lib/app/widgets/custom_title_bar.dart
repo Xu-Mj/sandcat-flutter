@@ -44,8 +44,8 @@ class CustomTitleBar extends StatelessWidget {
         child: Row(
           children: [
             // 应用图标
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 12.0),
+            const Padding(
+              padding: EdgeInsets.only(left: 8.0, right: 12.0),
               child: SizedBox(
                 height: 24,
                 width: 24,
