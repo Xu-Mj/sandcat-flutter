@@ -6,6 +6,7 @@ import '../../../utils/responsive_layout.dart';
 import '../../../chat/presentation/pages/chat_list_page.dart';
 import '../../../chat/presentation/pages/chat_room_page.dart';
 import '../../../settings/presentation/pages/settings_page.dart';
+import '../../../contacts/presentation/pages/friends_page.dart';
 
 /// Home page with responsive layout
 class HomePage extends StatefulWidget {
@@ -22,6 +23,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _tabs = [
     const ChatListPage(),
+    const FriendsPage(),
     const SettingsPage(),
   ];
 
@@ -61,12 +63,17 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.chat_bubble_2),
             activeIcon: Icon(CupertinoIcons.chat_bubble_2_fill),
-            label: 'Chats',
+            label: '消息',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.person_2),
+            activeIcon: Icon(CupertinoIcons.person_2_fill),
+            label: '好友',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.settings),
             activeIcon: Icon(CupertinoIcons.settings_solid),
-            label: 'Settings',
+            label: '设置',
           ),
         ],
       ),
@@ -102,14 +109,25 @@ class _HomePageState extends State<HomePage> {
                     _currentIndex = 0;
                   }),
                 ),
-                // 设置按钮
+                // 好友按钮
                 _buildNavButton(
                   icon: _currentIndex == 1
-                      ? CupertinoIcons.settings_solid
-                      : CupertinoIcons.settings,
+                      ? CupertinoIcons.person_2_fill
+                      : CupertinoIcons.person_2,
                   isSelected: _currentIndex == 1,
                   onTap: () => setState(() {
                     _currentIndex = 1;
+                    _selectedChatId = null;
+                  }),
+                ),
+                // 设置按钮
+                _buildNavButton(
+                  icon: _currentIndex == 2
+                      ? CupertinoIcons.settings_solid
+                      : CupertinoIcons.settings,
+                  isSelected: _currentIndex == 2,
+                  onTap: () => setState(() {
+                    _currentIndex = 2;
                     _selectedChatId = null;
                   }),
                 ),
@@ -121,10 +139,10 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: Row(
               children: [
-                // 会话列表面板
+                // 会话列表/好友列表面板
                 Expanded(
                   flex: 1,
-                  child: _buildChatListWrapper(),
+                  child: _buildListWrapper(),
                 ),
 
                 // 聊天详情或空状态面板
@@ -172,8 +190,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 构建聊天列表包装器
-  Widget _buildChatListWrapper() {
+  // 构建列表包装器
+  Widget _buildListWrapper() {
     return IndexedStack(
       index: _currentIndex,
       sizing: StackFit.expand,
@@ -183,6 +201,8 @@ class _HomePageState extends State<HomePage> {
           onChatSelected:
               ResponsiveLayout.isDesktop(context) ? _onChatSelected : null,
         ),
+        // 好友列表
+        const FriendsPage(),
         // 设置页面
         const SettingsPage(),
       ],
