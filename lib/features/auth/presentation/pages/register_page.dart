@@ -270,6 +270,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
         middle: Text('注册'),
+        heroTag: 'register',
+        transitionBetweenRoutes: false,
       ),
       child: SafeArea(
         child: SingleChildScrollView(
