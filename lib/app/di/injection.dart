@@ -1,12 +1,15 @@
 import 'package:get_it/get_it.dart';
 import 'package:im_flutter/core/network/api_client.dart';
 import 'package:im_flutter/core/network/dio_client.dart';
+import 'package:im_flutter/core/network/socket_manager.dart';
 import 'package:im_flutter/core/services/logger_service.dart';
+import 'package:im_flutter/core/storage/database/app.dart';
 import 'package:im_flutter/core/storage/secure_storage.dart';
 import 'package:im_flutter/core/storage/shared_prefs_storage.dart';
 import 'package:im_flutter/core/storage/storage_service.dart';
 import 'package:im_flutter/features/auth/data/api/auth_api.dart';
 import 'package:im_flutter/features/auth/data/repositories/auth_repository.dart';
+import 'package:im_flutter/features/auth/data/repositories/user.dart';
 import 'package:im_flutter/features/auth/data/services/auth_service.dart';
 
 final getIt = GetIt.instance;
@@ -21,8 +24,17 @@ Future<void> configureDependencies() async {
   // Core - Services
   _configureLoggerService();
 
+  // Core - Database
+  _configureDatabaseServices();
+
+  // Core - Realtime
+  _configureRealtimeDependencies();
+
   // Features - Auth
   _configureAuthDependencies();
+
+  // Features - User
+  _configureUserDependencies();
 }
 
 void _configureDioClient() {
@@ -42,6 +54,19 @@ Future<void> _configureStorageServices() async {
       instanceName: 'secure');
 }
 
+void _configureDatabaseServices() {
+  // 注册数据库上下文
+  getIt.registerLazySingleton<DatabaseContext>(() => DatabaseContextImpl());
+
+  // 注册数据库提供者
+  getIt.registerLazySingleton<DatabaseProvider>(
+    () => DatabaseProvider(getIt<DatabaseContext>()),
+  );
+
+  // 注册数据库工厂 - 每次调用都返回当前用户的数据库
+  getIt.registerFactory<AppDatabase>(() => getIt<DatabaseProvider>().database);
+}
+
 void _configureAuthDependencies() {
   // 注册AuthApi
   getIt.registerFactory<AuthApi>(
@@ -59,6 +84,17 @@ void _configureAuthDependencies() {
       getIt<AuthRepository>(),
       getIt<StorageService>(instanceName: 'secure'),
       getIt<StorageService>(instanceName: 'prefs'),
+      getIt<DatabaseContext>(), // 注入数据库上下文
+    ),
+  );
+}
+
+void _configureUserDependencies() {
+  // 注册UserRepository
+  getIt.registerLazySingleton<UserRepository>(
+    () => UserRepositoryImpl(
+      () => getIt<AppDatabase>(),
+      getIt<LoggerService>(),
     ),
   );
 }
@@ -66,4 +102,13 @@ void _configureAuthDependencies() {
 void _configureLoggerService() {
   // 注册日志服务
   getIt.registerSingleton<LoggerService>(TalkerLoggerService());
+}
+
+void _configureRealtimeDependencies() {
+  // 注册SocketManager
+  getIt.registerLazySingleton<SocketManager>(
+    () => SocketManager(
+      logger: getIt<LoggerService>(),
+    ),
+  );
 }
