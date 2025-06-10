@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:im_flutter/features/utils/responsive_layout.dart';
 
-import '../../../../core/services/logger_service.dart';
-
 /// 聊天消息组件
 class ChatMessageItem extends StatefulWidget {
   /// 消息数据
@@ -39,8 +37,6 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
     // 确保之前的菜单被移除
     _hideMenu();
     final isDesktop = ResponsiveLayout.isDesktop(context);
-
-    log.d('showCustomBubbleMenu: $position');
 
     // 创建新的菜单覆盖层
     _menuOverlay = OverlayEntry(
@@ -164,7 +160,6 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
 
     // 定义菜单触发方法
     void showMenuAtPosition(Offset position) {
-      log.d('showMenuAtPosition: $position');
       _showCustomBubbleMenu(context, position);
     }
 
