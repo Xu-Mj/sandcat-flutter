@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart';
 import 'package:im_flutter/features/utils/responsive_layout.dart';
 
 /// 聊天消息组件
@@ -32,47 +33,47 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
   /// 菜单层
   OverlayEntry? _menuOverlay;
 
+  /// 是否显示消息详情（时间等）
+  bool _showMessageDetails = false;
+
   /// 显示自定义气泡菜单
   void _showCustomBubbleMenu(BuildContext context, Offset position) {
     // 确保之前的菜单被移除
     _hideMenu();
-    final isDesktop = ResponsiveLayout.isDesktop(context);
 
-    // 创建新的菜单覆盖层
+    // 创建新的菜单覆盖层 - 只包含菜单本身，不包含全屏遮挡层
     _menuOverlay = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          // 透明全屏层，用于检测点击外部关闭菜单
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: _hideMenu,
-              onSecondaryTapDown: isDesktop
-                  ? (details) =>
-                      _showCustomBubbleMenu(context, details.globalPosition)
-                  : null,
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                color: CupertinoColors.black.withValues(alpha: 0.01),
-              ),
-            ),
-          ),
-
-          // 菜单本身
-          Positioned(
-            left: position.dx - 100, // 调整菜单位置
-            top: position.dy - 50, // 调整菜单位置
-            child: _buildCustomMenuBubble(widget.message['senderId'] == 'me'),
-          ),
-        ],
+      builder: (context) => Positioned(
+        left: position.dx - 100, // 调整菜单位置
+        top: position.dy - 50, // 调整菜单位置
+        child: _buildCustomMenuBubble(widget.message['senderId'] == 'me'),
       ),
     );
 
     // 将菜单添加到Overlay
     Overlay.of(context).insert(_menuOverlay!);
 
+    // 添加一个事件监听器，用于监听点击事件
+    // 延迟添加监听，避免当前点击立即触发关闭
+    Future.delayed(const Duration(milliseconds: 50), () {
+      // 添加一个一次性点击监听，任何地方点击都会触发关闭菜单
+      GestureBinding.instance.pointerRouter.addGlobalRoute(_handleGlobalTap);
+    });
+
     setState(() {
       _isMenuVisible = true;
     });
+  }
+
+  /// 处理全局点击事件
+  void _handleGlobalTap(PointerEvent event) {
+    // 如果是点击事件且菜单已显示，则隐藏菜单
+    if (event is PointerDownEvent && _isMenuVisible) {
+      // 移除全局监听器
+      GestureBinding.instance.pointerRouter.removeGlobalRoute(_handleGlobalTap);
+      // 如果点击不在菜单区域内则关闭菜单
+      _hideMenu();
+    }
   }
 
   /// 隐藏菜单
@@ -149,40 +150,137 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
 
   @override
   void dispose() {
+    // 确保在组件销毁时移除全局监听器
+    if (_isMenuVisible) {
+      GestureBinding.instance.pointerRouter.removeGlobalRoute(_handleGlobalTap);
+    }
     _hideMenu();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isMe = widget.message['senderId'] == 'me';
     final isDesktop = ResponsiveLayout.isDesktop(context);
+    final isMe = widget.message['senderId'] == 'me';
 
-    // 定义菜单触发方法
-    void showMenuAtPosition(Offset position) {
-      _showCustomBubbleMenu(context, position);
-    }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: MouseRegion(
+        onEnter: isDesktop
+            ? (_) => setState(() => _showMessageDetails = true)
+            : null,
+        onExit: isDesktop
+            ? (_) => setState(() => _showMessageDetails = false)
+            : null,
+        child: GestureDetector(
+          onTap: !isDesktop
+              ? () => setState(() => _showMessageDetails = !_showMessageDetails)
+              : null,
+          behavior: HitTestBehavior.translucent,
+          child: Row(
+            mainAxisAlignment:
+                isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start, // 顶部对齐
+            children: [
+              // 发件人头像 - 对方消息时显示在左侧
+              if (!isMe) _buildAvatar(),
 
-    return GestureDetector(
-      onTap: () => widget.onAction?.call('tap', widget.message),
+              // 消息气泡主体
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.7,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 8.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isMe
+                        ? CupertinoColors.systemBlue
+                        : CupertinoColors.systemGrey6,
+                    borderRadius: BorderRadius.circular(18.0),
+                  ),
+                  child: Stack(
+                    children: [
+                      // 消息内容
+                      GestureDetector(
+                        // 处理消息菜单操作
+                        onLongPressStart: (details) {
+                          if (!isDesktop) {
+                            // 移动端使用长按
+                            _showCustomBubbleMenu(
+                                context, details.globalPosition);
+                          }
+                        },
+                        onSecondaryTapDown: (details) {
+                          if (isDesktop) {
+                            // 桌面端使用右键
+                            _showCustomBubbleMenu(
+                                context, details.globalPosition);
+                          }
+                        },
+                        child: Text(
+                          widget.message['content'],
+                          style: TextStyle(
+                            color: isMe
+                                ? CupertinoColors.white
+                                : CupertinoColors.black,
+                          ),
+                        ),
+                      ),
 
-      // 长按触发菜单 - 所有平台都注册，但移动端会优先响应
-      onLongPressStart: (details) {
-        if (!isDesktop) {
-          // 移动端使用长按
-          showMenuAtPosition(details.globalPosition);
-        }
-      },
+                      // 时间和状态 - 绝对定位，根据hover状态或点击状态决定是否显示
+                      if (_showMessageDetails)
+                        Positioned(
+                          right: 0,
+                          bottom: -16, // 位于文本下方，不占用消息区域
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  widget.formatTimeFunc(
+                                      widget.message['timestamp']),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: isMe
+                                        ? CupertinoColors.white.withOpacity(0.7)
+                                        : CupertinoColors.systemGrey,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (isMe) ...[
+                                const SizedBox(width: 4),
+                                Icon(
+                                  widget.message['status'] == 'read'
+                                      ? CupertinoIcons.checkmark_alt_circle_fill
+                                      : widget.message['status'] == 'delivered'
+                                          ? CupertinoIcons.checkmark_alt_circle
+                                          : widget.message['status'] == 'sent'
+                                              ? CupertinoIcons.checkmark_circle
+                                              : CupertinoIcons.clock,
+                                  size: 10,
+                                  color: CupertinoColors.white
+                                      .withValues(alpha: 0.7),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
 
-      // 右键触发菜单 - 所有平台都注册，但桌面端会优先响应
-      onSecondaryTapDown: (details) {
-        if (isDesktop) {
-          // 桌面端使用右键
-          showMenuAtPosition(details.globalPosition);
-        }
-      },
-
-      child: _buildMessageContent(isMe),
+              // 发件人头像 - 自己的消息时显示在右侧
+              if (isMe) _buildAvatar(isMe: true),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -221,21 +319,13 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
             text: '回复',
             onTap: () => _handleMenuAction('reply'),
           ),
-          if (isMe) ...[
-            _buildDivider(),
-            _buildMenuItem(
-              icon: CupertinoIcons.pencil,
-              text: '编辑',
-              onTap: () => _handleMenuAction('edit'),
-            ),
-            _buildDivider(),
-            _buildMenuItem(
-              icon: CupertinoIcons.delete,
-              text: '删除',
-              onTap: () => _handleMenuAction('delete'),
-              isDestructive: true,
-            ),
-          ],
+          _buildDivider(),
+          _buildMenuItem(
+            icon: CupertinoIcons.delete,
+            text: '删除',
+            onTap: () => _handleMenuAction('delete'),
+            isDestructive: true,
+          ),
         ],
       ),
     );
@@ -315,94 +405,19 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
     );
   }
 
-  Widget _buildMessageContent(bool isMe) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        mainAxisAlignment:
-            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isMe)
-            Container(
-              width: 32,
-              height: 32,
-              margin: const EdgeInsets.only(right: 8.0),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: CupertinoColors.systemBlue,
-              ),
-              child: const Icon(
-                CupertinoIcons.person_fill,
-                color: CupertinoColors.white,
-                size: 20,
-              ),
-            ),
-
-          // 消息气泡
-          Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.7,
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12.0,
-              vertical: 8.0,
-            ),
-            decoration: BoxDecoration(
-              color: isMe
-                  ? CupertinoColors.systemBlue
-                  : CupertinoColors.systemGrey6,
-              borderRadius: BorderRadius.circular(18.0),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                // 消息内容
-                Text(
-                  widget.message['content'],
-                  style: TextStyle(
-                    color: isMe ? CupertinoColors.white : CupertinoColors.black,
-                  ),
-                ),
-
-                const SizedBox(height: 2),
-
-                // 时间和状态
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        widget.formatTimeFunc(widget.message['timestamp']),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isMe
-                              ? CupertinoColors.white.withValues(alpha: 0.7)
-                              : CupertinoColors.systemGrey,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (isMe) ...[
-                      const SizedBox(width: 4),
-                      Icon(
-                        widget.message['status'] == 'read'
-                            ? CupertinoIcons.checkmark_alt_circle_fill
-                            : widget.message['status'] == 'delivered'
-                                ? CupertinoIcons.checkmark_alt_circle
-                                : widget.message['status'] == 'sent'
-                                    ? CupertinoIcons.checkmark_circle
-                                    : CupertinoIcons.clock,
-                        size: 10,
-                        color: CupertinoColors.white.withValues(alpha: 0.7),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+  /// 构建头像组件
+  Widget _buildAvatar({bool isMe = false}) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isMe ? CupertinoColors.activeGreen : CupertinoColors.systemBlue,
+      ),
+      child: const Icon(
+        CupertinoIcons.person_fill,
+        color: CupertinoColors.white,
+        size: 20,
       ),
     );
   }
