@@ -268,6 +268,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   Widget _buildInputArea() {
     return ChatInputArea(
       onSendMessage: _sendMessage,
+      scrollMsgList: _scrollToBottom,
     );
   }
 
