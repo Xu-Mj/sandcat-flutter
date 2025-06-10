@@ -1,0 +1,691 @@
+import 'dart:convert';
+import 'package:drift/drift.dart';
+import 'package:im_flutter/core/services/logger_service.dart';
+import 'package:im_flutter/core/storage/database/app.dart';
+import 'package:im_flutter/core/storage/database/tables/friends_table.dart'
+    hide FriendRequestStatus;
+import 'package:im_flutter/features/contacts/data/models/friend_model.dart';
+import 'package:injectable/injectable.dart';
+
+/// 好友仓库接口
+abstract class FriendRepository {
+  /// 获取好友列表
+  Future<List<Friend>> getAllFriends();
+
+  /// 获取星标好友
+  Future<List<Friend>> getStarredFriends();
+
+  /// 根据ID获取好友
+  Future<Friend?> getFriend(String id);
+
+  /// 根据好友ID获取好友
+  Future<Friend?> getFriendByFriendId(String friendId);
+
+  /// 搜索好友
+  Future<List<Friend>> searchFriends(String query);
+
+  /// 添加好友
+  Future<int> addFriend(FriendsCompanion friend);
+
+  /// 更新好友
+  Future<bool> updateFriend(FriendsCompanion friend);
+
+  /// 删除好友
+  Future<int> deleteFriend(String id);
+
+  /// 设置/取消星标好友
+  Future<bool> toggleStarFriend(String id, bool isStarred);
+
+  /// 更新好友状态
+  Future<bool> updateFriendStatus(String id, String status);
+
+  /// 移动好友到分组
+  Future<bool> moveFriendToGroup(String id, int groupId);
+
+  /// 获取好友分组列表
+  Future<List<FriendGroup>> getFriendGroups();
+
+  /// 创建好友分组
+  Future<int> createFriendGroup(FriendGroupsCompanion group);
+
+  /// 更新好友分组
+  Future<bool> updateFriendGroup(FriendGroupsCompanion group);
+
+  /// 删除好友分组
+  Future<int> deleteFriendGroup(int id);
+
+  /// 获取好友分组中的好友
+  Future<List<Friend>> getFriendsInGroup(int groupId);
+
+  /// 获取好友请求列表
+  Future<List<FriendRequest>> getFriendRequests({bool? isPending});
+
+  /// 处理好友请求
+  Future<bool> handleFriendRequest(String id, String status,
+      {String? respMsg, String? respRemark});
+
+  /// 发送好友请求
+  Future<int> sendFriendRequest(FriendRequestsCompanion request);
+
+  /// 获取好友标签列表
+  Future<List<FriendTag>> getFriendTags();
+
+  /// 创建好友标签
+  Future<int> createFriendTag(FriendTagsCompanion tag);
+
+  /// 获取好友的标签
+  Future<List<FriendTag>> getFriendTagsByFriendId(String friendId);
+
+  /// 添加标签到好友
+  Future<bool> addTagToFriend(String friendId, int tagId);
+
+  /// 从好友移除标签
+  Future<bool> removeTagFromFriend(String friendId, int tagId);
+
+  /// 保存好友备注
+  Future<bool> saveFriendNote(String friendId, String content);
+
+  /// 获取好友备注
+  Future<FriendNote?> getFriendNote(String friendId);
+
+  /// 获取好友互动数据
+  Future<FriendInteraction?> getFriendInteraction(String friendId);
+
+  /// 更新好友互动数据
+  Future<bool> updateFriendInteraction(FriendInteractionsCompanion interaction);
+
+  /// 获取好友隐私设置
+  Future<FriendPrivacySetting?> getFriendPrivacySetting(String friendId);
+
+  /// 更新好友隐私设置
+  Future<bool> updateFriendPrivacySetting(
+      FriendPrivacySettingsCompanion setting);
+
+  /// 创建一些测试数据
+  Future<void> createTestData();
+}
+
+/// 好友仓库实现
+@LazySingleton(as: FriendRepository)
+class FriendRepositoryImpl implements FriendRepository {
+  final DatabaseFactory _databaseFactory;
+  final LoggerService _log;
+
+  FriendRepositoryImpl(this._databaseFactory, this._log);
+
+  AppDatabase get _database => _databaseFactory();
+
+  @override
+  Future<List<Friend>> getAllFriends() async {
+    try {
+      return await (_database.select(_database.friends)
+            ..where((f) => f.deletedTime.isNull())
+            ..orderBy([
+              (f) =>
+                  OrderingTerm(expression: f.priority, mode: OrderingMode.desc)
+            ]))
+          .get();
+    } catch (e) {
+      _log.e('Error getting all friends: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<List<Friend>> getStarredFriends() async {
+    try {
+      return await (_database.select(_database.friends)
+            ..where((f) => f.isStarred.equals(true) & f.deletedTime.isNull())
+            ..orderBy([
+              (f) =>
+                  OrderingTerm(expression: f.priority, mode: OrderingMode.desc)
+            ]))
+          .get();
+    } catch (e) {
+      _log.e('Error getting starred friends: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<Friend?> getFriend(String id) async {
+    try {
+      return await (_database.select(_database.friends)
+            ..where((f) => f.id.equals(id) & f.deletedTime.isNull()))
+          .getSingleOrNull();
+    } catch (e) {
+      _log.e('Error getting friend: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<Friend?> getFriendByFriendId(String friendId) async {
+    try {
+      return await (_database.select(_database.friends)
+            ..where(
+                (f) => f.friendId.equals(friendId) & f.deletedTime.isNull()))
+          .getSingleOrNull();
+    } catch (e) {
+      _log.e('Error getting friend by friendId: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<List<Friend>> searchFriends(String query) async {
+    try {
+      // 我们需要获取用户表进行关联查询，这里简化处理
+      // 实际应用中应该进行关联查询用户表来搜索姓名、电话等
+      final q = '%$query%';
+      return await (_database.select(_database.friends)
+            ..where((f) => f.remark.like(q) & f.deletedTime.isNull())
+            ..orderBy([
+              (f) =>
+                  OrderingTerm(expression: f.priority, mode: OrderingMode.desc)
+            ]))
+          .get();
+    } catch (e) {
+      _log.e('Error searching friends: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<int> addFriend(FriendsCompanion friend) async {
+    try {
+      return await _database.into(_database.friends).insert(friend);
+    } catch (e) {
+      _log.e('Error adding friend: $e');
+      return -1;
+    }
+  }
+
+  @override
+  Future<bool> updateFriend(FriendsCompanion friend) async {
+    try {
+      return await _database.update(_database.friends).replace(friend);
+    } catch (e) {
+      _log.e('Error updating friend: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<int> deleteFriend(String id) async {
+    try {
+      // 逻辑删除，设置删除时间
+      final now = DateTime.now().millisecondsSinceEpoch;
+      return await (_database.update(_database.friends)
+            ..where((f) => f.id.equals(id)))
+          .write(FriendsCompanion(deletedTime: Value(now)));
+    } catch (e) {
+      _log.e('Error deleting friend: $e');
+      return -1;
+    }
+  }
+
+  @override
+  Future<bool> toggleStarFriend(String id, bool isStarred) async {
+    try {
+      final result = await (_database.update(_database.friends)
+            ..where((f) => f.id.equals(id)))
+          .write(FriendsCompanion(isStarred: Value(isStarred)));
+      return result > 0;
+    } catch (e) {
+      _log.e('Error toggling star for friend: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> updateFriendStatus(String id, String status) async {
+    try {
+      final result = await (_database.update(_database.friends)
+            ..where((f) => f.id.equals(id)))
+          .write(FriendsCompanion(status: Value(status)));
+      return result > 0;
+    } catch (e) {
+      _log.e('Error updating friend status: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> moveFriendToGroup(String id, int groupId) async {
+    try {
+      final result = await (_database.update(_database.friends)
+            ..where((f) => f.id.equals(id)))
+          .write(FriendsCompanion(groupId: Value(groupId)));
+      return result > 0;
+    } catch (e) {
+      _log.e('Error moving friend to group: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<List<FriendGroup>> getFriendGroups() async {
+    try {
+      return await (_database.select(_database.friendGroups)
+            ..orderBy([(g) => OrderingTerm(expression: g.sortOrder)]))
+          .get();
+    } catch (e) {
+      _log.e('Error getting friend groups: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<int> createFriendGroup(FriendGroupsCompanion group) async {
+    try {
+      return await _database.into(_database.friendGroups).insert(group);
+    } catch (e) {
+      _log.e('Error creating friend group: $e');
+      return -1;
+    }
+  }
+
+  @override
+  Future<bool> updateFriendGroup(FriendGroupsCompanion group) async {
+    try {
+      return await _database.update(_database.friendGroups).replace(group);
+    } catch (e) {
+      _log.e('Error updating friend group: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<int> deleteFriendGroup(int id) async {
+    try {
+      return await (_database.delete(_database.friendGroups)
+            ..where((g) => g.id.equals(id)))
+          .go();
+    } catch (e) {
+      _log.e('Error deleting friend group: $e');
+      return -1;
+    }
+  }
+
+  @override
+  Future<List<Friend>> getFriendsInGroup(int groupId) async {
+    try {
+      return await (_database.select(_database.friends)
+            ..where((f) => f.groupId.equals(groupId) & f.deletedTime.isNull())
+            ..orderBy([
+              (f) =>
+                  OrderingTerm(expression: f.priority, mode: OrderingMode.desc)
+            ]))
+          .get();
+    } catch (e) {
+      _log.e('Error getting friends in group: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<List<FriendRequest>> getFriendRequests({bool? isPending}) async {
+    try {
+      final query = _database.select(_database.friendRequests);
+      if (isPending != null && isPending) {
+        query.where((r) => r.status.equals(FriendRequestStatus.pending.name));
+      }
+      return await query.get();
+    } catch (e) {
+      _log.e('Error getting friend requests: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<bool> handleFriendRequest(String id, String status,
+      {String? respMsg, String? respRemark}) async {
+    try {
+      final companion = FriendRequestsCompanion(
+        status: Value(status),
+        updateTime: Value(DateTime.now().millisecondsSinceEpoch),
+      );
+
+      // 添加响应消息和备注（如果有）
+      final updatedCompanion = respMsg != null
+          ? companion.copyWith(respMsg: Value(respMsg))
+          : companion;
+      final finalCompanion = respRemark != null
+          ? updatedCompanion.copyWith(respRemark: Value(respRemark))
+          : updatedCompanion;
+
+      final result = await (_database.update(_database.friendRequests)
+            ..where((r) => r.id.equals(id)))
+          .write(finalCompanion);
+
+      return result > 0;
+    } catch (e) {
+      _log.e('Error handling friend request: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<int> sendFriendRequest(FriendRequestsCompanion request) async {
+    try {
+      return await _database.into(_database.friendRequests).insert(request);
+    } catch (e) {
+      _log.e('Error sending friend request: $e');
+      return -1;
+    }
+  }
+
+  @override
+  Future<List<FriendTag>> getFriendTags() async {
+    try {
+      return await (_database.select(_database.friendTags)
+            ..orderBy([(t) => OrderingTerm(expression: t.sortOrder)]))
+          .get();
+    } catch (e) {
+      _log.e('Error getting friend tags: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<int> createFriendTag(FriendTagsCompanion tag) async {
+    try {
+      return await _database.into(_database.friendTags).insert(tag);
+    } catch (e) {
+      _log.e('Error creating friend tag: $e');
+      return -1;
+    }
+  }
+
+  @override
+  Future<List<FriendTag>> getFriendTagsByFriendId(String friendId) async {
+    try {
+      // 这里需要关联查询标签表和关系表
+      // 简化实现，实际应该使用JOIN
+      final relations = await (_database.select(_database.friendTagRelations)
+            ..where((r) => r.friendId.equals(friendId)))
+          .get();
+
+      if (relations.isEmpty) {
+        return [];
+      }
+
+      final tagIds = relations.map((r) => r.tagId).toList();
+      return await (_database.select(_database.friendTags)
+            ..where((t) => t.id.isIn(tagIds))
+            ..orderBy([(t) => OrderingTerm(expression: t.sortOrder)]))
+          .get();
+    } catch (e) {
+      _log.e('Error getting friend tags by friendId: $e');
+      return [];
+    }
+  }
+
+  @override
+  Future<bool> addTagToFriend(String friendId, int tagId) async {
+    try {
+      // 先检查是否已存在
+      final existing = await (_database.select(_database.friendTagRelations)
+            ..where((r) => r.friendId.equals(friendId) & r.tagId.equals(tagId)))
+          .getSingleOrNull();
+
+      if (existing != null) {
+        return true; // 已存在视为成功
+      }
+
+      // 添加新关系
+      final userId =
+          _database.friendRequests.userId.dartCast<String>(); // 从当前上下文获取用户ID
+      await _database.into(_database.friendTagRelations).insert(
+            FriendTagRelationsCompanion(
+              userId: Value(userId.toString()),
+              friendId: Value(friendId),
+              tagId: Value(tagId),
+              createTime: Value(DateTime.now().millisecondsSinceEpoch),
+            ),
+          );
+      return true;
+    } catch (e) {
+      _log.e('Error adding tag to friend: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> removeTagFromFriend(String friendId, int tagId) async {
+    try {
+      final result = await (_database.delete(_database.friendTagRelations)
+            ..where((r) => r.friendId.equals(friendId) & r.tagId.equals(tagId)))
+          .go();
+      return result > 0;
+    } catch (e) {
+      _log.e('Error removing tag from friend: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> saveFriendNote(String friendId, String content) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      // 检查是否已存在笔记
+      final existing = await (_database.select(_database.friendNotes)
+            ..where((n) => n.friendId.equals(friendId)))
+          .getSingleOrNull();
+
+      if (existing != null) {
+        // 更新现有笔记
+        final result = await (_database.update(_database.friendNotes)
+              ..where((n) => n.friendId.equals(friendId)))
+            .write(FriendNotesCompanion(
+          content: Value(content),
+          updateTime: Value(now),
+        ));
+        return result > 0;
+      } else {
+        // 创建新笔记
+        final userId =
+            _database.friendRequests.userId.dartCast<String>(); // 从当前上下文获取用户ID
+        await _database.into(_database.friendNotes).insert(
+              FriendNotesCompanion(
+                userId: Value(userId.toString()),
+                friendId: Value(friendId),
+                content: Value(content),
+                createTime: Value(now),
+                updateTime: Value(now),
+              ),
+            );
+        return true;
+      }
+    } catch (e) {
+      _log.e('Error saving friend note: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<FriendNote?> getFriendNote(String friendId) async {
+    try {
+      return await (_database.select(_database.friendNotes)
+            ..where((n) => n.friendId.equals(friendId)))
+          .getSingleOrNull();
+    } catch (e) {
+      _log.e('Error getting friend note: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<FriendInteraction?> getFriendInteraction(String friendId) async {
+    try {
+      return await (_database.select(_database.friendInteractions)
+            ..where((i) => i.friendId.equals(friendId)))
+          .getSingleOrNull();
+    } catch (e) {
+      _log.e('Error getting friend interaction: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> updateFriendInteraction(
+      FriendInteractionsCompanion interaction) async {
+    try {
+      // 检查是否已存在互动记录
+      final existing = await (_database.select(_database.friendInteractions)
+            ..where((i) => i.friendId.equals(interaction.friendId.value)))
+          .getSingleOrNull();
+
+      if (existing != null) {
+        // 更新现有记录
+        final result = await (_database.update(_database.friendInteractions)
+              ..where((i) =>
+                  i.friendId.equals(interaction.friendId.value) &
+                  i.userId.equals(interaction.userId.value)))
+            .write(interaction);
+        return result > 0;
+      } else {
+        // 创建新记录
+        await _database.into(_database.friendInteractions).insert(interaction);
+        return true;
+      }
+    } catch (e) {
+      _log.e('Error updating friend interaction: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<FriendPrivacySetting?> getFriendPrivacySetting(String friendId) async {
+    try {
+      return await (_database.select(_database.friendPrivacySettings)
+            ..where((p) => p.friendId.equals(friendId)))
+          .getSingleOrNull();
+    } catch (e) {
+      _log.e('Error getting friend privacy setting: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> updateFriendPrivacySetting(
+      FriendPrivacySettingsCompanion setting) async {
+    try {
+      // 检查是否已存在隐私设置
+      final existing = await (_database.select(_database.friendPrivacySettings)
+            ..where((p) => p.friendId.equals(setting.friendId.value)))
+          .getSingleOrNull();
+
+      if (existing != null) {
+        // 更新现有设置
+        final result = await (_database.update(_database.friendPrivacySettings)
+              ..where((p) =>
+                  p.friendId.equals(setting.friendId.value) &
+                  p.userId.equals(setting.userId.value)))
+            .write(setting);
+        return result > 0;
+      } else {
+        // 创建新设置
+        await _database.into(_database.friendPrivacySettings).insert(setting);
+        return true;
+      }
+    } catch (e) {
+      _log.e('Error updating friend privacy setting: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<void> createTestData() async {
+    try {
+      // 检查是否已有数据
+      final existingFriends = await getAllFriends();
+      if (existingFriends.isNotEmpty) {
+        _log.i('已有好友数据，跳过创建测试数据');
+        return;
+      }
+
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      // 创建一个默认分组
+      final defaultGroupId = await createFriendGroup(
+        FriendGroupsCompanion(
+          userId: const Value('current_user_id'),
+          name: const Value('默认分组'),
+          createTime: Value(now),
+          updateTime: Value(now),
+          sortOrder: const Value(0),
+        ),
+      );
+
+      // 创建几个好友
+      final friends = [
+        FriendsCompanion(
+          id: const Value('friend1'),
+          fsId: const Value('fs1'),
+          userId: const Value('current_user_id'),
+          friendId: const Value('user1'),
+          status: const Value('Accepted'),
+          remark: const Value('张三'),
+          source: const Value('通讯录'),
+          createTime: Value(now),
+          updateTime: Value(now),
+          isStarred: const Value(true),
+          groupId: Value(defaultGroupId),
+          priority: const Value(0),
+        ),
+        FriendsCompanion(
+          id: const Value('friend2'),
+          fsId: const Value('fs2'),
+          userId: const Value('current_user_id'),
+          friendId: const Value('user2'),
+          status: const Value('Accepted'),
+          remark: const Value('李四'),
+          source: const Value('搜索'),
+          createTime: Value(now),
+          updateTime: Value(now),
+          isStarred: const Value(false),
+          groupId: Value(defaultGroupId),
+          priority: const Value(0),
+        ),
+        FriendsCompanion(
+          id: const Value('friend3'),
+          fsId: const Value('fs3'),
+          userId: const Value('current_user_id'),
+          friendId: const Value('user3'),
+          status: const Value('Accepted'),
+          remark: const Value('王五'),
+          source: const Value('扫码'),
+          createTime: Value(now),
+          updateTime: Value(now),
+          isStarred: const Value(true),
+          groupId: Value(defaultGroupId),
+          priority: const Value(1),
+        ),
+      ];
+
+      // 批量添加好友
+      for (final friend in friends) {
+        await addFriend(friend);
+      }
+
+      // 创建一个好友请求
+      await sendFriendRequest(
+        FriendRequestsCompanion(
+          id: const Value('req1'),
+          userId: const Value('current_user_id'),
+          friendId: const Value('user4'),
+          status: const Value('Pending'),
+          applyMsg: const Value('请求添加您为好友'),
+          createTime: Value(now),
+        ),
+      );
+
+      _log.i('成功创建测试数据');
+    } catch (e) {
+      _log.e('创建测试数据失败: $e');
+    }
+  }
+}
