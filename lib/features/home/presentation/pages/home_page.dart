@@ -32,13 +32,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // 清除选择的聊天
-  void _clearSelectedChat() {
-    setState(() {
-      _selectedChatId = null;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     // 根据设备类型构建不同的布局
