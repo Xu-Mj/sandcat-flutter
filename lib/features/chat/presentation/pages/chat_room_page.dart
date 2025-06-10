@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:im_flutter/features/chat/presentation/widgets/chat_input_area.dart';
 import '../widgets/chat_message_item.dart';
+import '../../../utils/responsive_layout.dart';
 
 /// Chat room page for a specific chat
 class ChatRoomPage extends StatefulWidget {
@@ -16,7 +18,6 @@ class ChatRoomPage extends StatefulWidget {
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _isAttachmentMenuVisible = false;
 
   // Mock data for demonstration
   final Map<String, dynamic> _chatInfo = {
@@ -78,6 +79,28 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
       'status': 'read',
     },
+    {
+      'id': '8',
+      'senderId': 'other',
+      'content': 'Oh great! How\'s it going?',
+      'timestamp': DateTime.now().subtract(const Duration(minutes: 18)),
+      'status': 'read',
+    },
+    {
+      'id': '9',
+      'senderId': 'me',
+      'content':
+          'Making good progress! I should have something to show you by the end of the week.',
+      'timestamp': DateTime.now().subtract(const Duration(minutes: 15)),
+      'status': 'delivered',
+    },
+    {
+      'id': '10',
+      'senderId': 'other',
+      'content': 'That sounds excellent! Looking forward to seeing it.',
+      'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
+      'status': 'read',
+    },
   ];
 
   @override
@@ -87,8 +110,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     super.dispose();
   }
 
-  void _sendMessage() {
-    final message = _messageController.text.trim();
+  void _sendMessage(String message) {
     if (message.isEmpty) return;
 
     setState(() {
@@ -103,114 +125,81 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       _messageController.clear();
     });
 
-    // Scroll to bottom
-    Future.delayed(const Duration(milliseconds: 100), () {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
+    _scrollToBottom();
 
-    // Simulate message sent
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        _mockMessages.last['status'] = 'sent';
-      });
-
-      // Simulate message delivered
-      Future.delayed(const Duration(seconds: 1), () {
-        setState(() {
-          _mockMessages.last['status'] = 'delivered';
-        });
-      });
-    });
-  }
-
-  void _toggleAttachmentMenu() {
-    setState(() {
-      _isAttachmentMenuVisible = !_isAttachmentMenuVisible;
-    });
+    _simulateMessageStatusChanges();
   }
 
   String _formatTime(DateTime dateTime) {
     return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  // 处理消息点击事件
-  void _handleMessageTap(Map<String, dynamic> message) {
-    // 暂时只打印消息内容，后续可以实现更多功能
-    debugPrint('Message tapped: ${message['content']}');
+  /// 处理消息操作
+  void _handleMessageAction(String action, Map<String, dynamic> message) {
+    switch (action) {
+      case 'tap':
+        debugPrint('Tapped message: ${message['content']}');
+        break;
+      case 'copy':
+        debugPrint('Copied: ${message['content']}');
+        // TODO: 实现复制功能
+        break;
+      case 'forward':
+        debugPrint('Forward: ${message['content']}');
+        // TODO: 实现转发功能
+        break;
+      case 'reply':
+        debugPrint('Reply to: ${message['content']}');
+        // TODO: 实现回复功能
+        break;
+      case 'edit':
+        if (message['senderId'] == 'me') {
+          debugPrint('Edit: ${message['content']}');
+          // TODO: 实现编辑功能
+        }
+        break;
+      case 'delete':
+        if (message['senderId'] == 'me') {
+          debugPrint('Delete: ${message['content']}');
+          // TODO: 删除消息的真实逻辑
+          setState(() {
+            _mockMessages.removeWhere((msg) => msg['id'] == message['id']);
+          });
+        }
+        break;
+    }
   }
 
-  // 处理消息长按事件
-  void _handleMessageLongPress(Map<String, dynamic> message) {
-    // 显示操作菜单
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.pop(context);
-              // 复制消息内容
-              // TODO: 实现复制功能
-              debugPrint('Copy: ${message['content']}');
-            },
-            child: const Text('复制'),
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.pop(context);
-              // 转发消息
-              // TODO: 实现转发功能
-              debugPrint('Forward: ${message['content']}');
-            },
-            child: const Text('转发'),
-          ),
-          if (message['senderId'] == 'me')
-            CupertinoActionSheetAction(
-              onPressed: () {
-                Navigator.pop(context);
-                // 删除消息
-                // TODO: 实现删除功能
-                debugPrint('Delete: ${message['content']}');
-              },
-              isDestructiveAction: true,
-              child: const Text('删除'),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+  // 构建聊天头部
+  Widget _buildChatHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: CupertinoColors.systemGrey5),
         ),
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: CupertinoColors.systemBlue,
-              ),
-              child: const Icon(
-                CupertinoIcons.person_fill,
-                color: CupertinoColors.white,
-                size: 24,
-              ),
+      child: Row(
+        children: [
+          // 用户头像
+          Container(
+            width: 36,
+            height: 36,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: CupertinoColors.systemBlue,
             ),
-            const SizedBox(width: 8),
-            Column(
-              mainAxisSize: MainAxisSize.min,
+            child: const Icon(
+              CupertinoIcons.person_fill,
+              color: CupertinoColors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // 用户信息
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -229,7 +218,129 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                 ),
               ],
             ),
-          ],
+          ),
+
+          // 通话按钮
+          Row(
+            children: [
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: const Icon(CupertinoIcons.video_camera),
+                onPressed: () {
+                  // TODO: Start video call
+                },
+              ),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: const Icon(CupertinoIcons.phone),
+                onPressed: () {
+                  // TODO: Start voice call
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 构建消息列表
+  Widget _buildMessagesList() {
+    _scrollToBottom(needAnimate: false);
+    return GestureDetector(
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(16.0),
+        itemCount: _mockMessages.length,
+        itemBuilder: (context, index) {
+          final message = _mockMessages[index];
+          return ChatMessageItem(
+            message: message,
+            formatTimeFunc: _formatTime,
+            onAction: _handleMessageAction,
+          );
+        },
+      ),
+    );
+  }
+
+  // 构建输入区域
+  Widget _buildInputArea() {
+    return ChatInputArea(
+      onSendMessage: _sendMessage,
+    );
+  }
+
+  void _scrollToBottom({bool needAnimate = true}) {
+    Future.delayed(Duration(milliseconds: needAnimate ? 100 : 0), () {
+      if (_scrollController.hasClients) {
+        if (needAnimate) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        } else {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        }
+      }
+    });
+  }
+
+  void _simulateMessageStatusChanges() {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() {
+          if (_mockMessages.isNotEmpty) {
+            _mockMessages.last['status'] = 'sent';
+          }
+        });
+
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            setState(() {
+              if (_mockMessages.isNotEmpty) {
+                _mockMessages.last['status'] = 'delivered';
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 检测是否在桌面模式下被嵌入使用
+    final bool isEmbedded = ResponsiveLayout.isDesktop(context) &&
+        ModalRoute.of(context)?.settings.name != '/chat/${widget.chatId}';
+
+    // 嵌入模式 - 不使用CupertinoPageScaffold
+    if (isEmbedded) {
+      return Column(
+        children: [
+          // 聊天头部
+          _buildChatHeader(),
+
+          // 消息列表
+          Expanded(child: _buildMessagesList()),
+
+          // 输入区域
+          _buildInputArea(),
+        ],
+      );
+    }
+
+    // 独立页面模式 - 使用CupertinoPageScaffold
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        // 上下padding给10
+        middle: Text(
+          _chatInfo['name'],
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -253,177 +364,18 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       ),
       child: Column(
         children: [
-          // Messages list
+          // 消息列表
           Expanded(
             child: SafeArea(
               bottom: false,
-              child: GestureDetector(
-                onTap: () {
-                  // Dismiss attachment menu when tapping on messages
-                  if (_isAttachmentMenuVisible) {
-                    setState(() {
-                      _isAttachmentMenuVisible = false;
-                    });
-                  }
-                },
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: _mockMessages.length,
-                  itemBuilder: (context, index) {
-                    final message = _mockMessages[index];
-                    return ChatMessageItem(
-                      message: message,
-                      onTap: () => _handleMessageTap(message),
-                      onLongPress: () => _handleMessageLongPress(message),
-                      formatTimeFunc: _formatTime,
-                    );
-                  },
-                ),
-              ),
+              child: _buildMessagesList(),
             ),
           ),
 
-          // Attachment menu
-          if (_isAttachmentMenuVisible)
-            Container(
-              height: 100,
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: CupertinoColors.systemGrey5),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildAttachmentOption(
-                    icon: CupertinoIcons.photo,
-                    label: 'Photos',
-                    onTap: () {
-                      // TODO: Open photo picker
-                      _toggleAttachmentMenu();
-                    },
-                  ),
-                  _buildAttachmentOption(
-                    icon: CupertinoIcons.camera,
-                    label: 'Camera',
-                    onTap: () {
-                      // TODO: Open camera
-                      _toggleAttachmentMenu();
-                    },
-                  ),
-                  _buildAttachmentOption(
-                    icon: CupertinoIcons.doc,
-                    label: 'Document',
-                    onTap: () {
-                      // TODO: Open file picker
-                      _toggleAttachmentMenu();
-                    },
-                  ),
-                  _buildAttachmentOption(
-                    icon: CupertinoIcons.location,
-                    label: 'Location',
-                    onTap: () {
-                      // TODO: Share location
-                      _toggleAttachmentMenu();
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-          // Message input - 使用SafeArea包装
+          // 输入区域 - 带SafeArea
           SafeArea(
             top: false,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 8.0,
-              ),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: CupertinoColors.systemGrey5),
-                ),
-              ),
-              child: Row(
-                children: [
-                  // Attachment button
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    child: Icon(
-                      CupertinoIcons.plus_circle,
-                      color: _isAttachmentMenuVisible
-                          ? CupertinoColors.systemBlue
-                          : CupertinoColors.systemGrey,
-                    ),
-                    onPressed: _toggleAttachmentMenu,
-                  ),
-
-                  // Text input
-                  Expanded(
-                    child: CupertinoTextField(
-                      controller: _messageController,
-                      placeholder: 'Message',
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 8.0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.systemGrey6,
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-
-                  // Send button
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    child: const Icon(
-                      CupertinoIcons.arrow_up_circle_fill,
-                      color: CupertinoColors.systemBlue,
-                      size: 30,
-                    ),
-                    onPressed: _sendMessage,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAttachmentOption({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemGrey5,
-              borderRadius: BorderRadius.circular(25),
-            ),
-            child: Icon(
-              icon,
-              color: CupertinoColors.systemBlue,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-            ),
+            child: _buildInputArea(),
           ),
         ],
       ),
