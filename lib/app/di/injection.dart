@@ -11,6 +11,7 @@ import 'package:im_flutter/features/auth/data/api/auth_api.dart';
 import 'package:im_flutter/features/auth/data/repositories/auth_repository.dart';
 import 'package:im_flutter/features/auth/data/repositories/user.dart';
 import 'package:im_flutter/features/auth/data/services/auth_service.dart';
+import 'package:im_flutter/features/contacts/data/repositories/friend_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -35,6 +36,9 @@ Future<void> configureDependencies() async {
 
   // Features - User
   _configureUserDependencies();
+
+  // Features - Contacts
+  _configureContactDependencies();
 }
 
 void _configureDioClient() {
@@ -97,6 +101,18 @@ void _configureUserDependencies() {
       getIt<LoggerService>(),
     ),
   );
+}
+
+void _configureContactDependencies() {
+  // 注册ContactRepository - 使用工厂函数获取数据库
+  if (!getIt.isRegistered<FriendRepository>()) {
+    getIt.registerLazySingleton<FriendRepository>(
+      () => FriendRepositoryImpl(
+        () => getIt<AppDatabase>(),
+        getIt<LoggerService>(),
+      ),
+    );
+  }
 }
 
 void _configureLoggerService() {
