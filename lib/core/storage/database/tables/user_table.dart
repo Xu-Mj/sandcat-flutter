@@ -19,7 +19,7 @@ class Users extends Table {
   Column<int> get updateTime => integer()();
 
   // 账号与安全
-  Column<BigInt> get lastLoginTime => int64().nullable()();
+  Column<int> get lastLoginTime => integer().nullable()();
   TextColumn get lastLoginIp => text().nullable()();
   BoolColumn get twoFactorEnabled =>
       boolean().withDefault(const Constant(false))();
