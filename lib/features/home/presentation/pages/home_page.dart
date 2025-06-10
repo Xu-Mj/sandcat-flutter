@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Colors;
 
 import '../../../../app/widgets/app_scaffold.dart';
-import '../../../../app/utils/responsive_layout.dart';
+import '../../../utils/responsive_layout.dart';
 import '../../../chat/presentation/pages/chat_list_page.dart';
 import '../../../chat/presentation/pages/chat_room_page.dart';
 import '../../../settings/presentation/pages/settings_page.dart';
