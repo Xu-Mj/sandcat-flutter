@@ -1,3 +1,5 @@
+import 'package:im_flutter/core/storage/database/app.dart';
+
 /// 认证令牌模型
 class AuthToken {
   /// 访问令牌
@@ -9,28 +11,33 @@ class AuthToken {
   /// 用户ID
   final String userId;
 
+  /// 用户信息
+  final User user;
+
   /// WebSocket地址
-  final String? wsAddress;
+  final String wsEndpoint;
 
   /// 创建认证令牌
   AuthToken({
     required this.accessToken,
     required this.refreshToken,
     required this.userId,
-    this.wsAddress,
+    required this.user,
+    required this.wsEndpoint,
   });
 
   /// 从JSON创建令牌
   factory AuthToken.fromJson(Map<String, dynamic> json) {
     // 用户ID在user对象中，而非顶层
-    final Map<String, dynamic>? user = json['user'] as Map<String, dynamic>?;
-    final String userId = user != null ? user['id'] as String : '';
+    final user = User.fromJson(json['user']);
+    final String userId = user.id;
 
     return AuthToken(
       accessToken: json['token'] as String,
       refreshToken: json['refresh_token'] as String,
       userId: userId,
-      wsAddress: json['ws_addr'] as String?,
+      user: user,
+      wsEndpoint: json['ws_addr'] as String,
     );
   }
 
@@ -40,7 +47,8 @@ class AuthToken {
       'token': accessToken,
       'refresh_token': refreshToken,
       'id': userId,
-      'ws_addr': wsAddress,
+      'user': user.toJson(),
+      'ws_addr': wsEndpoint,
     };
   }
 }
