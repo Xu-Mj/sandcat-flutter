@@ -6,8 +6,12 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'tables/user_table.dart';
+import 'tables/friends_table.dart';
 
 part 'app.g.dart';
+
+/// 数据库工厂函数类型定义
+typedef DatabaseFactory = AppDatabase Function();
 
 abstract class DatabaseContext {
   String? get currentUserId;
@@ -58,7 +62,17 @@ LazyDatabase _openConnection(String userId) {
 }
 
 // 修改 AppDatabase 构造函数
-@DriftDatabase(tables: [Users])
+@DriftDatabase(tables: [
+  Users,
+  Friends,
+  FriendRequests,
+  FriendGroups,
+  FriendTags,
+  FriendTagRelations,
+  FriendInteractions,
+  FriendPrivacySettings,
+  FriendNotes
+])
 class AppDatabase extends _$AppDatabase {
   // 私有构造函数，防止直接实例化
   AppDatabase._(String userId) : super(_openConnection(userId));
@@ -89,5 +103,19 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) async {
+          await m.createAll(); // 这会创建所有在@DriftDatabase中声明的表
+        },
+        onUpgrade: (m, oldVersion, newVersion) async {
+          // 如果表结构没有变化，只是添加了新表，直接createAll即可
+          await m.createAll();
+
+          // 如果未来需要修改表结构（比如添加列、修改类型等），
+          // 可以在这里根据版本号添加具体迁移代码
+        },
+      );
 }
