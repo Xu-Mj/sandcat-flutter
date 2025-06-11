@@ -5809,32 +5809,69 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
-  static const VerificationMeta _senderIdMeta =
-      const VerificationMeta('senderId');
-  @override
-  late final GeneratedColumn<String> senderId = GeneratedColumn<String>(
-      'sender_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sendIdMeta = const VerificationMeta('sendId');
+  @override
+  late final GeneratedColumn<String> sendId = GeneratedColumn<String>(
+      'send_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _receiverIdMeta =
+      const VerificationMeta('receiverId');
+  @override
+  late final GeneratedColumn<String> receiverId = GeneratedColumn<String>(
+      'receiver_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _clientIdMeta =
+      const VerificationMeta('clientId');
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+      'client_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _serverIdMeta =
+      const VerificationMeta('serverId');
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+      'server_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createTimeMeta =
+      const VerificationMeta('createTime');
+  @override
+  late final GeneratedColumn<int> createTime = GeneratedColumn<int>(
+      'create_time', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _sendTimeMeta =
+      const VerificationMeta('sendTime');
+  @override
+  late final GeneratedColumn<int> sendTime = GeneratedColumn<int>(
+      'send_time', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _seqMeta = const VerificationMeta('seq');
+  @override
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+      'seq', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _sendSeqMeta =
+      const VerificationMeta('sendSeq');
+  @override
+  late final GeneratedColumn<int> sendSeq = GeneratedColumn<int>(
+      'send_seq', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  late final GeneratedColumnWithTypeConverter<MessageType, int> msgType =
+      GeneratedColumn<int>('msg_type', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<MessageType>($MessagesTable.$convertermsgType);
+  @override
+  late final GeneratedColumnWithTypeConverter<ContentType, int> contentType =
+      GeneratedColumn<int>('content_type', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<ContentType>($MessagesTable.$convertercontentType);
   static const VerificationMeta _contentMeta =
       const VerificationMeta('content');
   @override
   late final GeneratedColumn<String> content = GeneratedColumn<String>(
       'content', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  @override
-  late final GeneratedColumnWithTypeConverter<MessageType, String> type =
-      GeneratedColumn<String>('type', aliasedName, false,
-              type: DriftSqlType.string, requiredDuringInsert: true)
-          .withConverter<MessageType>($MessagesTable.$convertertype);
-  @override
-  late final GeneratedColumnWithTypeConverter<MessageStatus, String> status =
-      GeneratedColumn<String>('status', aliasedName, false,
-              type: DriftSqlType.string, requiredDuringInsert: true)
-          .withConverter<MessageStatus>($MessagesTable.$converterstatus);
   static const VerificationMeta _isReadMeta = const VerificationMeta('isRead');
   @override
   late final GeneratedColumn<bool> isRead = GeneratedColumn<bool>(
@@ -5844,15 +5881,124 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_read" IN (0, 1))'),
       defaultValue: const Constant(false));
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
+  static const VerificationMeta _groupIdMeta =
+      const VerificationMeta('groupId');
   @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+      'group_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, senderId, content, type, status, isRead, createdAt];
+  late final GeneratedColumnWithTypeConverter<PlatformType, int> platform =
+      GeneratedColumn<int>('platform', aliasedName, false,
+              type: DriftSqlType.int,
+              requiredDuringInsert: false,
+              defaultValue: const Constant(4))
+          .withConverter<PlatformType>($MessagesTable.$converterplatform);
+  static const VerificationMeta _avatarMeta = const VerificationMeta('avatar');
+  @override
+  late final GeneratedColumn<String> avatar = GeneratedColumn<String>(
+      'avatar', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _nicknameMeta =
+      const VerificationMeta('nickname');
+  @override
+  late final GeneratedColumn<String> nickname = GeneratedColumn<String>(
+      'nickname', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _relatedMsgIdMeta =
+      const VerificationMeta('relatedMsgId');
+  @override
+  late final GeneratedColumn<String> relatedMsgId = GeneratedColumn<String>(
+      'related_msg_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  late final GeneratedColumnWithTypeConverter<MessageStatus, int> status =
+      GeneratedColumn<int>('status', aliasedName, false,
+              type: DriftSqlType.int,
+              requiredDuringInsert: false,
+              defaultValue: const Constant(0))
+          .withConverter<MessageStatus>($MessagesTable.$converterstatus);
+  static const VerificationMeta _chatIdMeta = const VerificationMeta('chatId');
+  @override
+  late final GeneratedColumn<String> chatId = GeneratedColumn<String>(
+      'chat_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isMentionMeta =
+      const VerificationMeta('isMention');
+  @override
+  late final GeneratedColumn<bool> isMention = GeneratedColumn<bool>(
+      'is_mention', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_mention" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _isMentionAllMeta =
+      const VerificationMeta('isMentionAll');
+  @override
+  late final GeneratedColumn<bool> isMentionAll = GeneratedColumn<bool>(
+      'is_mention_all', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_mention_all" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _mentionedUserIdsMeta =
+      const VerificationMeta('mentionedUserIds');
+  @override
+  late final GeneratedColumn<String> mentionedUserIds = GeneratedColumn<String>(
+      'mentioned_user_ids', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isDraftMeta =
+      const VerificationMeta('isDraft');
+  @override
+  late final GeneratedColumn<bool> isDraft = GeneratedColumn<bool>(
+      'is_draft', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_draft" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _localPathMeta =
+      const VerificationMeta('localPath');
+  @override
+  late final GeneratedColumn<String> localPath = GeneratedColumn<String>(
+      'local_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        sendId,
+        receiverId,
+        clientId,
+        serverId,
+        createTime,
+        sendTime,
+        seq,
+        sendSeq,
+        msgType,
+        contentType,
+        content,
+        isRead,
+        groupId,
+        platform,
+        avatar,
+        nickname,
+        relatedMsgId,
+        status,
+        chatId,
+        isMention,
+        isMentionAll,
+        mentionedUserIds,
+        isDraft,
+        localPath
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5868,11 +6014,49 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('sender_id')) {
-      context.handle(_senderIdMeta,
-          senderId.isAcceptableOrUnknown(data['sender_id']!, _senderIdMeta));
+    if (data.containsKey('send_id')) {
+      context.handle(_sendIdMeta,
+          sendId.isAcceptableOrUnknown(data['send_id']!, _sendIdMeta));
     } else if (isInserting) {
-      context.missing(_senderIdMeta);
+      context.missing(_sendIdMeta);
+    }
+    if (data.containsKey('receiver_id')) {
+      context.handle(
+          _receiverIdMeta,
+          receiverId.isAcceptableOrUnknown(
+              data['receiver_id']!, _receiverIdMeta));
+    } else if (isInserting) {
+      context.missing(_receiverIdMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(_clientIdMeta,
+          clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta));
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(_serverIdMeta,
+          serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta));
+    }
+    if (data.containsKey('create_time')) {
+      context.handle(
+          _createTimeMeta,
+          createTime.isAcceptableOrUnknown(
+              data['create_time']!, _createTimeMeta));
+    } else if (isInserting) {
+      context.missing(_createTimeMeta);
+    }
+    if (data.containsKey('send_time')) {
+      context.handle(_sendTimeMeta,
+          sendTime.isAcceptableOrUnknown(data['send_time']!, _sendTimeMeta));
+    }
+    if (data.containsKey('seq')) {
+      context.handle(
+          _seqMeta, seq.isAcceptableOrUnknown(data['seq']!, _seqMeta));
+    }
+    if (data.containsKey('send_seq')) {
+      context.handle(_sendSeqMeta,
+          sendSeq.isAcceptableOrUnknown(data['send_seq']!, _sendSeqMeta));
     }
     if (data.containsKey('content')) {
       context.handle(_contentMeta,
@@ -5884,11 +6068,53 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       context.handle(_isReadMeta,
           isRead.isAcceptableOrUnknown(data['is_read']!, _isReadMeta));
     }
-    if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta,
-          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    if (data.containsKey('group_id')) {
+      context.handle(_groupIdMeta,
+          groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+    }
+    if (data.containsKey('avatar')) {
+      context.handle(_avatarMeta,
+          avatar.isAcceptableOrUnknown(data['avatar']!, _avatarMeta));
+    }
+    if (data.containsKey('nickname')) {
+      context.handle(_nicknameMeta,
+          nickname.isAcceptableOrUnknown(data['nickname']!, _nicknameMeta));
+    }
+    if (data.containsKey('related_msg_id')) {
+      context.handle(
+          _relatedMsgIdMeta,
+          relatedMsgId.isAcceptableOrUnknown(
+              data['related_msg_id']!, _relatedMsgIdMeta));
+    }
+    if (data.containsKey('chat_id')) {
+      context.handle(_chatIdMeta,
+          chatId.isAcceptableOrUnknown(data['chat_id']!, _chatIdMeta));
     } else if (isInserting) {
-      context.missing(_createdAtMeta);
+      context.missing(_chatIdMeta);
+    }
+    if (data.containsKey('is_mention')) {
+      context.handle(_isMentionMeta,
+          isMention.isAcceptableOrUnknown(data['is_mention']!, _isMentionMeta));
+    }
+    if (data.containsKey('is_mention_all')) {
+      context.handle(
+          _isMentionAllMeta,
+          isMentionAll.isAcceptableOrUnknown(
+              data['is_mention_all']!, _isMentionAllMeta));
+    }
+    if (data.containsKey('mentioned_user_ids')) {
+      context.handle(
+          _mentionedUserIdsMeta,
+          mentionedUserIds.isAcceptableOrUnknown(
+              data['mentioned_user_ids']!, _mentionedUserIdsMeta));
+    }
+    if (data.containsKey('is_draft')) {
+      context.handle(_isDraftMeta,
+          isDraft.isAcceptableOrUnknown(data['is_draft']!, _isDraftMeta));
+    }
+    if (data.containsKey('local_path')) {
+      context.handle(_localPathMeta,
+          localPath.isAcceptableOrUnknown(data['local_path']!, _localPathMeta));
     }
     return context;
   }
@@ -5901,19 +6127,58 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     return Message(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      senderId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}sender_id'])!,
+      sendId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}send_id'])!,
+      receiverId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}receiver_id'])!,
+      clientId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}client_id'])!,
+      serverId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}server_id']),
+      createTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}create_time'])!,
+      sendTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}send_time']),
+      seq: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}seq']),
+      sendSeq: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}send_seq']),
+      msgType: $MessagesTable.$convertermsgType.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}msg_type'])!),
+      contentType: $MessagesTable.$convertercontentType.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}content_type'])!),
       content: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
-      type: $MessagesTable.$convertertype.fromSql(attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}type'])!),
-      status: $MessagesTable.$converterstatus.fromSql(attachedDatabase
-          .typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}status'])!),
       isRead: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_read'])!,
-      createdAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      groupId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}group_id'])!,
+      platform: $MessagesTable.$converterplatform.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}platform'])!),
+      avatar: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}avatar'])!,
+      nickname: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}nickname'])!,
+      relatedMsgId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}related_msg_id']),
+      status: $MessagesTable.$converterstatus.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}status'])!),
+      chatId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chat_id'])!,
+      isMention: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_mention'])!,
+      isMentionAll: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_mention_all'])!,
+      mentionedUserIds: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}mentioned_user_ids']),
+      isDraft: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_draft'])!,
+      localPath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}local_path']),
     );
   }
 
@@ -5922,68 +6187,213 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     return $MessagesTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<MessageType, String, String> $convertertype =
-      const EnumNameConverter<MessageType>(MessageType.values);
-  static JsonTypeConverter2<MessageStatus, String, String> $converterstatus =
-      const EnumNameConverter<MessageStatus>(MessageStatus.values);
+  static JsonTypeConverter2<MessageType, int, int> $convertermsgType =
+      const EnumIndexConverter<MessageType>(MessageType.values);
+  static JsonTypeConverter2<ContentType, int, int> $convertercontentType =
+      const EnumIndexConverter<ContentType>(ContentType.values);
+  static JsonTypeConverter2<PlatformType, int, int> $converterplatform =
+      const EnumIndexConverter<PlatformType>(PlatformType.values);
+  static JsonTypeConverter2<MessageStatus, int, int> $converterstatus =
+      const EnumIndexConverter<MessageStatus>(MessageStatus.values);
 }
 
 class Message extends DataClass implements Insertable<Message> {
-  /// 唯一消息ID
+  /// 消息ID（客户端ID + 服务端ID的组合）
   final String id;
 
   /// 发送者ID
-  final String senderId;
+  final String sendId;
 
-  /// 消息内容
-  final String content;
+  /// 接收者ID
+  final String receiverId;
+
+  /// 客户端生成的ID
+  final String clientId;
+
+  /// 服务端生成的ID
+  final String? serverId;
+
+  /// 创建时间
+  final int createTime;
+
+  /// 发送时间
+  final int? sendTime;
+
+  /// 接收者序列号（用于消息排序和同步）
+  final int? seq;
+
+  /// 发送者序列号
+  final int? sendSeq;
 
   /// 消息类型
-  final MessageType type;
+  final MessageType msgType;
 
-  /// 消息状态
-  final MessageStatus status;
+  /// 内容类型
+  final ContentType contentType;
+
+  /// 消息内容（二进制数据的Base64编码）
+  final String content;
 
   /// 是否已读
   final bool isRead;
 
-  /// 创建时间
-  final DateTime createdAt;
+  /// 群组ID（群聊时）
+  final String groupId;
+
+  /// 发送平台
+  final PlatformType platform;
+
+  /// 发送者头像
+  final String avatar;
+
+  /// 发送者昵称
+  final String nickname;
+
+  /// 关联消息ID（回复/引用消息）
+  final String? relatedMsgId;
+
+  /// 本地消息状态
+  final MessageStatus status;
+
+  /// 会话ID（用于快速查询）
+  final String chatId;
+
+  /// 是否为@消息
+  final bool isMention;
+
+  /// 是否@全体成员
+  final bool isMentionAll;
+
+  /// 被@的用户ID列表（JSON格式）
+  final String? mentionedUserIds;
+
+  /// 是否为草稿
+  final bool isDraft;
+
+  /// 本地附件路径
+  final String? localPath;
   const Message(
       {required this.id,
-      required this.senderId,
+      required this.sendId,
+      required this.receiverId,
+      required this.clientId,
+      this.serverId,
+      required this.createTime,
+      this.sendTime,
+      this.seq,
+      this.sendSeq,
+      required this.msgType,
+      required this.contentType,
       required this.content,
-      required this.type,
-      required this.status,
       required this.isRead,
-      required this.createdAt});
+      required this.groupId,
+      required this.platform,
+      required this.avatar,
+      required this.nickname,
+      this.relatedMsgId,
+      required this.status,
+      required this.chatId,
+      required this.isMention,
+      required this.isMentionAll,
+      this.mentionedUserIds,
+      required this.isDraft,
+      this.localPath});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['sender_id'] = Variable<String>(senderId);
-    map['content'] = Variable<String>(content);
+    map['send_id'] = Variable<String>(sendId);
+    map['receiver_id'] = Variable<String>(receiverId);
+    map['client_id'] = Variable<String>(clientId);
+    if (!nullToAbsent || serverId != null) {
+      map['server_id'] = Variable<String>(serverId);
+    }
+    map['create_time'] = Variable<int>(createTime);
+    if (!nullToAbsent || sendTime != null) {
+      map['send_time'] = Variable<int>(sendTime);
+    }
+    if (!nullToAbsent || seq != null) {
+      map['seq'] = Variable<int>(seq);
+    }
+    if (!nullToAbsent || sendSeq != null) {
+      map['send_seq'] = Variable<int>(sendSeq);
+    }
     {
-      map['type'] = Variable<String>($MessagesTable.$convertertype.toSql(type));
+      map['msg_type'] =
+          Variable<int>($MessagesTable.$convertermsgType.toSql(msgType));
+    }
+    {
+      map['content_type'] = Variable<int>(
+          $MessagesTable.$convertercontentType.toSql(contentType));
+    }
+    map['content'] = Variable<String>(content);
+    map['is_read'] = Variable<bool>(isRead);
+    map['group_id'] = Variable<String>(groupId);
+    {
+      map['platform'] =
+          Variable<int>($MessagesTable.$converterplatform.toSql(platform));
+    }
+    map['avatar'] = Variable<String>(avatar);
+    map['nickname'] = Variable<String>(nickname);
+    if (!nullToAbsent || relatedMsgId != null) {
+      map['related_msg_id'] = Variable<String>(relatedMsgId);
     }
     {
       map['status'] =
-          Variable<String>($MessagesTable.$converterstatus.toSql(status));
+          Variable<int>($MessagesTable.$converterstatus.toSql(status));
     }
-    map['is_read'] = Variable<bool>(isRead);
-    map['created_at'] = Variable<DateTime>(createdAt);
+    map['chat_id'] = Variable<String>(chatId);
+    map['is_mention'] = Variable<bool>(isMention);
+    map['is_mention_all'] = Variable<bool>(isMentionAll);
+    if (!nullToAbsent || mentionedUserIds != null) {
+      map['mentioned_user_ids'] = Variable<String>(mentionedUserIds);
+    }
+    map['is_draft'] = Variable<bool>(isDraft);
+    if (!nullToAbsent || localPath != null) {
+      map['local_path'] = Variable<String>(localPath);
+    }
     return map;
   }
 
   MessagesCompanion toCompanion(bool nullToAbsent) {
     return MessagesCompanion(
       id: Value(id),
-      senderId: Value(senderId),
+      sendId: Value(sendId),
+      receiverId: Value(receiverId),
+      clientId: Value(clientId),
+      serverId: serverId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverId),
+      createTime: Value(createTime),
+      sendTime: sendTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sendTime),
+      seq: seq == null && nullToAbsent ? const Value.absent() : Value(seq),
+      sendSeq: sendSeq == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sendSeq),
+      msgType: Value(msgType),
+      contentType: Value(contentType),
       content: Value(content),
-      type: Value(type),
-      status: Value(status),
       isRead: Value(isRead),
-      createdAt: Value(createdAt),
+      groupId: Value(groupId),
+      platform: Value(platform),
+      avatar: Value(avatar),
+      nickname: Value(nickname),
+      relatedMsgId: relatedMsgId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(relatedMsgId),
+      status: Value(status),
+      chatId: Value(chatId),
+      isMention: Value(isMention),
+      isMentionAll: Value(isMentionAll),
+      mentionedUserIds: mentionedUserIds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mentionedUserIds),
+      isDraft: Value(isDraft),
+      localPath: localPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localPath),
     );
   }
 
@@ -5992,14 +6402,34 @@ class Message extends DataClass implements Insertable<Message> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Message(
       id: serializer.fromJson<String>(json['id']),
-      senderId: serializer.fromJson<String>(json['senderId']),
+      sendId: serializer.fromJson<String>(json['sendId']),
+      receiverId: serializer.fromJson<String>(json['receiverId']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      serverId: serializer.fromJson<String?>(json['serverId']),
+      createTime: serializer.fromJson<int>(json['createTime']),
+      sendTime: serializer.fromJson<int?>(json['sendTime']),
+      seq: serializer.fromJson<int?>(json['seq']),
+      sendSeq: serializer.fromJson<int?>(json['sendSeq']),
+      msgType: $MessagesTable.$convertermsgType
+          .fromJson(serializer.fromJson<int>(json['msgType'])),
+      contentType: $MessagesTable.$convertercontentType
+          .fromJson(serializer.fromJson<int>(json['contentType'])),
       content: serializer.fromJson<String>(json['content']),
-      type: $MessagesTable.$convertertype
-          .fromJson(serializer.fromJson<String>(json['type'])),
-      status: $MessagesTable.$converterstatus
-          .fromJson(serializer.fromJson<String>(json['status'])),
       isRead: serializer.fromJson<bool>(json['isRead']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      groupId: serializer.fromJson<String>(json['groupId']),
+      platform: $MessagesTable.$converterplatform
+          .fromJson(serializer.fromJson<int>(json['platform'])),
+      avatar: serializer.fromJson<String>(json['avatar']),
+      nickname: serializer.fromJson<String>(json['nickname']),
+      relatedMsgId: serializer.fromJson<String?>(json['relatedMsgId']),
+      status: $MessagesTable.$converterstatus
+          .fromJson(serializer.fromJson<int>(json['status'])),
+      chatId: serializer.fromJson<String>(json['chatId']),
+      isMention: serializer.fromJson<bool>(json['isMention']),
+      isMentionAll: serializer.fromJson<bool>(json['isMentionAll']),
+      mentionedUserIds: serializer.fromJson<String?>(json['mentionedUserIds']),
+      isDraft: serializer.fromJson<bool>(json['isDraft']),
+      localPath: serializer.fromJson<String?>(json['localPath']),
     );
   }
   factory Message.fromJsonString(String encodedJson,
@@ -6011,43 +6441,129 @@ class Message extends DataClass implements Insertable<Message> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'senderId': serializer.toJson<String>(senderId),
+      'sendId': serializer.toJson<String>(sendId),
+      'receiverId': serializer.toJson<String>(receiverId),
+      'clientId': serializer.toJson<String>(clientId),
+      'serverId': serializer.toJson<String?>(serverId),
+      'createTime': serializer.toJson<int>(createTime),
+      'sendTime': serializer.toJson<int?>(sendTime),
+      'seq': serializer.toJson<int?>(seq),
+      'sendSeq': serializer.toJson<int?>(sendSeq),
+      'msgType': serializer
+          .toJson<int>($MessagesTable.$convertermsgType.toJson(msgType)),
+      'contentType': serializer.toJson<int>(
+          $MessagesTable.$convertercontentType.toJson(contentType)),
       'content': serializer.toJson<String>(content),
-      'type':
-          serializer.toJson<String>($MessagesTable.$convertertype.toJson(type)),
-      'status': serializer
-          .toJson<String>($MessagesTable.$converterstatus.toJson(status)),
       'isRead': serializer.toJson<bool>(isRead),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'groupId': serializer.toJson<String>(groupId),
+      'platform': serializer
+          .toJson<int>($MessagesTable.$converterplatform.toJson(platform)),
+      'avatar': serializer.toJson<String>(avatar),
+      'nickname': serializer.toJson<String>(nickname),
+      'relatedMsgId': serializer.toJson<String?>(relatedMsgId),
+      'status': serializer
+          .toJson<int>($MessagesTable.$converterstatus.toJson(status)),
+      'chatId': serializer.toJson<String>(chatId),
+      'isMention': serializer.toJson<bool>(isMention),
+      'isMentionAll': serializer.toJson<bool>(isMentionAll),
+      'mentionedUserIds': serializer.toJson<String?>(mentionedUserIds),
+      'isDraft': serializer.toJson<bool>(isDraft),
+      'localPath': serializer.toJson<String?>(localPath),
     };
   }
 
   Message copyWith(
           {String? id,
-          String? senderId,
+          String? sendId,
+          String? receiverId,
+          String? clientId,
+          Value<String?> serverId = const Value.absent(),
+          int? createTime,
+          Value<int?> sendTime = const Value.absent(),
+          Value<int?> seq = const Value.absent(),
+          Value<int?> sendSeq = const Value.absent(),
+          MessageType? msgType,
+          ContentType? contentType,
           String? content,
-          MessageType? type,
-          MessageStatus? status,
           bool? isRead,
-          DateTime? createdAt}) =>
+          String? groupId,
+          PlatformType? platform,
+          String? avatar,
+          String? nickname,
+          Value<String?> relatedMsgId = const Value.absent(),
+          MessageStatus? status,
+          String? chatId,
+          bool? isMention,
+          bool? isMentionAll,
+          Value<String?> mentionedUserIds = const Value.absent(),
+          bool? isDraft,
+          Value<String?> localPath = const Value.absent()}) =>
       Message(
         id: id ?? this.id,
-        senderId: senderId ?? this.senderId,
+        sendId: sendId ?? this.sendId,
+        receiverId: receiverId ?? this.receiverId,
+        clientId: clientId ?? this.clientId,
+        serverId: serverId.present ? serverId.value : this.serverId,
+        createTime: createTime ?? this.createTime,
+        sendTime: sendTime.present ? sendTime.value : this.sendTime,
+        seq: seq.present ? seq.value : this.seq,
+        sendSeq: sendSeq.present ? sendSeq.value : this.sendSeq,
+        msgType: msgType ?? this.msgType,
+        contentType: contentType ?? this.contentType,
         content: content ?? this.content,
-        type: type ?? this.type,
-        status: status ?? this.status,
         isRead: isRead ?? this.isRead,
-        createdAt: createdAt ?? this.createdAt,
+        groupId: groupId ?? this.groupId,
+        platform: platform ?? this.platform,
+        avatar: avatar ?? this.avatar,
+        nickname: nickname ?? this.nickname,
+        relatedMsgId:
+            relatedMsgId.present ? relatedMsgId.value : this.relatedMsgId,
+        status: status ?? this.status,
+        chatId: chatId ?? this.chatId,
+        isMention: isMention ?? this.isMention,
+        isMentionAll: isMentionAll ?? this.isMentionAll,
+        mentionedUserIds: mentionedUserIds.present
+            ? mentionedUserIds.value
+            : this.mentionedUserIds,
+        isDraft: isDraft ?? this.isDraft,
+        localPath: localPath.present ? localPath.value : this.localPath,
       );
   Message copyWithCompanion(MessagesCompanion data) {
     return Message(
       id: data.id.present ? data.id.value : this.id,
-      senderId: data.senderId.present ? data.senderId.value : this.senderId,
+      sendId: data.sendId.present ? data.sendId.value : this.sendId,
+      receiverId:
+          data.receiverId.present ? data.receiverId.value : this.receiverId,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      createTime:
+          data.createTime.present ? data.createTime.value : this.createTime,
+      sendTime: data.sendTime.present ? data.sendTime.value : this.sendTime,
+      seq: data.seq.present ? data.seq.value : this.seq,
+      sendSeq: data.sendSeq.present ? data.sendSeq.value : this.sendSeq,
+      msgType: data.msgType.present ? data.msgType.value : this.msgType,
+      contentType:
+          data.contentType.present ? data.contentType.value : this.contentType,
       content: data.content.present ? data.content.value : this.content,
-      type: data.type.present ? data.type.value : this.type,
-      status: data.status.present ? data.status.value : this.status,
       isRead: data.isRead.present ? data.isRead.value : this.isRead,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      platform: data.platform.present ? data.platform.value : this.platform,
+      avatar: data.avatar.present ? data.avatar.value : this.avatar,
+      nickname: data.nickname.present ? data.nickname.value : this.nickname,
+      relatedMsgId: data.relatedMsgId.present
+          ? data.relatedMsgId.value
+          : this.relatedMsgId,
+      status: data.status.present ? data.status.value : this.status,
+      chatId: data.chatId.present ? data.chatId.value : this.chatId,
+      isMention: data.isMention.present ? data.isMention.value : this.isMention,
+      isMentionAll: data.isMentionAll.present
+          ? data.isMentionAll.value
+          : this.isMentionAll,
+      mentionedUserIds: data.mentionedUserIds.present
+          ? data.mentionedUserIds.value
+          : this.mentionedUserIds,
+      isDraft: data.isDraft.present ? data.isDraft.value : this.isDraft,
+      localPath: data.localPath.present ? data.localPath.value : this.localPath,
     );
   }
 
@@ -6055,105 +6571,295 @@ class Message extends DataClass implements Insertable<Message> {
   String toString() {
     return (StringBuffer('Message(')
           ..write('id: $id, ')
-          ..write('senderId: $senderId, ')
+          ..write('sendId: $sendId, ')
+          ..write('receiverId: $receiverId, ')
+          ..write('clientId: $clientId, ')
+          ..write('serverId: $serverId, ')
+          ..write('createTime: $createTime, ')
+          ..write('sendTime: $sendTime, ')
+          ..write('seq: $seq, ')
+          ..write('sendSeq: $sendSeq, ')
+          ..write('msgType: $msgType, ')
+          ..write('contentType: $contentType, ')
           ..write('content: $content, ')
-          ..write('type: $type, ')
-          ..write('status: $status, ')
           ..write('isRead: $isRead, ')
-          ..write('createdAt: $createdAt')
+          ..write('groupId: $groupId, ')
+          ..write('platform: $platform, ')
+          ..write('avatar: $avatar, ')
+          ..write('nickname: $nickname, ')
+          ..write('relatedMsgId: $relatedMsgId, ')
+          ..write('status: $status, ')
+          ..write('chatId: $chatId, ')
+          ..write('isMention: $isMention, ')
+          ..write('isMentionAll: $isMentionAll, ')
+          ..write('mentionedUserIds: $mentionedUserIds, ')
+          ..write('isDraft: $isDraft, ')
+          ..write('localPath: $localPath')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, senderId, content, type, status, isRead, createdAt);
+  int get hashCode => Object.hashAll([
+        id,
+        sendId,
+        receiverId,
+        clientId,
+        serverId,
+        createTime,
+        sendTime,
+        seq,
+        sendSeq,
+        msgType,
+        contentType,
+        content,
+        isRead,
+        groupId,
+        platform,
+        avatar,
+        nickname,
+        relatedMsgId,
+        status,
+        chatId,
+        isMention,
+        isMentionAll,
+        mentionedUserIds,
+        isDraft,
+        localPath
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Message &&
           other.id == this.id &&
-          other.senderId == this.senderId &&
+          other.sendId == this.sendId &&
+          other.receiverId == this.receiverId &&
+          other.clientId == this.clientId &&
+          other.serverId == this.serverId &&
+          other.createTime == this.createTime &&
+          other.sendTime == this.sendTime &&
+          other.seq == this.seq &&
+          other.sendSeq == this.sendSeq &&
+          other.msgType == this.msgType &&
+          other.contentType == this.contentType &&
           other.content == this.content &&
-          other.type == this.type &&
-          other.status == this.status &&
           other.isRead == this.isRead &&
-          other.createdAt == this.createdAt);
+          other.groupId == this.groupId &&
+          other.platform == this.platform &&
+          other.avatar == this.avatar &&
+          other.nickname == this.nickname &&
+          other.relatedMsgId == this.relatedMsgId &&
+          other.status == this.status &&
+          other.chatId == this.chatId &&
+          other.isMention == this.isMention &&
+          other.isMentionAll == this.isMentionAll &&
+          other.mentionedUserIds == this.mentionedUserIds &&
+          other.isDraft == this.isDraft &&
+          other.localPath == this.localPath);
 }
 
 class MessagesCompanion extends UpdateCompanion<Message> {
   final Value<String> id;
-  final Value<String> senderId;
+  final Value<String> sendId;
+  final Value<String> receiverId;
+  final Value<String> clientId;
+  final Value<String?> serverId;
+  final Value<int> createTime;
+  final Value<int?> sendTime;
+  final Value<int?> seq;
+  final Value<int?> sendSeq;
+  final Value<MessageType> msgType;
+  final Value<ContentType> contentType;
   final Value<String> content;
-  final Value<MessageType> type;
-  final Value<MessageStatus> status;
   final Value<bool> isRead;
-  final Value<DateTime> createdAt;
+  final Value<String> groupId;
+  final Value<PlatformType> platform;
+  final Value<String> avatar;
+  final Value<String> nickname;
+  final Value<String?> relatedMsgId;
+  final Value<MessageStatus> status;
+  final Value<String> chatId;
+  final Value<bool> isMention;
+  final Value<bool> isMentionAll;
+  final Value<String?> mentionedUserIds;
+  final Value<bool> isDraft;
+  final Value<String?> localPath;
   final Value<int> rowid;
   const MessagesCompanion({
     this.id = const Value.absent(),
-    this.senderId = const Value.absent(),
+    this.sendId = const Value.absent(),
+    this.receiverId = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.createTime = const Value.absent(),
+    this.sendTime = const Value.absent(),
+    this.seq = const Value.absent(),
+    this.sendSeq = const Value.absent(),
+    this.msgType = const Value.absent(),
+    this.contentType = const Value.absent(),
     this.content = const Value.absent(),
-    this.type = const Value.absent(),
-    this.status = const Value.absent(),
     this.isRead = const Value.absent(),
-    this.createdAt = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.platform = const Value.absent(),
+    this.avatar = const Value.absent(),
+    this.nickname = const Value.absent(),
+    this.relatedMsgId = const Value.absent(),
+    this.status = const Value.absent(),
+    this.chatId = const Value.absent(),
+    this.isMention = const Value.absent(),
+    this.isMentionAll = const Value.absent(),
+    this.mentionedUserIds = const Value.absent(),
+    this.isDraft = const Value.absent(),
+    this.localPath = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MessagesCompanion.insert({
     required String id,
-    required String senderId,
+    required String sendId,
+    required String receiverId,
+    required String clientId,
+    this.serverId = const Value.absent(),
+    required int createTime,
+    this.sendTime = const Value.absent(),
+    this.seq = const Value.absent(),
+    this.sendSeq = const Value.absent(),
+    required MessageType msgType,
+    required ContentType contentType,
     required String content,
-    required MessageType type,
-    required MessageStatus status,
     this.isRead = const Value.absent(),
-    required DateTime createdAt,
+    this.groupId = const Value.absent(),
+    this.platform = const Value.absent(),
+    this.avatar = const Value.absent(),
+    this.nickname = const Value.absent(),
+    this.relatedMsgId = const Value.absent(),
+    this.status = const Value.absent(),
+    required String chatId,
+    this.isMention = const Value.absent(),
+    this.isMentionAll = const Value.absent(),
+    this.mentionedUserIds = const Value.absent(),
+    this.isDraft = const Value.absent(),
+    this.localPath = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        senderId = Value(senderId),
+        sendId = Value(sendId),
+        receiverId = Value(receiverId),
+        clientId = Value(clientId),
+        createTime = Value(createTime),
+        msgType = Value(msgType),
+        contentType = Value(contentType),
         content = Value(content),
-        type = Value(type),
-        status = Value(status),
-        createdAt = Value(createdAt);
+        chatId = Value(chatId);
   static Insertable<Message> custom({
     Expression<String>? id,
-    Expression<String>? senderId,
+    Expression<String>? sendId,
+    Expression<String>? receiverId,
+    Expression<String>? clientId,
+    Expression<String>? serverId,
+    Expression<int>? createTime,
+    Expression<int>? sendTime,
+    Expression<int>? seq,
+    Expression<int>? sendSeq,
+    Expression<int>? msgType,
+    Expression<int>? contentType,
     Expression<String>? content,
-    Expression<String>? type,
-    Expression<String>? status,
     Expression<bool>? isRead,
-    Expression<DateTime>? createdAt,
+    Expression<String>? groupId,
+    Expression<int>? platform,
+    Expression<String>? avatar,
+    Expression<String>? nickname,
+    Expression<String>? relatedMsgId,
+    Expression<int>? status,
+    Expression<String>? chatId,
+    Expression<bool>? isMention,
+    Expression<bool>? isMentionAll,
+    Expression<String>? mentionedUserIds,
+    Expression<bool>? isDraft,
+    Expression<String>? localPath,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (senderId != null) 'sender_id': senderId,
+      if (sendId != null) 'send_id': sendId,
+      if (receiverId != null) 'receiver_id': receiverId,
+      if (clientId != null) 'client_id': clientId,
+      if (serverId != null) 'server_id': serverId,
+      if (createTime != null) 'create_time': createTime,
+      if (sendTime != null) 'send_time': sendTime,
+      if (seq != null) 'seq': seq,
+      if (sendSeq != null) 'send_seq': sendSeq,
+      if (msgType != null) 'msg_type': msgType,
+      if (contentType != null) 'content_type': contentType,
       if (content != null) 'content': content,
-      if (type != null) 'type': type,
-      if (status != null) 'status': status,
       if (isRead != null) 'is_read': isRead,
-      if (createdAt != null) 'created_at': createdAt,
+      if (groupId != null) 'group_id': groupId,
+      if (platform != null) 'platform': platform,
+      if (avatar != null) 'avatar': avatar,
+      if (nickname != null) 'nickname': nickname,
+      if (relatedMsgId != null) 'related_msg_id': relatedMsgId,
+      if (status != null) 'status': status,
+      if (chatId != null) 'chat_id': chatId,
+      if (isMention != null) 'is_mention': isMention,
+      if (isMentionAll != null) 'is_mention_all': isMentionAll,
+      if (mentionedUserIds != null) 'mentioned_user_ids': mentionedUserIds,
+      if (isDraft != null) 'is_draft': isDraft,
+      if (localPath != null) 'local_path': localPath,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   MessagesCompanion copyWith(
       {Value<String>? id,
-      Value<String>? senderId,
+      Value<String>? sendId,
+      Value<String>? receiverId,
+      Value<String>? clientId,
+      Value<String?>? serverId,
+      Value<int>? createTime,
+      Value<int?>? sendTime,
+      Value<int?>? seq,
+      Value<int?>? sendSeq,
+      Value<MessageType>? msgType,
+      Value<ContentType>? contentType,
       Value<String>? content,
-      Value<MessageType>? type,
-      Value<MessageStatus>? status,
       Value<bool>? isRead,
-      Value<DateTime>? createdAt,
+      Value<String>? groupId,
+      Value<PlatformType>? platform,
+      Value<String>? avatar,
+      Value<String>? nickname,
+      Value<String?>? relatedMsgId,
+      Value<MessageStatus>? status,
+      Value<String>? chatId,
+      Value<bool>? isMention,
+      Value<bool>? isMentionAll,
+      Value<String?>? mentionedUserIds,
+      Value<bool>? isDraft,
+      Value<String?>? localPath,
       Value<int>? rowid}) {
     return MessagesCompanion(
       id: id ?? this.id,
-      senderId: senderId ?? this.senderId,
+      sendId: sendId ?? this.sendId,
+      receiverId: receiverId ?? this.receiverId,
+      clientId: clientId ?? this.clientId,
+      serverId: serverId ?? this.serverId,
+      createTime: createTime ?? this.createTime,
+      sendTime: sendTime ?? this.sendTime,
+      seq: seq ?? this.seq,
+      sendSeq: sendSeq ?? this.sendSeq,
+      msgType: msgType ?? this.msgType,
+      contentType: contentType ?? this.contentType,
       content: content ?? this.content,
-      type: type ?? this.type,
-      status: status ?? this.status,
       isRead: isRead ?? this.isRead,
-      createdAt: createdAt ?? this.createdAt,
+      groupId: groupId ?? this.groupId,
+      platform: platform ?? this.platform,
+      avatar: avatar ?? this.avatar,
+      nickname: nickname ?? this.nickname,
+      relatedMsgId: relatedMsgId ?? this.relatedMsgId,
+      status: status ?? this.status,
+      chatId: chatId ?? this.chatId,
+      isMention: isMention ?? this.isMention,
+      isMentionAll: isMentionAll ?? this.isMentionAll,
+      mentionedUserIds: mentionedUserIds ?? this.mentionedUserIds,
+      isDraft: isDraft ?? this.isDraft,
+      localPath: localPath ?? this.localPath,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6164,25 +6870,81 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (senderId.present) {
-      map['sender_id'] = Variable<String>(senderId.value);
+    if (sendId.present) {
+      map['send_id'] = Variable<String>(sendId.value);
+    }
+    if (receiverId.present) {
+      map['receiver_id'] = Variable<String>(receiverId.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (createTime.present) {
+      map['create_time'] = Variable<int>(createTime.value);
+    }
+    if (sendTime.present) {
+      map['send_time'] = Variable<int>(sendTime.value);
+    }
+    if (seq.present) {
+      map['seq'] = Variable<int>(seq.value);
+    }
+    if (sendSeq.present) {
+      map['send_seq'] = Variable<int>(sendSeq.value);
+    }
+    if (msgType.present) {
+      map['msg_type'] =
+          Variable<int>($MessagesTable.$convertermsgType.toSql(msgType.value));
+    }
+    if (contentType.present) {
+      map['content_type'] = Variable<int>(
+          $MessagesTable.$convertercontentType.toSql(contentType.value));
     }
     if (content.present) {
       map['content'] = Variable<String>(content.value);
     }
-    if (type.present) {
-      map['type'] =
-          Variable<String>($MessagesTable.$convertertype.toSql(type.value));
-    }
-    if (status.present) {
-      map['status'] =
-          Variable<String>($MessagesTable.$converterstatus.toSql(status.value));
-    }
     if (isRead.present) {
       map['is_read'] = Variable<bool>(isRead.value);
     }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (platform.present) {
+      map['platform'] = Variable<int>(
+          $MessagesTable.$converterplatform.toSql(platform.value));
+    }
+    if (avatar.present) {
+      map['avatar'] = Variable<String>(avatar.value);
+    }
+    if (nickname.present) {
+      map['nickname'] = Variable<String>(nickname.value);
+    }
+    if (relatedMsgId.present) {
+      map['related_msg_id'] = Variable<String>(relatedMsgId.value);
+    }
+    if (status.present) {
+      map['status'] =
+          Variable<int>($MessagesTable.$converterstatus.toSql(status.value));
+    }
+    if (chatId.present) {
+      map['chat_id'] = Variable<String>(chatId.value);
+    }
+    if (isMention.present) {
+      map['is_mention'] = Variable<bool>(isMention.value);
+    }
+    if (isMentionAll.present) {
+      map['is_mention_all'] = Variable<bool>(isMentionAll.value);
+    }
+    if (mentionedUserIds.present) {
+      map['mentioned_user_ids'] = Variable<String>(mentionedUserIds.value);
+    }
+    if (isDraft.present) {
+      map['is_draft'] = Variable<bool>(isDraft.value);
+    }
+    if (localPath.present) {
+      map['local_path'] = Variable<String>(localPath.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -6194,12 +6956,30 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   String toString() {
     return (StringBuffer('MessagesCompanion(')
           ..write('id: $id, ')
-          ..write('senderId: $senderId, ')
+          ..write('sendId: $sendId, ')
+          ..write('receiverId: $receiverId, ')
+          ..write('clientId: $clientId, ')
+          ..write('serverId: $serverId, ')
+          ..write('createTime: $createTime, ')
+          ..write('sendTime: $sendTime, ')
+          ..write('seq: $seq, ')
+          ..write('sendSeq: $sendSeq, ')
+          ..write('msgType: $msgType, ')
+          ..write('contentType: $contentType, ')
           ..write('content: $content, ')
-          ..write('type: $type, ')
-          ..write('status: $status, ')
           ..write('isRead: $isRead, ')
-          ..write('createdAt: $createdAt, ')
+          ..write('groupId: $groupId, ')
+          ..write('platform: $platform, ')
+          ..write('avatar: $avatar, ')
+          ..write('nickname: $nickname, ')
+          ..write('relatedMsgId: $relatedMsgId, ')
+          ..write('status: $status, ')
+          ..write('chatId: $chatId, ')
+          ..write('isMention: $isMention, ')
+          ..write('isMentionAll: $isMentionAll, ')
+          ..write('mentionedUserIds: $mentionedUserIds, ')
+          ..write('isDraft: $isDraft, ')
+          ..write('localPath: $localPath, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8909,22 +9689,58 @@ typedef $$ChatsTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function()>;
 typedef $$MessagesTableCreateCompanionBuilder = MessagesCompanion Function({
   required String id,
-  required String senderId,
+  required String sendId,
+  required String receiverId,
+  required String clientId,
+  Value<String?> serverId,
+  required int createTime,
+  Value<int?> sendTime,
+  Value<int?> seq,
+  Value<int?> sendSeq,
+  required MessageType msgType,
+  required ContentType contentType,
   required String content,
-  required MessageType type,
-  required MessageStatus status,
   Value<bool> isRead,
-  required DateTime createdAt,
+  Value<String> groupId,
+  Value<PlatformType> platform,
+  Value<String> avatar,
+  Value<String> nickname,
+  Value<String?> relatedMsgId,
+  Value<MessageStatus> status,
+  required String chatId,
+  Value<bool> isMention,
+  Value<bool> isMentionAll,
+  Value<String?> mentionedUserIds,
+  Value<bool> isDraft,
+  Value<String?> localPath,
   Value<int> rowid,
 });
 typedef $$MessagesTableUpdateCompanionBuilder = MessagesCompanion Function({
   Value<String> id,
-  Value<String> senderId,
+  Value<String> sendId,
+  Value<String> receiverId,
+  Value<String> clientId,
+  Value<String?> serverId,
+  Value<int> createTime,
+  Value<int?> sendTime,
+  Value<int?> seq,
+  Value<int?> sendSeq,
+  Value<MessageType> msgType,
+  Value<ContentType> contentType,
   Value<String> content,
-  Value<MessageType> type,
-  Value<MessageStatus> status,
   Value<bool> isRead,
-  Value<DateTime> createdAt,
+  Value<String> groupId,
+  Value<PlatformType> platform,
+  Value<String> avatar,
+  Value<String> nickname,
+  Value<String?> relatedMsgId,
+  Value<MessageStatus> status,
+  Value<String> chatId,
+  Value<bool> isMention,
+  Value<bool> isMentionAll,
+  Value<String?> mentionedUserIds,
+  Value<bool> isDraft,
+  Value<String?> localPath,
   Value<int> rowid,
 });
 
@@ -8940,27 +9756,86 @@ class $$MessagesTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get senderId => $composableBuilder(
-      column: $table.senderId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get sendId => $composableBuilder(
+      column: $table.sendId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get receiverId => $composableBuilder(
+      column: $table.receiverId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+      column: $table.clientId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get serverId => $composableBuilder(
+      column: $table.serverId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createTime => $composableBuilder(
+      column: $table.createTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sendTime => $composableBuilder(
+      column: $table.sendTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seq => $composableBuilder(
+      column: $table.seq, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sendSeq => $composableBuilder(
+      column: $table.sendSeq, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<MessageType, MessageType, int> get msgType =>
+      $composableBuilder(
+          column: $table.msgType,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnWithTypeConverterFilters<ContentType, ContentType, int>
+      get contentType => $composableBuilder(
+          column: $table.contentType,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnFilters<String> get content => $composableBuilder(
       column: $table.content, builder: (column) => ColumnFilters(column));
 
-  ColumnWithTypeConverterFilters<MessageType, MessageType, String> get type =>
-      $composableBuilder(
-          column: $table.type,
+  ColumnFilters<bool> get isRead => $composableBuilder(
+      column: $table.isRead, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupId => $composableBuilder(
+      column: $table.groupId, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<PlatformType, PlatformType, int>
+      get platform => $composableBuilder(
+          column: $table.platform,
           builder: (column) => ColumnWithTypeConverterFilters(column));
 
-  ColumnWithTypeConverterFilters<MessageStatus, MessageStatus, String>
+  ColumnFilters<String> get avatar => $composableBuilder(
+      column: $table.avatar, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nickname => $composableBuilder(
+      column: $table.nickname, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get relatedMsgId => $composableBuilder(
+      column: $table.relatedMsgId, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<MessageStatus, MessageStatus, int>
       get status => $composableBuilder(
           column: $table.status,
           builder: (column) => ColumnWithTypeConverterFilters(column));
 
-  ColumnFilters<bool> get isRead => $composableBuilder(
-      column: $table.isRead, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get chatId => $composableBuilder(
+      column: $table.chatId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+  ColumnFilters<bool> get isMention => $composableBuilder(
+      column: $table.isMention, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isMentionAll => $composableBuilder(
+      column: $table.isMentionAll, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mentionedUserIds => $composableBuilder(
+      column: $table.mentionedUserIds,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDraft => $composableBuilder(
+      column: $table.isDraft, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localPath => $composableBuilder(
+      column: $table.localPath, builder: (column) => ColumnFilters(column));
 }
 
 class $$MessagesTableOrderingComposer
@@ -8975,23 +9850,80 @@ class $$MessagesTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get senderId => $composableBuilder(
-      column: $table.senderId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get sendId => $composableBuilder(
+      column: $table.sendId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get receiverId => $composableBuilder(
+      column: $table.receiverId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+      column: $table.clientId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get serverId => $composableBuilder(
+      column: $table.serverId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createTime => $composableBuilder(
+      column: $table.createTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sendTime => $composableBuilder(
+      column: $table.sendTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seq => $composableBuilder(
+      column: $table.seq, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sendSeq => $composableBuilder(
+      column: $table.sendSeq, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get msgType => $composableBuilder(
+      column: $table.msgType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get contentType => $composableBuilder(
+      column: $table.contentType, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get content => $composableBuilder(
       column: $table.content, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get type => $composableBuilder(
-      column: $table.type, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<bool> get isRead => $composableBuilder(
       column: $table.isRead, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get groupId => $composableBuilder(
+      column: $table.groupId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get platform => $composableBuilder(
+      column: $table.platform, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get avatar => $composableBuilder(
+      column: $table.avatar, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get nickname => $composableBuilder(
+      column: $table.nickname, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get relatedMsgId => $composableBuilder(
+      column: $table.relatedMsgId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get chatId => $composableBuilder(
+      column: $table.chatId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isMention => $composableBuilder(
+      column: $table.isMention, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isMentionAll => $composableBuilder(
+      column: $table.isMentionAll,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mentionedUserIds => $composableBuilder(
+      column: $table.mentionedUserIds,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDraft => $composableBuilder(
+      column: $table.isDraft, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localPath => $composableBuilder(
+      column: $table.localPath, builder: (column) => ColumnOrderings(column));
 }
 
 class $$MessagesTableAnnotationComposer
@@ -9006,23 +9938,78 @@ class $$MessagesTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get senderId =>
-      $composableBuilder(column: $table.senderId, builder: (column) => column);
+  GeneratedColumn<String> get sendId =>
+      $composableBuilder(column: $table.sendId, builder: (column) => column);
+
+  GeneratedColumn<String> get receiverId => $composableBuilder(
+      column: $table.receiverId, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<int> get createTime => $composableBuilder(
+      column: $table.createTime, builder: (column) => column);
+
+  GeneratedColumn<int> get sendTime =>
+      $composableBuilder(column: $table.sendTime, builder: (column) => column);
+
+  GeneratedColumn<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => column);
+
+  GeneratedColumn<int> get sendSeq =>
+      $composableBuilder(column: $table.sendSeq, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<MessageType, int> get msgType =>
+      $composableBuilder(column: $table.msgType, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ContentType, int> get contentType =>
+      $composableBuilder(
+          column: $table.contentType, builder: (column) => column);
 
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<MessageType, String> get type =>
-      $composableBuilder(column: $table.type, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<MessageStatus, String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-
   GeneratedColumn<bool> get isRead =>
       $composableBuilder(column: $table.isRead, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<PlatformType, int> get platform =>
+      $composableBuilder(column: $table.platform, builder: (column) => column);
+
+  GeneratedColumn<String> get avatar =>
+      $composableBuilder(column: $table.avatar, builder: (column) => column);
+
+  GeneratedColumn<String> get nickname =>
+      $composableBuilder(column: $table.nickname, builder: (column) => column);
+
+  GeneratedColumn<String> get relatedMsgId => $composableBuilder(
+      column: $table.relatedMsgId, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<MessageStatus, int> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get chatId =>
+      $composableBuilder(column: $table.chatId, builder: (column) => column);
+
+  GeneratedColumn<bool> get isMention =>
+      $composableBuilder(column: $table.isMention, builder: (column) => column);
+
+  GeneratedColumn<bool> get isMentionAll => $composableBuilder(
+      column: $table.isMentionAll, builder: (column) => column);
+
+  GeneratedColumn<String> get mentionedUserIds => $composableBuilder(
+      column: $table.mentionedUserIds, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDraft =>
+      $composableBuilder(column: $table.isDraft, builder: (column) => column);
+
+  GeneratedColumn<String> get localPath =>
+      $composableBuilder(column: $table.localPath, builder: (column) => column);
 }
 
 class $$MessagesTableTableManager extends RootTableManager<
@@ -9049,42 +10036,114 @@ class $$MessagesTableTableManager extends RootTableManager<
               $$MessagesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> senderId = const Value.absent(),
+            Value<String> sendId = const Value.absent(),
+            Value<String> receiverId = const Value.absent(),
+            Value<String> clientId = const Value.absent(),
+            Value<String?> serverId = const Value.absent(),
+            Value<int> createTime = const Value.absent(),
+            Value<int?> sendTime = const Value.absent(),
+            Value<int?> seq = const Value.absent(),
+            Value<int?> sendSeq = const Value.absent(),
+            Value<MessageType> msgType = const Value.absent(),
+            Value<ContentType> contentType = const Value.absent(),
             Value<String> content = const Value.absent(),
-            Value<MessageType> type = const Value.absent(),
-            Value<MessageStatus> status = const Value.absent(),
             Value<bool> isRead = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
+            Value<String> groupId = const Value.absent(),
+            Value<PlatformType> platform = const Value.absent(),
+            Value<String> avatar = const Value.absent(),
+            Value<String> nickname = const Value.absent(),
+            Value<String?> relatedMsgId = const Value.absent(),
+            Value<MessageStatus> status = const Value.absent(),
+            Value<String> chatId = const Value.absent(),
+            Value<bool> isMention = const Value.absent(),
+            Value<bool> isMentionAll = const Value.absent(),
+            Value<String?> mentionedUserIds = const Value.absent(),
+            Value<bool> isDraft = const Value.absent(),
+            Value<String?> localPath = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MessagesCompanion(
             id: id,
-            senderId: senderId,
+            sendId: sendId,
+            receiverId: receiverId,
+            clientId: clientId,
+            serverId: serverId,
+            createTime: createTime,
+            sendTime: sendTime,
+            seq: seq,
+            sendSeq: sendSeq,
+            msgType: msgType,
+            contentType: contentType,
             content: content,
-            type: type,
-            status: status,
             isRead: isRead,
-            createdAt: createdAt,
+            groupId: groupId,
+            platform: platform,
+            avatar: avatar,
+            nickname: nickname,
+            relatedMsgId: relatedMsgId,
+            status: status,
+            chatId: chatId,
+            isMention: isMention,
+            isMentionAll: isMentionAll,
+            mentionedUserIds: mentionedUserIds,
+            isDraft: isDraft,
+            localPath: localPath,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
-            required String senderId,
+            required String sendId,
+            required String receiverId,
+            required String clientId,
+            Value<String?> serverId = const Value.absent(),
+            required int createTime,
+            Value<int?> sendTime = const Value.absent(),
+            Value<int?> seq = const Value.absent(),
+            Value<int?> sendSeq = const Value.absent(),
+            required MessageType msgType,
+            required ContentType contentType,
             required String content,
-            required MessageType type,
-            required MessageStatus status,
             Value<bool> isRead = const Value.absent(),
-            required DateTime createdAt,
+            Value<String> groupId = const Value.absent(),
+            Value<PlatformType> platform = const Value.absent(),
+            Value<String> avatar = const Value.absent(),
+            Value<String> nickname = const Value.absent(),
+            Value<String?> relatedMsgId = const Value.absent(),
+            Value<MessageStatus> status = const Value.absent(),
+            required String chatId,
+            Value<bool> isMention = const Value.absent(),
+            Value<bool> isMentionAll = const Value.absent(),
+            Value<String?> mentionedUserIds = const Value.absent(),
+            Value<bool> isDraft = const Value.absent(),
+            Value<String?> localPath = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MessagesCompanion.insert(
             id: id,
-            senderId: senderId,
+            sendId: sendId,
+            receiverId: receiverId,
+            clientId: clientId,
+            serverId: serverId,
+            createTime: createTime,
+            sendTime: sendTime,
+            seq: seq,
+            sendSeq: sendSeq,
+            msgType: msgType,
+            contentType: contentType,
             content: content,
-            type: type,
-            status: status,
             isRead: isRead,
-            createdAt: createdAt,
+            groupId: groupId,
+            platform: platform,
+            avatar: avatar,
+            nickname: nickname,
+            relatedMsgId: relatedMsgId,
+            status: status,
+            chatId: chatId,
+            isMention: isMention,
+            isMentionAll: isMentionAll,
+            mentionedUserIds: mentionedUserIds,
+            isDraft: isDraft,
+            localPath: localPath,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
