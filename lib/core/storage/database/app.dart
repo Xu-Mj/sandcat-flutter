@@ -3,6 +3,8 @@
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:im_flutter/core/storage/database/tables/chat_table.dart';
+import 'package:im_flutter/core/storage/database/tables/message_table.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'tables/user_table.dart';
@@ -71,7 +73,9 @@ LazyDatabase _openConnection(String userId) {
   FriendTagRelations,
   FriendInteractions,
   FriendPrivacySettings,
-  FriendNotes
+  FriendNotes,
+  Chats,
+  Messages,
 ])
 class AppDatabase extends _$AppDatabase {
   // 私有构造函数，防止直接实例化
@@ -103,7 +107,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
