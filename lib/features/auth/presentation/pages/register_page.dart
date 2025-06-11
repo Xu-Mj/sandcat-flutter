@@ -133,6 +133,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         email: _emailController.text,
         code: _codeController.text,
         password: _passwordController.text,
+        avatar: 'https://picsum.photos/200/300',
       );
 
       if (user != null && mounted) {
