@@ -1,23 +1,62 @@
 // lib/features/chat/data/utils/chat_utils.dart
 import 'package:im_flutter/core/storage/database/tables/message_table.dart';
+import 'package:im_flutter/features/chat/data/models/enums.dart' as enums;
 
 /// 根据消息类型生成预览文本
-String getMessagePreviewByType(String content, MessageType type) {
+String getMessagePreviewByType(String content, ContentType type) {
   switch (type) {
-    case MessageType.text:
+    case ContentType.text:
       return content;
-    case MessageType.image:
+    case ContentType.image:
       return '[图片]';
-    case MessageType.video:
+    case ContentType.video:
       return '[视频]';
-    case MessageType.audio:
+    case ContentType.audio:
       return '[语音]';
-    case MessageType.file:
+    case ContentType.file:
       return '[文件]';
-    case MessageType.location:
+    case ContentType.location:
       return '[位置]';
-    case MessageType.system:
-      return '[系统消息]';
+    case ContentType.contact:
+      return '[名片]';
+    case ContentType.sticker:
+      return '[表情]';
+    case ContentType.call:
+      return '[通话]';
+    case ContentType.rtcSignal:
+      return '[信令]';
+    default:
+      return '[未知消息类型]';
+  }
+}
+
+/// 根据消息类型生成预览文本（应用层枚举）
+String getMessagePreviewByEnumType(String content, enums.ContentType type) {
+  switch (type) {
+    case enums.ContentType.text:
+      return content;
+    case enums.ContentType.image:
+      return '[图片]';
+    case enums.ContentType.video:
+      return '[视频]';
+    case enums.ContentType.audio:
+      return '[语音]';
+    case enums.ContentType.file:
+      return '[文件]';
+    case enums.ContentType.location:
+      return '[位置]';
+    case enums.ContentType.contact:
+      return '[名片]';
+    case enums.ContentType.emoji:
+      return '[表情]';
+    case enums.ContentType.sticker:
+      return '[贴纸]';
+    case enums.ContentType.call:
+      return '[通话]';
+    case enums.ContentType.rtcSignal:
+      return '[信令]';
+    case enums.ContentType.custom:
+      return '[自定义]';
     default:
       return '[未知消息类型]';
   }
