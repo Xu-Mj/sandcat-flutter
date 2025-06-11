@@ -78,7 +78,7 @@ class _ChatListPageState extends State<ChatListPage> {
       showCupertinoDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => CupertinoAlertDialog(
+        builder: (ctx) => CupertinoAlertDialog(
           title: const Text('登录已过期'),
           content: const Text('您的登录已过期，请重新登录继续使用应用'),
           actions: [
@@ -86,10 +86,10 @@ class _ChatListPageState extends State<ChatListPage> {
               isDefaultAction: true,
               child: const Text('重新登录'),
               onPressed: () async {
-                final navigator = Navigator.of(context);
+                final navigator = Navigator.of(ctx);
                 navigator.pop();
 
-                final router = GoRouter.of(context);
+                final router = GoRouter.of(ctx);
 
                 try {
                   final authService = GetIt.instance<AuthService>();
