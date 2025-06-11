@@ -1,4 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:im_flutter/app/di/injection.dart';
+import 'package:im_flutter/core/storage/database/app.dart';
+import 'package:im_flutter/core/storage/database/tables/chat_table.dart';
+import 'package:im_flutter/features/chat/data/dao/message_dao.dart';
+import 'package:im_flutter/features/chat/domain/services/chat_service.dart';
+import 'package:im_flutter/features/chat/presentation/widgets/chat_avatar.dart';
 import 'package:im_flutter/features/chat/presentation/widgets/chat_input_area.dart';
 import '../widgets/chat_message_item.dart';
 import '../../../utils/responsive_layout.dart';
@@ -18,90 +24,47 @@ class ChatRoomPage extends StatefulWidget {
 class _ChatRoomPageState extends State<ChatRoomPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final ChatService _chatService = getIt<ChatService>();
+  final MessageDao _messageDao = getIt<MessageDao>();
 
-  // Mock data for demonstration
-  final Map<String, dynamic> _chatInfo = {
-    'id': '1',
-    'name': '张三',
-    'avatar': 'assets/images/avatars/avatar1.png',
-    'online': true,
-  };
+  // 聊天信息
+  Chat? _chatInfo;
 
-  final List<Map<String, dynamic>> _mockMessages = [
-    {
-      'id': '1',
-      'senderId': 'other',
-      'content': 'Hey there!',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 30)),
-      'status': 'read',
-    },
-    {
-      'id': '2',
-      'senderId': 'me',
-      'content': 'Hi! How are you?',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 25)),
-      'status': 'read',
-    },
-    {
-      'id': '3',
-      'senderId': 'other',
-      'content': 'I\'m good, thanks! Just wanted to check in.',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 24)),
-      'status': 'read',
-    },
-    {
-      'id': '4',
-      'senderId': 'me',
-      'content':
-          'That\'s nice of you. I\'ve been working on that project we discussed last week.',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 20)),
-      'status': 'read',
-    },
-    {
-      'id': '5',
-      'senderId': 'other',
-      'content': 'Oh great! How\'s it going?',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 18)),
-      'status': 'read',
-    },
-    {
-      'id': '6',
-      'senderId': 'me',
-      'content':
-          'Making good progress! I should have something to show you by the end of the week.',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 15)),
-      'status': 'delivered',
-    },
-    {
-      'id': '7',
-      'senderId': 'other',
-      'content': 'That sounds excellent! Looking forward to seeing it.',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
-      'status': 'read',
-    },
-    {
-      'id': '8',
-      'senderId': 'other',
-      'content': 'Oh great! How\'s it going?',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 18)),
-      'status': 'read',
-    },
-    {
-      'id': '9',
-      'senderId': 'me',
-      'content':
-          'Making good progress! I should have something to show you by the end of the week.',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 15)),
-      'status': 'delivered',
-    },
-    {
-      'id': '10',
-      'senderId': 'other',
-      'content': 'That sounds excellent! Looking forward to seeing it.',
-      'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
-      'status': 'read',
-    },
-  ];
+  // 当前用户ID
+  String? get _currentUserId => _chatService.getCurrentUserId();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChatInfo();
+
+    // 标记所有消息为已读
+    _chatService.markAllMessagesAsRead(widget.chatId);
+  }
+
+  @override
+  void didUpdateWidget(ChatRoomPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 当chatId变化时重新加载数据
+    if (oldWidget.chatId != widget.chatId) {
+      _loadChatInfo();
+      _chatService.markAllMessagesAsRead(widget.chatId);
+
+      // 重置滚动控制器
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+    }
+  }
+
+  Future<void> _loadChatInfo() async {
+    final chat = await _chatService.getChatById(widget.chatId);
+    if (mounted) {
+      setState(() {
+        _chatInfo = chat;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -113,21 +76,17 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   void _sendMessage(String message) {
     if (message.isEmpty) return;
 
-    setState(() {
-      _mockMessages.add({
-        'id': DateTime.now().millisecondsSinceEpoch.toString(),
-        'senderId': 'me',
-        'content': message,
-        'timestamp': DateTime.now(),
-        'status': 'sending',
-      });
-
-      _messageController.clear();
-    });
+    // 发送消息到数据库
+    _chatService.sendTextMessage(
+      chatId: widget.chatId,
+      content: message,
+      senderId: _currentUserId ?? 'unknown',
+      receiverId: 'target_user', // 在实际应用中需要设置真实的接收者ID
+      groupId:
+          _chatInfo?.type.toString() == 'ChatType.group' ? widget.chatId : null,
+    );
 
     _scrollToBottom();
-
-    _simulateMessageStatusChanges();
   }
 
   String _formatTime(DateTime dateTime) {
@@ -136,6 +95,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
   /// 处理消息操作
   void _handleMessageAction(String action, Map<String, dynamic> message) {
+    final messageId = message['id'] as String;
+
     switch (action) {
       case 'tap':
         debugPrint('Tapped message: ${message['content']}');
@@ -153,18 +114,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         // TODO: 实现回复功能
         break;
       case 'edit':
-        if (message['senderId'] == 'me') {
+        if (message['senderId'] == _currentUserId) {
           debugPrint('Edit: ${message['content']}');
           // TODO: 实现编辑功能
         }
         break;
       case 'delete':
-        if (message['senderId'] == 'me') {
-          debugPrint('Delete: ${message['content']}');
-          // TODO: 删除消息的真实逻辑
-          setState(() {
-            _mockMessages.removeWhere((msg) => msg['id'] == message['id']);
-          });
+        if (message['senderId'] == _currentUserId) {
+          _chatService.deleteMessage(messageId);
         }
         break;
     }
@@ -182,18 +139,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       child: Row(
         children: [
           // 用户头像
-          Container(
-            width: 36,
-            height: 36,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: CupertinoColors.systemBlue,
-            ),
-            child: const Icon(
-              CupertinoIcons.person_fill,
-              color: CupertinoColors.white,
-              size: 24,
-            ),
+          ChatAvatar(
+            chatType: _chatInfo?.type ?? ChatType.direct,
+            avatarUrl: _chatInfo?.avatarUrl,
+            radius: 18,
           ),
           const SizedBox(width: 8),
 
@@ -203,14 +152,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _chatInfo['name'],
+                  _chatInfo?.name ?? 'Loading...',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  _chatInfo['online'] ? 'Online' : 'Last seen recently',
+                  'Last active: ${_chatInfo?.updatedAt != null ? _formatTime(_chatInfo!.updatedAt) : 'Unknown'}',
                   style: const TextStyle(
                     fontSize: 12,
                     color: CupertinoColors.systemGrey,
@@ -246,22 +195,82 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
   // 构建消息列表
   Widget _buildMessagesList() {
-    _scrollToBottom(needAnimate: false);
-    return GestureDetector(
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(16.0),
-        itemCount: _mockMessages.length,
-        itemBuilder: (context, index) {
-          final message = _mockMessages[index];
-          return ChatMessageItem(
-            message: message,
-            formatTimeFunc: _formatTime,
-            onAction: _handleMessageAction,
+    return StreamBuilder<List<Message>>(
+      stream: _chatService.watchMessages(widget.chatId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CupertinoActivityIndicator(),
           );
-        },
-      ),
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        }
+
+        final messages = snapshot.data ?? [];
+        if (messages.isEmpty) {
+          return const Center(
+            child: Text('No messages yet'),
+          );
+        }
+
+        _scrollToBottom(needAnimate: false);
+        return GestureDetector(
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(16.0),
+            // 反转列表以使最新消息在底部
+            reverse: true,
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              final message = messages[index];
+              final messageModel = _messageDao.messageToModel(message);
+
+              // 转换为视图模型
+              final Map<String, dynamic> messageMap = {
+                'id': message.id,
+                'senderId': message.sendId,
+                'content': messageModel.textContent,
+                'timestamp':
+                    DateTime.fromMillisecondsSinceEpoch(message.createTime),
+                'status': _getMessageStatus(message.status.index),
+                'isRead': message.isRead,
+              };
+
+              return ChatMessageItem(
+                message: messageMap,
+                formatTimeFunc: _formatTime,
+                onAction: _handleMessageAction,
+              );
+            },
+          ),
+        );
+      },
     );
+  }
+
+  // 获取消息状态字符串
+  String _getMessageStatus(int status) {
+    // 直接使用数字常量而不是枚举类型
+    switch (status) {
+      case 0: // created
+        return 'sending';
+      case 1: // sending
+        return 'sending';
+      case 2: // sent
+        return 'sent';
+      case 3: // delivered
+        return 'delivered';
+      case 4: // read
+        return 'read';
+      case 5: // failed
+        return 'failed';
+      default:
+        return 'unknown';
+    }
   }
 
   // 构建输入区域
@@ -284,28 +293,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         } else {
           _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         }
-      }
-    });
-  }
-
-  void _simulateMessageStatusChanges() {
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() {
-          if (_mockMessages.isNotEmpty) {
-            _mockMessages.last['status'] = 'sent';
-          }
-        });
-
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) {
-            setState(() {
-              if (_mockMessages.isNotEmpty) {
-                _mockMessages.last['status'] = 'delivered';
-              }
-            });
-          }
-        });
       }
     });
   }
@@ -338,12 +325,26 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         heroTag: 'chat_room',
         transitionBetweenRoutes: false,
         // 上下padding给10
-        middle: Text(
-          _chatInfo['name'],
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+        middle: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ChatAvatar(
+              chatType: _chatInfo?.type ?? ChatType.direct,
+              avatarUrl: _chatInfo?.avatarUrl,
+              radius: 14,
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                _chatInfo?.name ?? 'Chat',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
