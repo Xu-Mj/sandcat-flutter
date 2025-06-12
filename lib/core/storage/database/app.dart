@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:im_flutter/core/storage/database/tables/chat_table.dart';
 import 'package:im_flutter/core/storage/database/tables/message_table.dart';
+import 'package:im_flutter/core/storage/database/tables/seq_table.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'tables/user_table.dart';
@@ -59,24 +60,28 @@ LazyDatabase _openConnection(String userId) {
 
     // 为每个用户创建单独的数据库文件
     final file = File(p.join(dbDirectory.path, 'user_$userId.sqlite'));
+    print('db file: ${file.path}');
     return NativeDatabase(file);
   });
 }
 
 // 修改 AppDatabase 构造函数
-@DriftDatabase(tables: [
-  Users,
-  Friends,
-  FriendRequests,
-  FriendGroups,
-  FriendTags,
-  FriendTagRelations,
-  FriendInteractions,
-  FriendPrivacySettings,
-  FriendNotes,
-  Chats,
-  Messages,
-])
+@DriftDatabase(
+  tables: [
+    Users,
+    Friends,
+    FriendRequests,
+    FriendGroups,
+    FriendTags,
+    FriendTagRelations,
+    FriendInteractions,
+    FriendPrivacySettings,
+    FriendNotes,
+    Chats,
+    Messages,
+    Seqs,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   // 私有构造函数，防止直接实例化
   AppDatabase._(String userId) : super(_openConnection(userId));
@@ -107,7 +112,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

@@ -5894,7 +5894,7 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       GeneratedColumn<int>('platform', aliasedName, false,
               type: DriftSqlType.int,
               requiredDuringInsert: false,
-              defaultValue: const Constant(4))
+              defaultValue: const Constant(1))
           .withConverter<PlatformType>($MessagesTable.$converterplatform);
   static const VerificationMeta _avatarMeta = const VerificationMeta('avatar');
   @override
@@ -6986,6 +6986,287 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   }
 }
 
+class $SeqsTable extends Seqs with TableInfo<$SeqsTable, Seq> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SeqsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _localSeqMeta =
+      const VerificationMeta('localSeq');
+  @override
+  late final GeneratedColumn<int> localSeq = GeneratedColumn<int>(
+      'local_seq', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _sendSeqMeta =
+      const VerificationMeta('sendSeq');
+  @override
+  late final GeneratedColumn<int> sendSeq = GeneratedColumn<int>(
+      'send_seq', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _lastSyncTimeMeta =
+      const VerificationMeta('lastSyncTime');
+  @override
+  late final GeneratedColumn<int> lastSyncTime = GeneratedColumn<int>(
+      'last_sync_time', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [userId, localSeq, sendSeq, lastSyncTime];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'seqs';
+  @override
+  VerificationContext validateIntegrity(Insertable<Seq> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('local_seq')) {
+      context.handle(_localSeqMeta,
+          localSeq.isAcceptableOrUnknown(data['local_seq']!, _localSeqMeta));
+    }
+    if (data.containsKey('send_seq')) {
+      context.handle(_sendSeqMeta,
+          sendSeq.isAcceptableOrUnknown(data['send_seq']!, _sendSeqMeta));
+    }
+    if (data.containsKey('last_sync_time')) {
+      context.handle(
+          _lastSyncTimeMeta,
+          lastSyncTime.isAcceptableOrUnknown(
+              data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId};
+  @override
+  Seq map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Seq(
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      localSeq: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_seq'])!,
+      sendSeq: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}send_seq'])!,
+      lastSyncTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}last_sync_time'])!,
+    );
+  }
+
+  @override
+  $SeqsTable createAlias(String alias) {
+    return $SeqsTable(attachedDatabase, alias);
+  }
+}
+
+class Seq extends DataClass implements Insertable<Seq> {
+  /// 用户ID，作为主键
+  final String userId;
+
+  /// 接收消息的序列号
+  final int localSeq;
+
+  /// 发送消息的序列号
+  final int sendSeq;
+
+  /// 最后同步时间
+  final int lastSyncTime;
+  const Seq(
+      {required this.userId,
+      required this.localSeq,
+      required this.sendSeq,
+      required this.lastSyncTime});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['local_seq'] = Variable<int>(localSeq);
+    map['send_seq'] = Variable<int>(sendSeq);
+    map['last_sync_time'] = Variable<int>(lastSyncTime);
+    return map;
+  }
+
+  SeqsCompanion toCompanion(bool nullToAbsent) {
+    return SeqsCompanion(
+      userId: Value(userId),
+      localSeq: Value(localSeq),
+      sendSeq: Value(sendSeq),
+      lastSyncTime: Value(lastSyncTime),
+    );
+  }
+
+  factory Seq.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Seq(
+      userId: serializer.fromJson<String>(json['userId']),
+      localSeq: serializer.fromJson<int>(json['localSeq']),
+      sendSeq: serializer.fromJson<int>(json['sendSeq']),
+      lastSyncTime: serializer.fromJson<int>(json['lastSyncTime']),
+    );
+  }
+  factory Seq.fromJsonString(String encodedJson,
+          {ValueSerializer? serializer}) =>
+      Seq.fromJson(DataClass.parseJson(encodedJson) as Map<String, dynamic>,
+          serializer: serializer);
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'localSeq': serializer.toJson<int>(localSeq),
+      'sendSeq': serializer.toJson<int>(sendSeq),
+      'lastSyncTime': serializer.toJson<int>(lastSyncTime),
+    };
+  }
+
+  Seq copyWith(
+          {String? userId, int? localSeq, int? sendSeq, int? lastSyncTime}) =>
+      Seq(
+        userId: userId ?? this.userId,
+        localSeq: localSeq ?? this.localSeq,
+        sendSeq: sendSeq ?? this.sendSeq,
+        lastSyncTime: lastSyncTime ?? this.lastSyncTime,
+      );
+  Seq copyWithCompanion(SeqsCompanion data) {
+    return Seq(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      localSeq: data.localSeq.present ? data.localSeq.value : this.localSeq,
+      sendSeq: data.sendSeq.present ? data.sendSeq.value : this.sendSeq,
+      lastSyncTime: data.lastSyncTime.present
+          ? data.lastSyncTime.value
+          : this.lastSyncTime,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Seq(')
+          ..write('userId: $userId, ')
+          ..write('localSeq: $localSeq, ')
+          ..write('sendSeq: $sendSeq, ')
+          ..write('lastSyncTime: $lastSyncTime')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, localSeq, sendSeq, lastSyncTime);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Seq &&
+          other.userId == this.userId &&
+          other.localSeq == this.localSeq &&
+          other.sendSeq == this.sendSeq &&
+          other.lastSyncTime == this.lastSyncTime);
+}
+
+class SeqsCompanion extends UpdateCompanion<Seq> {
+  final Value<String> userId;
+  final Value<int> localSeq;
+  final Value<int> sendSeq;
+  final Value<int> lastSyncTime;
+  final Value<int> rowid;
+  const SeqsCompanion({
+    this.userId = const Value.absent(),
+    this.localSeq = const Value.absent(),
+    this.sendSeq = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SeqsCompanion.insert({
+    required String userId,
+    this.localSeq = const Value.absent(),
+    this.sendSeq = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : userId = Value(userId);
+  static Insertable<Seq> custom({
+    Expression<String>? userId,
+    Expression<int>? localSeq,
+    Expression<int>? sendSeq,
+    Expression<int>? lastSyncTime,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (localSeq != null) 'local_seq': localSeq,
+      if (sendSeq != null) 'send_seq': sendSeq,
+      if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SeqsCompanion copyWith(
+      {Value<String>? userId,
+      Value<int>? localSeq,
+      Value<int>? sendSeq,
+      Value<int>? lastSyncTime,
+      Value<int>? rowid}) {
+    return SeqsCompanion(
+      userId: userId ?? this.userId,
+      localSeq: localSeq ?? this.localSeq,
+      sendSeq: sendSeq ?? this.sendSeq,
+      lastSyncTime: lastSyncTime ?? this.lastSyncTime,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (localSeq.present) {
+      map['local_seq'] = Variable<int>(localSeq.value);
+    }
+    if (sendSeq.present) {
+      map['send_seq'] = Variable<int>(sendSeq.value);
+    }
+    if (lastSyncTime.present) {
+      map['last_sync_time'] = Variable<int>(lastSyncTime.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SeqsCompanion(')
+          ..write('userId: $userId, ')
+          ..write('localSeq: $localSeq, ')
+          ..write('sendSeq: $sendSeq, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   _$AppDatabase.connect(DatabaseConnection c) : super.connect(c);
@@ -7004,6 +7285,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $FriendNotesTable friendNotes = $FriendNotesTable(this);
   late final $ChatsTable chats = $ChatsTable(this);
   late final $MessagesTable messages = $MessagesTable(this);
+  late final $SeqsTable seqs = $SeqsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7019,7 +7301,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         friendPrivacySettings,
         friendNotes,
         chats,
-        messages
+        messages,
+        seqs
       ];
 }
 
@@ -10165,6 +10448,155 @@ typedef $$MessagesTableProcessedTableManager = ProcessedTableManager<
     (Message, BaseReferences<_$AppDatabase, $MessagesTable, Message>),
     Message,
     PrefetchHooks Function()>;
+typedef $$SeqsTableCreateCompanionBuilder = SeqsCompanion Function({
+  required String userId,
+  Value<int> localSeq,
+  Value<int> sendSeq,
+  Value<int> lastSyncTime,
+  Value<int> rowid,
+});
+typedef $$SeqsTableUpdateCompanionBuilder = SeqsCompanion Function({
+  Value<String> userId,
+  Value<int> localSeq,
+  Value<int> sendSeq,
+  Value<int> lastSyncTime,
+  Value<int> rowid,
+});
+
+class $$SeqsTableFilterComposer extends Composer<_$AppDatabase, $SeqsTable> {
+  $$SeqsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get localSeq => $composableBuilder(
+      column: $table.localSeq, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sendSeq => $composableBuilder(
+      column: $table.sendSeq, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get lastSyncTime => $composableBuilder(
+      column: $table.lastSyncTime, builder: (column) => ColumnFilters(column));
+}
+
+class $$SeqsTableOrderingComposer extends Composer<_$AppDatabase, $SeqsTable> {
+  $$SeqsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get localSeq => $composableBuilder(
+      column: $table.localSeq, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sendSeq => $composableBuilder(
+      column: $table.sendSeq, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get lastSyncTime => $composableBuilder(
+      column: $table.lastSyncTime,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$SeqsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SeqsTable> {
+  $$SeqsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<int> get localSeq =>
+      $composableBuilder(column: $table.localSeq, builder: (column) => column);
+
+  GeneratedColumn<int> get sendSeq =>
+      $composableBuilder(column: $table.sendSeq, builder: (column) => column);
+
+  GeneratedColumn<int> get lastSyncTime => $composableBuilder(
+      column: $table.lastSyncTime, builder: (column) => column);
+}
+
+class $$SeqsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $SeqsTable,
+    Seq,
+    $$SeqsTableFilterComposer,
+    $$SeqsTableOrderingComposer,
+    $$SeqsTableAnnotationComposer,
+    $$SeqsTableCreateCompanionBuilder,
+    $$SeqsTableUpdateCompanionBuilder,
+    (Seq, BaseReferences<_$AppDatabase, $SeqsTable, Seq>),
+    Seq,
+    PrefetchHooks Function()> {
+  $$SeqsTableTableManager(_$AppDatabase db, $SeqsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SeqsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SeqsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SeqsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            Value<int> localSeq = const Value.absent(),
+            Value<int> sendSeq = const Value.absent(),
+            Value<int> lastSyncTime = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SeqsCompanion(
+            userId: userId,
+            localSeq: localSeq,
+            sendSeq: sendSeq,
+            lastSyncTime: lastSyncTime,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String userId,
+            Value<int> localSeq = const Value.absent(),
+            Value<int> sendSeq = const Value.absent(),
+            Value<int> lastSyncTime = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SeqsCompanion.insert(
+            userId: userId,
+            localSeq: localSeq,
+            sendSeq: sendSeq,
+            lastSyncTime: lastSyncTime,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SeqsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $SeqsTable,
+    Seq,
+    $$SeqsTableFilterComposer,
+    $$SeqsTableOrderingComposer,
+    $$SeqsTableAnnotationComposer,
+    $$SeqsTableCreateCompanionBuilder,
+    $$SeqsTableUpdateCompanionBuilder,
+    (Seq, BaseReferences<_$AppDatabase, $SeqsTable, Seq>),
+    Seq,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -10191,4 +10623,5 @@ class $AppDatabaseManager {
       $$ChatsTableTableManager(_db, _db.chats);
   $$MessagesTableTableManager get messages =>
       $$MessagesTableTableManager(_db, _db.messages);
+  $$SeqsTableTableManager get seqs => $$SeqsTableTableManager(_db, _db.seqs);
 }
