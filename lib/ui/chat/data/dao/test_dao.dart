@@ -1,8 +1,8 @@
 // lib/features/chat/data/dao/test_data.dart
-import 'package:im_flutter/core/database/app.dart';
-import 'package:im_flutter/core/database/tables/chat_table.dart';
+import 'package:im_flutter/core/db/app.dart';
+import 'package:im_flutter/core/db/tables/chat_table.dart';
 import 'package:drift/drift.dart';
-import 'package:im_flutter/features/chat/data/dao/chat_dao.dart';
+import 'package:im_flutter/ui/chat/data/dao/chat_dao.dart';
 
 class TestDataHelper {
   final ChatDao _chatDao;

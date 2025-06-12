@@ -1,4 +1,4 @@
-import 'package:im_flutter/core/database/app.dart';
+import 'package:im_flutter/core/db/app.dart';
 
 /// 认证令牌模型
 class AuthToken {

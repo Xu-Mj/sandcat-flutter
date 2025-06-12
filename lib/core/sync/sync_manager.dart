@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:im_flutter/core/database/friend_repo.dart';
+import 'package:im_flutter/core/db/friend_repo.dart';
 import 'package:injectable/injectable.dart';
 import 'package:im_flutter/core/network/api_client.dart';
-import 'package:im_flutter/core/database/impls/sqlite/seq_dao.dart';
+import 'package:im_flutter/core/db/impls/sqlite/seq_dao.dart';
 import 'package:im_flutter/core/services/logger_service.dart';
-import 'package:im_flutter/features/chat/data/dao/message_dao.dart';
+import 'package:im_flutter/ui/chat/data/dao/message_dao.dart';
 import 'package:im_flutter/core/sync/models/seq_model.dart';
-import 'package:im_flutter/features/auth/data/services/auth_service.dart';
+import 'package:im_flutter/ui/auth/data/services/auth_service.dart';
 
 /// 同步管理器，负责处理登录后的数据同步
 @lazySingleton

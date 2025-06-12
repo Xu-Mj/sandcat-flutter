@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:im_flutter/features/utils/responsive_layout.dart';
+import 'package:im_flutter/ui/utils/responsive_layout.dart';
 import 'package:im_flutter/app/widgets/app_scaffold.dart';
 import 'package:im_flutter/core/services/logger_service.dart';
-import 'package:im_flutter/features/auth/presentation/providers/auth_provider.dart';
-import 'package:im_flutter/features/auth/presentation/widgets/register_form.dart';
+import 'package:im_flutter/ui/auth/presentation/providers/auth_provider.dart';
+import 'package:im_flutter/ui/auth/presentation/widgets/register_form.dart';
 
 /// 登录页面
 class LoginPage extends ConsumerStatefulWidget {

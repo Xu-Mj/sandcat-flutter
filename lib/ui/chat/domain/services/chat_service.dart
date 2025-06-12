@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:im_flutter/core/database/app.dart';
+import 'package:im_flutter/core/db/app.dart';
 import 'package:im_flutter/core/models/message/message_model.dart';
 
 /// 聊天服务抽象类 - 提供聊天功能的核心接口

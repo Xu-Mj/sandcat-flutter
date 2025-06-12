@@ -4,7 +4,6 @@ targets:
       drift_dev:
         options:
           # 数据库模型的生成选项
-          generate_connect_constructor: true
           apply_converters_on_variables: true
           write_from_json_string_constructor: true
           

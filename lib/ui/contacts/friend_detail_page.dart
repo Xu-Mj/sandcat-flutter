@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
     hide Column, Tab, TabBar, TabBarView, TabController;
 import 'package:get_it/get_it.dart';
-import 'package:im_flutter/core/database/app.dart';
-import 'package:im_flutter/core/database/friend_repo.dart';
+import 'package:im_flutter/core/db/app.dart';
+import 'package:im_flutter/core/db/friend_repo.dart';
 
 class FriendDetailPage extends StatefulWidget {
   final String friendId;

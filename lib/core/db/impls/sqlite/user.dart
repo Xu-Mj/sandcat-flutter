@@ -1,9 +1,9 @@
 // lib/features/authentication/data/repositories/user_repository_impl.dart
 
 import 'package:drift/drift.dart';
-import 'package:im_flutter/core/database/users.dart';
+import 'package:im_flutter/core/db/users.dart';
 import 'package:im_flutter/core/services/logger_service.dart';
-import 'package:im_flutter/core/database/app.dart';
+import 'package:im_flutter/core/db/app.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: UserRepository)

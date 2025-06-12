@@ -59,7 +59,7 @@ dependencies:
   
   # Serialization
   freezed_annotation: ^2.4.1
-  json_annotation: ^4.8.1
+  json_annotation: ^4.9.0
   
   # Utils
   dartz: ^0.10.1

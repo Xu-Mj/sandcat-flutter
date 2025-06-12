@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:im_flutter/app/config/api_config.dart';
 import 'package:im_flutter/app/config/app_config.dart';
-import 'package:im_flutter/app/di/injection.dart';
+import 'package:im_flutter/core/di/injection.dart';
 import 'package:im_flutter/app/theme/theme_provider.dart';
-import 'package:im_flutter/features/auth/data/services/auth_service.dart';
+import 'package:im_flutter/ui/auth/data/services/auth_service.dart';
 import 'package:window_manager/window_manager.dart';
 import 'app/router/app_router.dart';
 

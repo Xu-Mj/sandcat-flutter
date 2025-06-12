@@ -3,13 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:im_flutter/core/db/app.dart';
-import 'package:im_flutter/features/auth/data/services/auth_service.dart';
-import 'package:im_flutter/features/contacts/data/api/friend_api.dart';
-import 'package:im_flutter/features/contacts/data/models/api_model.dart';
+import 'package:im_flutter/ui/auth/data/services/auth_service.dart';
+import 'package:im_flutter/ui/contacts/data/api/friend_api.dart';
+import 'package:im_flutter/ui/contacts/data/models/api_model.dart';
 import 'package:im_flutter/core/db/friend_repo.dart';
-import 'package:im_flutter/features/contacts/friend_detail_page.dart';
-import 'package:im_flutter/features/contacts/widgets/friend_list_item.dart';
-import 'package:im_flutter/features/utils/responsive_layout.dart';
+import 'package:im_flutter/ui/contacts/friend_detail_page.dart';
+import 'package:im_flutter/ui/contacts/widgets/friend_list_item.dart';
+import 'package:im_flutter/ui/utils/responsive_layout.dart';
 
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key});

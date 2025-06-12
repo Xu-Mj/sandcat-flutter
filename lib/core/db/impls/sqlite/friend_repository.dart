@@ -1,8 +1,9 @@
 import 'package:drift/drift.dart';
-import 'package:im_flutter/core/database/friend_repo.dart';
+import 'package:im_flutter/core/db/friend_repo.dart';
+import 'package:im_flutter/core/models/friend/friend_models.dart'
+    show FriendRequestStatus;
 import 'package:im_flutter/core/services/logger_service.dart';
-import 'package:im_flutter/core/database/app.dart';
-import 'package:im_flutter/core/models/friend/friend_model.dart';
+import 'package:im_flutter/core/db/app.dart';
 import 'package:injectable/injectable.dart';
 
 /// 好友仓库实现

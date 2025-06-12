@@ -1,6 +1,6 @@
 // lib/features/chat/presentation/widgets/swipeable_chat_item.dart
 import 'package:flutter/cupertino.dart';
-import 'package:im_flutter/core/database/app.dart';
+import 'package:im_flutter/core/db/app.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class SwipeableChatItem extends StatelessWidget {

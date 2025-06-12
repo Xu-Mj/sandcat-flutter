@@ -1,5 +1,5 @@
 // lib/features/chat/data/utils/chat_utils.dart
-import 'package:im_flutter/core/database/tables/message_table.dart';
+import 'package:im_flutter/core/db/tables/message_table.dart';
 import 'package:im_flutter/core/models/message/enums.dart' as enums;
 
 /// 根据消息类型生成预览文本

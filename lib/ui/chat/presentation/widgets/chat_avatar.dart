@@ -1,7 +1,7 @@
 // lib/features/chat/presentation/widgets/chat_avatar.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show CircleAvatar;
-import 'package:im_flutter/core/database/tables/chat_table.dart';
+import 'package:im_flutter/core/db/tables/chat_table.dart';
 import 'dart:convert';
 
 class ChatAvatar extends StatelessWidget {

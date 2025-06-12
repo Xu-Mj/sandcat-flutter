@@ -4,14 +4,14 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:im_flutter/core/network/socket_manager.dart';
 import 'package:im_flutter/core/network/websocket_client.dart' as ws;
-import 'package:im_flutter/core/database/app.dart';
-import 'package:im_flutter/features/auth/data/services/auth_service.dart';
-import 'package:im_flutter/features/chat/data/dao/chat_dao.dart';
-import 'package:im_flutter/features/chat/data/dao/test_dao.dart';
-import 'package:im_flutter/features/chat/presentation/widgets/chat_avatar.dart';
-import 'package:im_flutter/features/chat/presentation/widgets/connection_status_indicator.dart';
-import 'package:im_flutter/features/chat/presentation/widgets/swipeable_chat_item.dart';
-import 'package:im_flutter/features/chat/utils/utils.dart';
+import 'package:im_flutter/core/db/app.dart';
+import 'package:im_flutter/ui/auth/data/services/auth_service.dart';
+import 'package:im_flutter/ui/chat/data/dao/chat_dao.dart';
+import 'package:im_flutter/ui/chat/data/dao/test_dao.dart';
+import 'package:im_flutter/ui/chat/presentation/widgets/chat_avatar.dart';
+import 'package:im_flutter/ui/chat/presentation/widgets/connection_status_indicator.dart';
+import 'package:im_flutter/ui/chat/presentation/widgets/swipeable_chat_item.dart';
+import 'package:im_flutter/ui/chat/utils/utils.dart';
 
 /// 聊天列表回调函数类型
 typedef ChatSelectedCallback = void Function(String chatId);

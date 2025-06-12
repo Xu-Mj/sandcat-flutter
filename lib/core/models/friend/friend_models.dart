@@ -3,6 +3,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'friend_models.freezed.dart';
 part 'friend_models.g.dart';
 
+enum FriendRequestStatus {
+  pending,
+  accepted,
+  rejected,
+  blacked,
+  deleted,
+  muted,
+  hidden,
+}
+
 /// 好友信息模型
 @freezed
 class FriendInfo with _$FriendInfo {
@@ -31,7 +41,7 @@ class Friend with _$Friend {
     required String fsId,
     required String userId,
     required String friendId,
-    @Default('') String status,
+    @Default(FriendRequestStatus.accepted) String status,
     String? remark,
     String? source,
     required int createTime,
@@ -54,7 +64,7 @@ class FriendRequest with _$FriendRequest {
     required String id,
     required String userId,
     required String friendId,
-    @Default('Pending') String status,
+    @Default(FriendRequestStatus.pending) String status,
     String? applyMsg,
     String? reqRemark,
     String? respMsg,

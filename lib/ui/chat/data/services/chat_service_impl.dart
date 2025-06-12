@@ -1,10 +1,10 @@
 import 'dart:typed_data';
-import 'package:im_flutter/core/database/app.dart';
-import 'package:im_flutter/features/chat/data/dao/chat_dao.dart';
-import 'package:im_flutter/features/chat/data/dao/message_dao.dart';
+import 'package:im_flutter/core/db/app.dart';
+import 'package:im_flutter/ui/chat/data/dao/chat_dao.dart';
+import 'package:im_flutter/ui/chat/data/dao/message_dao.dart';
 import 'package:im_flutter/core/models/message/message_model.dart';
 import 'package:im_flutter/core/models/message/enums.dart';
-import 'package:im_flutter/features/chat/domain/services/chat_service.dart';
+import 'package:im_flutter/ui/chat/domain/services/chat_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart';
 

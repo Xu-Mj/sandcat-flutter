@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:im_flutter/core/network/websocket_client.dart';
 import 'package:im_flutter/core/services/logger_service.dart';
 import 'package:im_flutter/core/utils/device_utils.dart';
-import 'package:im_flutter/features/auth/data/models/auth_token.dart';
+import 'package:im_flutter/ui/auth/data/models/auth_token.dart';
 import 'package:im_flutter/core/models/message/message_model.dart';
 import 'package:injectable/injectable.dart';
 

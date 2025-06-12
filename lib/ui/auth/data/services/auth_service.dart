@@ -1,9 +1,9 @@
-import 'package:im_flutter/app/di/injection.dart';
-import 'package:im_flutter/core/database/users.dart';
+import 'package:im_flutter/core/di/injection.dart';
+import 'package:im_flutter/core/db/users.dart';
 import 'package:im_flutter/core/network/socket_manager.dart';
 import 'package:im_flutter/core/services/token_manager.dart';
 import 'package:injectable/injectable.dart';
-import 'package:im_flutter/core/database/app.dart';
+import 'package:im_flutter/core/db/app.dart';
 import 'package:im_flutter/core/storage/storage_service.dart';
 import 'package:im_flutter/core/services/logger_service.dart';
 import '../models/auth_token.dart';

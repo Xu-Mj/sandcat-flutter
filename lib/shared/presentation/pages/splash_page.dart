@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:im_flutter/features/auth/presentation/providers/auth_provider.dart';
+import 'package:im_flutter/ui/auth/presentation/providers/auth_provider.dart';
 
 /// Splash screen shown when the app starts
 class SplashPage extends ConsumerStatefulWidget {

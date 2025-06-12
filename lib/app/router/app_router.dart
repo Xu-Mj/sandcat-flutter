@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:im_flutter/features/auth/presentation/providers/auth_provider.dart';
-import 'package:im_flutter/features/auth/presentation/pages/login_page.dart';
-import 'package:im_flutter/features/auth/presentation/pages/register_page.dart';
-import 'package:im_flutter/features/chat/presentation/pages/chat_room_page.dart';
-import 'package:im_flutter/features/contacts/presentation/pages/create_friend_page.dart';
-import 'package:im_flutter/features/contacts/presentation/pages/friend_detail_page.dart';
-import 'package:im_flutter/features/contacts/presentation/pages/friend_requests_page.dart';
-import 'package:im_flutter/features/home/presentation/pages/home_page.dart';
+import 'package:im_flutter/ui/auth/presentation/providers/auth_provider.dart';
+import 'package:im_flutter/ui/auth/presentation/pages/login_page.dart';
+import 'package:im_flutter/ui/auth/presentation/pages/register_page.dart';
+import 'package:im_flutter/ui/chat/presentation/pages/chat_room_page.dart';
+import 'package:im_flutter/ui/contacts/create_friend_page.dart';
+import 'package:im_flutter/ui/contacts/friend_detail_page.dart';
+import 'package:im_flutter/ui/contacts/friend_requests_page.dart';
+import 'package:im_flutter/ui/home/home_page.dart';
 import 'package:im_flutter/shared/presentation/pages/splash_page.dart';
 
 // 添加GoRouter刷新流，用于监听状态变化

@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Colors;
 
-import '../../../../app/widgets/app_scaffold.dart';
-import '../../../utils/responsive_layout.dart';
-import '../../../chat/presentation/pages/chat_list_page.dart';
-import '../../../chat/presentation/pages/chat_room_page.dart';
-import '../../../settings/presentation/pages/settings_page.dart';
-import '../../../contacts/presentation/pages/friends_page.dart';
+import '../../app/widgets/app_scaffold.dart';
+import '../utils/responsive_layout.dart';
+import '../chat/presentation/pages/chat_list_page.dart';
+import '../chat/presentation/pages/chat_room_page.dart';
+import '../settings/settings_page.dart';
+import '../contacts/friends_page.dart';
 
 /// Home page with responsive layout
 class HomePage extends StatefulWidget {

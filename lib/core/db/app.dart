@@ -3,9 +3,9 @@
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:im_flutter/core/database/tables/chat_table.dart';
-import 'package:im_flutter/core/database/tables/message_table.dart';
-import 'package:im_flutter/core/database/tables/seq_table.dart';
+import 'tables/chat_table.dart';
+import 'tables/message_table.dart';
+import 'tables/seq_table.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'tables/user_table.dart';

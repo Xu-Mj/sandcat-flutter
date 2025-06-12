@@ -1,8 +1,8 @@
 // lib/features/chat/data/dao/chat_dao.dart
 import 'package:drift/drift.dart';
-import 'package:im_flutter/core/database/app.dart';
-import 'package:im_flutter/core/database/tables/chat_table.dart';
-import 'package:im_flutter/core/database/tables/message_table.dart';
+import 'package:im_flutter/core/db/app.dart';
+import 'package:im_flutter/core/db/tables/chat_table.dart';
+import 'package:im_flutter/core/db/tables/message_table.dart';
 
 part 'chat_dao.g.dart';
 
