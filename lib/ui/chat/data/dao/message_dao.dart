@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:drift/drift.dart';
-import 'package:im_flutter/core/db/app.dart';
-import 'package:im_flutter/core/db/tables/message_table.dart';
-import 'package:im_flutter/core/models/message/message_model.dart';
-import 'package:im_flutter/core/models/message/enums.dart' as enums;
+import 'package:sandcat/core/db/app.dart';
+import 'package:sandcat/core/db/tables/message_table.dart';
+import 'package:sandcat/core/models/message/message_model.dart';
+import 'package:sandcat/core/models/message/enums.dart' as enums;
 
 part 'message_dao.g.dart';
 

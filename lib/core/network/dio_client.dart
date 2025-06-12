@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:im_flutter/app/config/api_config.dart';
-import 'package:im_flutter/core/services/logger_service.dart';
-import 'package:im_flutter/core/services/token_manager.dart';
+import 'package:sandcat/app/config/api_config.dart';
+import 'package:sandcat/core/services/logger_service.dart';
+import 'package:sandcat/core/services/token_manager.dart';
 import 'api_client.dart';
 
 @LazySingleton(as: ApiClient)

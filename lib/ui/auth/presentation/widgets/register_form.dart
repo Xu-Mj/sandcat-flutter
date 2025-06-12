@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:im_flutter/core/services/logger_service.dart';
-import 'package:im_flutter/ui/auth/presentation/providers/auth_providers.dart';
+import 'package:sandcat/core/services/logger_service.dart';
+import 'package:sandcat/ui/auth/presentation/providers/auth_providers.dart';
 
 /// 注册表单组件
 class RegisterForm extends ConsumerStatefulWidget {

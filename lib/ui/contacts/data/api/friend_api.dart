@@ -1,9 +1,9 @@
 // lib/features/contacts/data/services/user_service.dart
 import 'package:drift/drift.dart';
-import 'package:im_flutter/core/network/api_client.dart';
-import 'package:im_flutter/core/db/app.dart';
-import 'package:im_flutter/ui/contacts/data/models/api_model.dart';
-import 'package:im_flutter/core/db/friend_repo.dart';
+import 'package:sandcat/core/network/api_client.dart';
+import 'package:sandcat/core/db/app.dart';
+import 'package:sandcat/ui/contacts/data/models/api_model.dart';
+import 'package:sandcat/core/db/friend_repo.dart';
 import 'package:uuid/uuid.dart';
 
 class FriendApi1 {

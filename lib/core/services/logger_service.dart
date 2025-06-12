@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:im_flutter/app/config/app_config.dart';
+import 'package:sandcat/app/config/app_config.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 /// 日志级别枚举

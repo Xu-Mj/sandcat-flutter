@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:im_flutter/app/theme/app_theme.dart';
+import 'package:sandcat/app/theme/app_theme.dart';
 
 /// 暗黑模式状态提供者
 final darkModeProvider = StateNotifierProvider<DarkModeNotifier, bool>((ref) {

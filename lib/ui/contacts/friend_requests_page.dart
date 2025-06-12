@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:im_flutter/core/network/api_client.dart';
-import 'package:im_flutter/ui/auth/data/services/auth_service.dart';
-import 'package:im_flutter/ui/utils/responsive_layout.dart';
+import 'package:sandcat/core/network/api_client.dart';
+import 'package:sandcat/ui/auth/data/services/auth_service.dart';
+import 'package:sandcat/ui/utils/responsive_layout.dart';
 
 /// 好友请求模型
 class FriendRequest {

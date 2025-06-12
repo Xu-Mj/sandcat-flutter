@@ -1,5 +1,5 @@
-import 'package:im_flutter/app/config/api_config.dart';
-import 'package:im_flutter/core/network/api_client.dart';
+import 'package:sandcat/app/config/api_config.dart';
+import 'package:sandcat/core/network/api_client.dart';
 import '../models/user_model.dart';
 import '../models/register_request.dart';
 import '../models/login_request.dart';

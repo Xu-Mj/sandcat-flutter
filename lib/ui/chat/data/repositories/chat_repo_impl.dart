@@ -1,7 +1,7 @@
 // lib/features/chat/data/repositories/chat_repository_impl.dart
-import 'package:im_flutter/ui/chat/data/dao/chat_dao.dart';
-import 'package:im_flutter/core/db/chat_repo.dart';
-import 'package:im_flutter/core/db/app.dart';
+import 'package:sandcat/ui/chat/data/dao/chat_dao.dart';
+import 'package:sandcat/core/db/chat_repo.dart';
+import 'package:sandcat/core/db/app.dart';
 import 'package:drift/drift.dart';
 
 class ChatRepositoryImpl implements ChatRepository {

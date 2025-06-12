@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:im_flutter/core/services/logger_service.dart';
+import 'package:sandcat/core/services/logger_service.dart';
 
 /// 令牌管理器 - 单一职责：存储和提供访问令牌
 @singleton

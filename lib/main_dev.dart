@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:im_flutter/app/config/api_config.dart';
-import 'package:im_flutter/app/config/app_config.dart';
-import 'package:im_flutter/core/di/injection.dart';
-import 'package:im_flutter/app/theme/theme_provider.dart';
-import 'package:im_flutter/ui/auth/data/services/auth_service.dart';
+import 'package:sandcat/app/config/api_config.dart';
+import 'package:sandcat/app/config/app_config.dart';
+import 'package:sandcat/core/di/injection.dart';
+import 'package:sandcat/app/theme/theme_provider.dart';
+import 'package:sandcat/ui/auth/data/services/auth_service.dart';
 import 'package:window_manager/window_manager.dart';
 import 'app/router/app_router.dart';
 

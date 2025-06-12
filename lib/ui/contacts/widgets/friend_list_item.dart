@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:im_flutter/core/db/app.dart';
+import 'package:sandcat/core/db/app.dart';
 
 class FriendListItem extends StatelessWidget {
   final Friend friend;

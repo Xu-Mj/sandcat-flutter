@@ -1,4 +1,4 @@
-import 'package:im_flutter/core/services/logger_service.dart';
+import 'package:sandcat/core/services/logger_service.dart';
 
 /// 演示如何使用日志服务
 void demonstrateLogging() {

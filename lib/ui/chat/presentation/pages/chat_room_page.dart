@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:im_flutter/core/di/injection.dart';
-import 'package:im_flutter/core/db/app.dart';
-import 'package:im_flutter/core/db/tables/chat_table.dart';
-import 'package:im_flutter/ui/chat/data/dao/message_dao.dart';
-import 'package:im_flutter/ui/chat/domain/services/chat_service.dart';
-import 'package:im_flutter/ui/chat/presentation/widgets/chat_avatar.dart';
-import 'package:im_flutter/ui/chat/presentation/widgets/chat_input_area.dart';
+import 'package:sandcat/core/di/injection.dart';
+import 'package:sandcat/core/db/app.dart';
+import 'package:sandcat/core/db/tables/chat_table.dart';
+import 'package:sandcat/ui/chat/data/dao/message_dao.dart';
+import 'package:sandcat/ui/chat/domain/services/chat_service.dart';
+import 'package:sandcat/ui/chat/presentation/widgets/chat_avatar.dart';
+import 'package:sandcat/ui/chat/presentation/widgets/chat_input_area.dart';
 import '../widgets/chat_message_item.dart';
 import '../../../utils/responsive_layout.dart';
 

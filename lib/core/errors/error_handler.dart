@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:im_flutter/core/errors/exceptions.dart';
-import 'package:im_flutter/core/errors/failures.dart';
+import 'package:sandcat/core/errors/exceptions.dart';
+import 'package:sandcat/core/errors/failures.dart';
 import 'package:injectable/injectable.dart';
 import '../services/logger_service.dart';
 

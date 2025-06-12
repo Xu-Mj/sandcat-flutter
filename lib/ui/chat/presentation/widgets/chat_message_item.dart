@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
-import 'package:im_flutter/ui/utils/responsive_layout.dart';
+import 'package:sandcat/ui/utils/responsive_layout.dart';
 
 /// 聊天消息组件
 class ChatMessageItem extends StatefulWidget {

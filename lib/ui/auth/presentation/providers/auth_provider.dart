@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:im_flutter/ui/auth/data/services/auth_service.dart';
-import 'package:im_flutter/core/services/logger_service.dart';
-import 'package:im_flutter/core/di/injection.dart';
-import 'package:im_flutter/core/sync/sync_manager.dart';
+import 'package:sandcat/ui/auth/data/services/auth_service.dart';
+import 'package:sandcat/core/services/logger_service.dart';
+import 'package:sandcat/core/di/injection.dart';
+import 'package:sandcat/core/sync/sync_manager.dart';
 
 /// 认证状态
 enum AuthState {

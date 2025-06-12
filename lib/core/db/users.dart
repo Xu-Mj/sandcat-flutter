@@ -1,4 +1,4 @@
-import 'package:im_flutter/core/db/app.dart';
+import 'package:sandcat/core/db/app.dart';
 
 abstract class UserRepository {
   Future<List<User>> getAllUsers();

@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:im_flutter/app/config/api_config.dart';
-import 'package:im_flutter/app/config/app_config.dart';
-import 'package:im_flutter/core/di/injection.dart';
+import 'package:sandcat/app/config/api_config.dart';
+import 'package:sandcat/app/config/app_config.dart';
+import 'package:sandcat/core/di/injection.dart';
 import 'package:window_manager/window_manager.dart';
 import 'app/theme/app_theme.dart';
 import 'app/router/app_router.dart';

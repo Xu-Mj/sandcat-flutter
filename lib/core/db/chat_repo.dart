@@ -1,5 +1,5 @@
 // lib/features/chat/domain/repositories/chat_repository.dart
-import 'package:im_flutter/core/db/app.dart';
+import 'package:sandcat/core/db/app.dart';
 
 abstract class ChatRepository {
   /// 获取所有会话

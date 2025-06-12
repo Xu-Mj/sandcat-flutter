@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:im_flutter/core/api/friend.dart';
-import 'package:im_flutter/core/network/api_client.dart';
+import 'package:sandcat/core/api/friend.dart';
+import 'package:sandcat/core/network/api_client.dart';
 import 'package:injectable/injectable.dart';
 
 /// FriendApiHttp的实现

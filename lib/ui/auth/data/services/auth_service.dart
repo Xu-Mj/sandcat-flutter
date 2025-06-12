@@ -1,11 +1,11 @@
-import 'package:im_flutter/core/di/injection.dart';
-import 'package:im_flutter/core/db/users.dart';
-import 'package:im_flutter/core/network/socket_manager.dart';
-import 'package:im_flutter/core/services/token_manager.dart';
+import 'package:sandcat/core/di/injection.dart';
+import 'package:sandcat/core/db/users.dart';
+import 'package:sandcat/core/network/socket_manager.dart';
+import 'package:sandcat/core/services/token_manager.dart';
 import 'package:injectable/injectable.dart';
-import 'package:im_flutter/core/db/app.dart';
-import 'package:im_flutter/core/storage/storage_service.dart';
-import 'package:im_flutter/core/services/logger_service.dart';
+import 'package:sandcat/core/db/app.dart';
+import 'package:sandcat/core/storage/storage_service.dart';
+import 'package:sandcat/core/services/logger_service.dart';
 import '../models/auth_token.dart';
 import '../repositories/auth_repository.dart';
 

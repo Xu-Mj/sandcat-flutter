@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart' hide ConnectionState;
-import 'package:im_flutter/core/network/websocket_client.dart';
+import 'package:sandcat/core/network/websocket_client.dart';
 import 'dart:async';
 
 /// 连接状态指示器组件

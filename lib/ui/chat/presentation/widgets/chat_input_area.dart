@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:im_flutter/ui/chat/presentation/widgets/chat_input_field.dart';
-import 'package:im_flutter/ui/chat/presentation/widgets/emoji_picker.dart';
-import 'package:im_flutter/ui/utils/responsive_layout.dart';
+import 'package:sandcat/ui/chat/presentation/widgets/chat_input_field.dart';
+import 'package:sandcat/ui/chat/presentation/widgets/emoji_picker.dart';
+import 'package:sandcat/ui/utils/responsive_layout.dart';
 
 /// WhatsApp风格的聊天输入区域组件
 class ChatInputArea extends ConsumerStatefulWidget {
