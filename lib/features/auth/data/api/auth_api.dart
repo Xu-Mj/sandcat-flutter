@@ -15,7 +15,7 @@ class AuthApi {
   /// 发送注册验证码
   Future<void> sendRegisterCode(String email) async {
     try {
-      await _apiClient.post(
+      await _apiClient.postWithoutAuth(
         ApiEndpoints.sendEmail,
         data: {'email': email},
       );
@@ -27,7 +27,7 @@ class AuthApi {
   /// 注册新用户
   Future<UserModel> register(RegisterRequest request) async {
     try {
-      final response = await _apiClient.post(
+      final response = await _apiClient.postWithoutAuth(
         ApiEndpoints.user,
         data: request.toJson(),
       );
@@ -41,7 +41,7 @@ class AuthApi {
   /// 用户登录
   Future<AuthToken> login(LoginRequest request) async {
     try {
-      final response = await _apiClient.post(
+      final response = await _apiClient.postWithoutAuth(
         ApiEndpoints.login,
         data: request.toJson(),
       );
