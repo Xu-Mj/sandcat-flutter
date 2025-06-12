@@ -41,4 +41,22 @@ abstract class ApiClient {
     Options? options,
     CancelToken? cancelToken,
   });
+
+  /// Performs a GET request without authentication
+  Future<Response<T>> getWithoutAuth<T>(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  });
+
+  /// Performs a POST request without authentication
+  Future<Response<T>> postWithoutAuth<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  });
 }

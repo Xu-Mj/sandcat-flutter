@@ -43,14 +43,14 @@ dependencies:
   # Network
   dio: ^5.4.0
   retrofit: ^4.0.3
-  web_socket_channel: ^2.4.0
+  web_socket_channel: ^3.0.3
   
   # Storage
   drift: ^2.14.1
   sqlite3_flutter_libs: ^0.5.18
   path_provider: ^2.1.1
   path: ^1.8.3
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.5.3
   flutter_secure_storage: 9.2.4
   
   # Dependency injection
@@ -73,18 +73,21 @@ dependencies:
   crypto: ^3.0.3
   window_manager: ^0.5.0
   flutter_riverpod: ^2.6.1
+  device_info_plus: ^10.1.2
+  uuid: ^4.5.1
+  flutter_slidable: ^4.0.0
 
 dev_dependencies:
+  analyzer: ^7.4.5
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.1
-  build_runner: ^2.4.7
-  drift_dev: ^2.14.1
+  build_runner: ^2.4.15
+  drift_dev: ^2.26.0
   freezed: ^2.4.5
   json_serializable: ^6.7.1
   injectable_generator: ^2.4.1
-  retrofit_generator: ^8.0.4
-
+  retrofit_generator: 9.2.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

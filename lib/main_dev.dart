@@ -5,14 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:im_flutter/app/config/api_config.dart';
 import 'package:im_flutter/app/config/app_config.dart';
 import 'package:im_flutter/app/di/injection.dart';
+import 'package:im_flutter/app/theme/theme_provider.dart';
+import 'package:im_flutter/features/auth/data/services/auth_service.dart';
 import 'package:window_manager/window_manager.dart';
-import 'app/theme/app_theme.dart';
 import 'app/router/app_router.dart';
 
 void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
+  const instance = String.fromEnvironment('INSTANCE', defaultValue: '2');
   // 初始化配置（开发环境）
   AppConfig.initialize(
     environment: Environment.development,
@@ -32,7 +34,7 @@ void main() async {
     const WindowOptions windowOptions = WindowOptions(
       size: Size(1200, 800),
       center: true,
-      backgroundColor: Color(0xFFFFFFFF),
+      backgroundColor: CupertinoColors.systemBackground,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.hidden,
     );
@@ -42,26 +44,29 @@ void main() async {
       await windowManager.focus();
     });
   }
-
+  // 恢复用户会话状态
+  final authService = getIt<AuthService>();
+  await authService.restoreUserSession();
   // Run app
-  runApp(
-    const ProviderScope(
-      child: IMApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: IMApp(instance: instance)));
 }
 
 class IMApp extends ConsumerWidget {
-  const IMApp({super.key});
+  final dynamic instance;
+
+  const IMApp({super.key, required this.instance});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 获取当前主题
+    final theme = ref.watch(themeProvider);
+
     // 创建路由器
     final router = AppRouter.createRouter(ref);
 
     return CupertinoApp.router(
-      title: '${AppConfig.instance.appName} (Dev)',
-      theme: AppTheme.lightTheme,
+      title: '${AppConfig.instance.appName} (Dev) $instance',
+      theme: theme,
       debugShowCheckedModeBanner: true, // 显示debug标识
       routerConfig: router,
     );

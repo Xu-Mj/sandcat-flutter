@@ -5,14 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:im_flutter/app/config/api_config.dart';
 import 'package:im_flutter/app/config/app_config.dart';
 import 'package:im_flutter/app/di/injection.dart';
+import 'package:im_flutter/app/theme/theme_provider.dart';
 import 'package:window_manager/window_manager.dart';
-import 'app/theme/app_theme.dart';
 import 'app/router/app_router.dart';
 
 void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
-
+  const instance = String.fromEnvironment('INSTANCE', defaultValue: '1');
   // 初始化配置
   AppConfig.initialize(
     appName: 'SandCat',
@@ -44,23 +44,29 @@ void main() async {
 
   // Run app
   runApp(
+    // 使用ProviderScope包装应用，使Riverpod全局可用
     const ProviderScope(
-      child: IMApp(),
+      child: IMApp(instance: instance),
     ),
   );
 }
 
 class IMApp extends ConsumerWidget {
-  const IMApp({super.key});
+  final dynamic instance;
+
+  const IMApp({super.key, required this.instance});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 获取当前主题
+    final theme = ref.watch(themeProvider);
+
     // 创建路由器
     final router = AppRouter.createRouter(ref);
 
     return CupertinoApp.router(
-      title: AppConfig.instance.appName,
-      theme: AppTheme.lightTheme,
+      title: '${AppConfig.instance.appName} $instance',
+      theme: theme, // 使用提供者中的主题
       debugShowCheckedModeBanner: false,
       routerConfig: router,
     );

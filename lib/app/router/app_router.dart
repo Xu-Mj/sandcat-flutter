@@ -7,6 +7,9 @@ import 'package:im_flutter/features/auth/presentation/providers/auth_provider.da
 import 'package:im_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:im_flutter/features/auth/presentation/pages/register_page.dart';
 import 'package:im_flutter/features/chat/presentation/pages/chat_room_page.dart';
+import 'package:im_flutter/features/contacts/presentation/pages/create_friend_page.dart';
+import 'package:im_flutter/features/contacts/presentation/pages/friend_detail_page.dart';
+import 'package:im_flutter/features/contacts/presentation/pages/friend_requests_page.dart';
 import 'package:im_flutter/features/home/presentation/pages/home_page.dart';
 import 'package:im_flutter/shared/presentation/pages/splash_page.dart';
 
@@ -76,12 +79,28 @@ class AppRouter {
           path: '/chat/:id',
           builder: (context, state) {
             final chatId = state.pathParameters['id']!;
-            return ChatRoomPage(chatId: chatId);
+            return ChatRoomPage(chatId: chatId, key: ValueKey('chat_$chatId'));
           },
         ),
         GoRoute(
           path: '/register',
           builder: (context, state) => const RegisterPage(),
+        ),
+        // 联系人相关路由
+        GoRoute(
+          path: '/contacts/add',
+          builder: (context, state) => const CreateFriendPage(),
+        ),
+        GoRoute(
+          path: '/contacts/requests',
+          builder: (context, state) => const FriendRequestsPage(),
+        ),
+        GoRoute(
+          path: '/contacts/detail/:id',
+          builder: (context, state) {
+            final friendId = state.pathParameters['id']!;
+            return FriendDetailPage(friendId: friendId);
+          },
         ),
       ],
     );
