@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/core/network/websocket_client.dart';
 import 'package:sandcat/core/services/logger_service.dart';
 import 'package:sandcat/core/utils/device_utils.dart';
-import 'package:sandcat/ui/auth/data/models/auth_token.dart';
-import 'package:sandcat/core/models/message/message_model.dart';
+import 'package:sandcat/core/models/user/auth_token.dart';
 import 'package:injectable/injectable.dart';
 
 /// WebSocket连接管理器状态监听
@@ -119,7 +119,7 @@ class SocketManager {
   }
 
   /// 发送消息
-  Future<bool> sendMessage(MessageModel message) async {
+  Future<bool> sendMessage(Message message) async {
     if (!isConnected) {
       logger.w('Cannot send message, socket not connected');
       return false;
