@@ -13,9 +13,6 @@ class FriendRequestStatus {
 
 // 好友表定义 - 对应服务端的friends表
 class Friends extends Table {
-  // 主键
-  TextColumn get id => text()();
-
   // 关联的好友关系ID
   TextColumn get fsId => text()();
 
@@ -24,6 +21,13 @@ class Friends extends Table {
 
   // 好友ID
   TextColumn get friendId => text()();
+  TextColumn get name => text()();
+  TextColumn get avatar => text()();
+  TextColumn get gender => text()();
+  IntColumn get age => integer()();
+  TextColumn get region => text().nullable()();
+  // 好友邮箱
+  TextColumn get email => text()();
 
   // 好友状态
   TextColumn get status =>
@@ -54,7 +58,7 @@ class Friends extends Table {
   IntColumn get priority => integer().withDefault(const Constant(0))();
 
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {fsId};
 }
 
 // 好友申请表 - 对应服务端的friendships表
@@ -67,6 +71,11 @@ class FriendRequests extends Table {
 
   // 好友ID
   TextColumn get friendId => text()();
+  TextColumn get name => text()();
+  TextColumn get avatar => text()();
+  TextColumn get gender => text()();
+  IntColumn get age => integer()();
+  TextColumn get region => text().nullable()();
 
   // 请求状态
   TextColumn get status =>
