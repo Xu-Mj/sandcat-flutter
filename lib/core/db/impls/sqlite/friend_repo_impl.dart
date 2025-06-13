@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:sandcat/core/db/friend_repo.dart';
-import 'package:sandcat/core/models/friend/friend_models.dart'
-    show FriendRequestStatus;
+import 'package:sandcat/core/protos/generated/common.pbenum.dart';
 import 'package:sandcat/core/services/logger_service.dart';
 import 'package:sandcat/core/db/app.dart';
 import 'package:injectable/injectable.dart';
@@ -52,7 +51,7 @@ class FriendRepositoryImpl implements FriendRepository {
   Future<Friend?> getFriend(String id) async {
     try {
       return await (_database.select(_database.friends)
-            ..where((f) => f.id.equals(id) & f.deletedTime.isNull()))
+            ..where((f) => f.fsId.equals(id) & f.deletedTime.isNull()))
           .getSingleOrNull();
     } catch (e) {
       _log.e('Error getting friend: $e');
@@ -118,7 +117,7 @@ class FriendRepositoryImpl implements FriendRepository {
       // 逻辑删除，设置删除时间
       final now = DateTime.now().millisecondsSinceEpoch;
       return await (_database.update(_database.friends)
-            ..where((f) => f.id.equals(id)))
+            ..where((f) => f.fsId.equals(id)))
           .write(FriendsCompanion(deletedTime: Value(now)));
     } catch (e) {
       _log.e('Error deleting friend: $e');
@@ -130,7 +129,7 @@ class FriendRepositoryImpl implements FriendRepository {
   Future<bool> toggleStarFriend(String id, bool isStarred) async {
     try {
       final result = await (_database.update(_database.friends)
-            ..where((f) => f.id.equals(id)))
+            ..where((f) => f.fsId.equals(id)))
           .write(FriendsCompanion(isStarred: Value(isStarred)));
       return result > 0;
     } catch (e) {
@@ -143,7 +142,7 @@ class FriendRepositoryImpl implements FriendRepository {
   Future<bool> updateFriendStatus(String id, String status) async {
     try {
       final result = await (_database.update(_database.friends)
-            ..where((f) => f.id.equals(id)))
+            ..where((f) => f.fsId.equals(id)))
           .write(FriendsCompanion(status: Value(status)));
       return result > 0;
     } catch (e) {
@@ -156,7 +155,7 @@ class FriendRepositoryImpl implements FriendRepository {
   Future<bool> moveFriendToGroup(String id, int groupId) async {
     try {
       final result = await (_database.update(_database.friends)
-            ..where((f) => f.id.equals(id)))
+            ..where((f) => f.fsId.equals(id)))
           .write(FriendsCompanion(groupId: Value(groupId)));
       return result > 0;
     } catch (e) {
@@ -228,13 +227,50 @@ class FriendRepositoryImpl implements FriendRepository {
   @override
   Future<List<FriendRequest>> getFriendRequests({bool? isPending}) async {
     try {
+      // 基本查询
       final query = _database.select(_database.friendRequests);
+
+      // 添加状态过滤条件
       if (isPending != null && isPending) {
-        query.where((r) => r.status.equals(FriendRequestStatus.pending.name));
+        query.where((r) => r.status.equals(FriendshipStatus.Pending.name));
       }
-      return await query.get();
+
+      // 获取所有请求
+      final requests = await query.get();
+
+      // 查询关联的用户信息并丰富请求记录
+      final enrichedRequests = <FriendRequest>[];
+      for (var request in requests) {
+        try {
+          // 查询申请人信息
+          final requester = await (_database.select(_database.users)
+                ..where((u) => u.id.equals(request.userId)))
+              .getSingleOrNull();
+
+          // 如果存在用户记录，则包含更丰富的信息
+          if (requester != null) {
+            _log.d(
+                '找到 ${request.id} 的发送者 ID:${request.userId}, 名称:${requester.name}');
+            // 输出到日志，方便调试
+            _log.d('请求：$request');
+            _log.d('发送者：$requester');
+          } else {
+            _log.d('未找到请求 ${request.id} 的发送者信息，userId: ${request.userId}');
+          }
+
+          // 无论是否找到用户信息，都添加请求到结果列表
+          enrichedRequests.add(request);
+        } catch (e) {
+          _log.e('查询用户详情时出错: $e');
+          // 出错时也添加原始请求
+          enrichedRequests.add(request);
+        }
+      }
+
+      _log.d('获取到 ${enrichedRequests.length} 条好友请求');
+      return enrichedRequests;
     } catch (e) {
-      _log.e('Error getting friend requests: $e');
+      _log.e('获取好友请求失败: $e');
       return [];
     }
   }
@@ -268,7 +304,7 @@ class FriendRepositoryImpl implements FriendRepository {
   }
 
   @override
-  Future<int> sendFriendRequest(FriendRequestsCompanion request) async {
+  Future<int> saveFriendRequest(FriendRequestsCompanion request) async {
     try {
       return await _database.into(_database.friendRequests).insert(request);
     } catch (e) {
@@ -499,94 +535,22 @@ class FriendRepositoryImpl implements FriendRepository {
   }
 
   @override
-  Future<void> createTestData() async {
+  Stream<FriendRequest> watchFriendRequest() {
     try {
-      // 检查是否已有数据
-      final existingFriends = await getAllFriends();
-      if (existingFriends.isNotEmpty) {
-        _log.i('已有好友数据，跳过创建测试数据');
-        return;
-      }
+      // 监听所有好友请求的状态变化
+      final query = _database.select(_database.friendRequests)
+        ..orderBy([
+          (r) => OrderingTerm(expression: r.updateTime, mode: OrderingMode.desc)
+        ]);
 
-      final now = DateTime.now().millisecondsSinceEpoch;
-
-      // 创建一个默认分组
-      final defaultGroupId = await createFriendGroup(
-        FriendGroupsCompanion(
-          userId: const Value('current_user_id'),
-          name: const Value('默认分组'),
-          createTime: Value(now),
-          updateTime: Value(now),
-          sortOrder: const Value(0),
-        ),
-      );
-
-      // 创建几个好友
-      final friends = [
-        FriendsCompanion(
-          id: const Value('friend1'),
-          fsId: const Value('fs1'),
-          userId: const Value('current_user_id'),
-          friendId: const Value('user1'),
-          status: const Value('Accepted'),
-          remark: const Value('张三'),
-          source: const Value('通讯录'),
-          createTime: Value(now),
-          updateTime: Value(now),
-          isStarred: const Value(true),
-          groupId: Value(defaultGroupId),
-          priority: const Value(0),
-        ),
-        FriendsCompanion(
-          id: const Value('friend2'),
-          fsId: const Value('fs2'),
-          userId: const Value('current_user_id'),
-          friendId: const Value('user2'),
-          status: const Value('Accepted'),
-          remark: const Value('李四'),
-          source: const Value('搜索'),
-          createTime: Value(now),
-          updateTime: Value(now),
-          isStarred: const Value(false),
-          groupId: Value(defaultGroupId),
-          priority: const Value(0),
-        ),
-        FriendsCompanion(
-          id: const Value('friend3'),
-          fsId: const Value('fs3'),
-          userId: const Value('current_user_id'),
-          friendId: const Value('user3'),
-          status: const Value('Accepted'),
-          remark: const Value('王五'),
-          source: const Value('扫码'),
-          createTime: Value(now),
-          updateTime: Value(now),
-          isStarred: const Value(true),
-          groupId: Value(defaultGroupId),
-          priority: const Value(1),
-        ),
-      ];
-
-      // 批量添加好友
-      for (final friend in friends) {
-        await addFriend(friend);
-      }
-
-      // 创建一个好友请求
-      await sendFriendRequest(
-        FriendRequestsCompanion(
-          id: const Value('req1'),
-          userId: const Value('current_user_id'),
-          friendId: const Value('user4'),
-          status: const Value('Pending'),
-          applyMsg: const Value('请求添加您为好友'),
-          createTime: Value(now),
-        ),
-      );
-
-      _log.i('成功创建测试数据');
+      return query.watch().asyncMap((requests) {
+        if (requests.isEmpty) return Future.error('No requests');
+        // 返回最近更新的请求
+        return Future.value(requests.first);
+      });
     } catch (e) {
-      _log.e('创建测试数据失败: $e');
+      _log.e('Error watching friend request status changes: $e');
+      return const Stream.empty();
     }
   }
 }
