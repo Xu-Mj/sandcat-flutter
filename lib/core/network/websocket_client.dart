@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:sandcat/core/services/logger_service.dart';
 import 'package:sandcat/core/utils/device_utils.dart';
-import 'package:sandcat/ui/auth/data/models/auth_token.dart';
+import 'package:sandcat/core/models/user/auth_token.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
