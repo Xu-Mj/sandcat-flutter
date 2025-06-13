@@ -48,8 +48,6 @@ class Users extends Table {
   TextColumn get timezone =>
       text().withDefault(const Constant('Asia/Shanghai'))();
 
-  BoolColumn get isDelete => boolean().withDefault(const Constant(false))();
-
   @override
   Set<Column> get primaryKey => {id};
 }
