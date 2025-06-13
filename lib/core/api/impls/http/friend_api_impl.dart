@@ -12,8 +12,10 @@ class FriendApiHttpImpl implements FriendApi {
   FriendApiHttpImpl(this._apiClient);
 
   @override
-  Future<Response> getFriendsList(String userId, int offlineTime) {
-    return _apiClient.get('/friend/$userId/$offlineTime');
+  Future<Map<String, dynamic>> getFriendsList(String userId, int offlineTime) {
+    return _apiClient.get('/friend/$userId/$offlineTime').then((response) {
+      return response.data as Map<String, dynamic>;
+    });
   }
 
   @override
@@ -45,11 +47,7 @@ class FriendApiHttpImpl implements FriendApi {
     required String friendId,
     required String fsId,
   }) {
-    final data = {
-      'user_id': userId,
-      'friend_id': friendId,
-      'fs_id': fsId,
-    };
+    final data = {'user_id': userId, 'friend_id': friendId, 'fs_id': fsId};
     return _apiClient.put('/friend/agree', data: data);
   }
 
@@ -59,11 +57,7 @@ class FriendApiHttpImpl implements FriendApi {
     required String friendId,
     required String fsId,
   }) {
-    final data = {
-      'user_id': userId,
-      'friend_id': friendId,
-      'fs_id': fsId,
-    };
+    final data = {'user_id': userId, 'friend_id': friendId, 'fs_id': fsId};
     return _apiClient.delete('/friend', data: data);
   }
 
@@ -73,11 +67,7 @@ class FriendApiHttpImpl implements FriendApi {
     required String friendId,
     required String remark,
   }) {
-    final data = {
-      'user_id': userId,
-      'friend_id': friendId,
-      'remark': remark,
-    };
+    final data = {'user_id': userId, 'friend_id': friendId, 'remark': remark};
     return _apiClient.put('/friend/remark', data: data);
   }
 
@@ -106,11 +96,7 @@ class FriendApiHttpImpl implements FriendApi {
     required String name,
     int displayOrder = 0,
   }) {
-    final data = {
-      'id': id,
-      'name': name,
-      'display_order': displayOrder,
-    };
+    final data = {'id': id, 'name': name, 'display_order': displayOrder};
     return _apiClient.put('/friend/groups', data: data);
   }
 
@@ -212,11 +198,7 @@ class FriendApiHttpImpl implements FriendApi {
     required String friendId,
     required double score,
   }) {
-    final data = {
-      'user_id': userId,
-      'friend_id': friendId,
-      'score': score,
-    };
+    final data = {'user_id': userId, 'friend_id': friendId, 'score': score};
     return _apiClient.post('/friend/interaction', data: data);
   }
 

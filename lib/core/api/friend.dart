@@ -5,7 +5,7 @@ abstract class FriendApi {
   /// 获取好友列表
   /// [userId] 用户ID
   /// [offlineTime] 离线时间戳
-  Future<Response> getFriendsList(String userId, int offlineTime);
+  Future<Map<String, dynamic>> getFriendsList(String userId, int offlineTime);
 
   /// 获取好友申请列表
   /// [userId] 用户ID
