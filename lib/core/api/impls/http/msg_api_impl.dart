@@ -1,11 +1,9 @@
-import 'dart:convert';
-
 import 'package:injectable/injectable.dart';
 import 'package:sandcat/core/api/msg.dart';
 import 'package:sandcat/core/models/seq/seq_model.dart';
 import 'package:sandcat/core/network/api_client.dart';
 import 'package:sandcat/core/protos/generated/common.pb.dart';
-import 'package:sandcat/core/protos/extensions/msg_extensions.dart';
+import 'package:sandcat/core/protos/ext/msg_ext.dart';
 
 /// 消息API的HTTP实现
 @LazySingleton(as: MsgApi)
