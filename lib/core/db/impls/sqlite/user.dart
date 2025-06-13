@@ -42,9 +42,7 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<User?> getCurrentUser() async {
     try {
-      return await (_database.select(_database.users)
-            ..where((u) => u.isDelete.not()))
-          .getSingleOrNull();
+      return await (_database.select(_database.users)).getSingleOrNull();
     } catch (e) {
       log.e('Error getting current user: $e');
       return null;
@@ -70,18 +68,6 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       log.e('Error updating user: $e');
       return false;
-    }
-  }
-
-  @override
-  Future<int> deleteUser(String id) async {
-    try {
-      return await (_database.update(_database.users)
-            ..where((u) => u.id.equals(id)))
-          .write(const UsersCompanion(isDelete: Value(true)));
-    } catch (e) {
-      log.e('Error deleting user: $e');
-      return -1;
     }
   }
 

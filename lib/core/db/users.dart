@@ -6,7 +6,6 @@ abstract class UserRepository {
   Future<User?> getCurrentUser();
   Future<int> insertUser(UsersCompanion user);
   Future<bool> updateUser(UsersCompanion user);
-  Future<int> deleteUser(String id);
   Future<bool> updateUserStatus(String id, String status,
       [int? lastActiveTime]);
 }
