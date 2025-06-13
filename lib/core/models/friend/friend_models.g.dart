@@ -6,6 +6,25 @@ part of 'friend_models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+_$FriendShipListImpl _$$FriendShipListImplFromJson(Map<String, dynamic> json) =>
+    _$FriendShipListImpl(
+      friends: (json['friends'] as List<dynamic>?)
+              ?.map((e) => e as Map<String, dynamic>)
+              .toList() ??
+          const [],
+      fs: (json['fs'] as List<dynamic>?)
+              ?.map((e) => e as Map<String, dynamic>)
+              .toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$$FriendShipListImplToJson(
+        _$FriendShipListImpl instance) =>
+    <String, dynamic>{
+      'friends': instance.friends,
+      'fs': instance.fs,
+    };
+
 _$FriendInfoImpl _$$FriendInfoImplFromJson(Map<String, dynamic> json) =>
     _$FriendInfoImpl(
       id: json['id'] as String,
@@ -32,83 +51,6 @@ Map<String, dynamic> _$$FriendInfoImplToJson(_$FriendInfoImpl instance) =>
       if (instance.email case final value?) 'email': value,
       'signature': instance.signature,
       'isFriend': instance.isFriend,
-    };
-
-_$FriendImpl _$$FriendImplFromJson(Map<String, dynamic> json) => _$FriendImpl(
-      id: json['id'] as String,
-      fsId: json['fsId'] as String,
-      userId: json['userId'] as String,
-      friendId: json['friendId'] as String,
-      status: json['status'] as String? ?? '',
-      remark: json['remark'] as String?,
-      source: json['source'] as String?,
-      createTime: (json['createTime'] as num).toInt(),
-      updateTime: (json['updateTime'] as num).toInt(),
-      deletedTime: (json['deletedTime'] as num?)?.toInt(),
-      isStarred: json['isStarred'] as bool? ?? false,
-      groupId: (json['groupId'] as num?)?.toInt(),
-      priority: (json['priority'] as num?)?.toInt() ?? 0,
-      info: json['info'] == null
-          ? null
-          : FriendInfo.fromJson(json['info'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$$FriendImplToJson(_$FriendImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'fsId': instance.fsId,
-      'userId': instance.userId,
-      'friendId': instance.friendId,
-      'status': instance.status,
-      if (instance.remark case final value?) 'remark': value,
-      if (instance.source case final value?) 'source': value,
-      'createTime': instance.createTime,
-      'updateTime': instance.updateTime,
-      if (instance.deletedTime case final value?) 'deletedTime': value,
-      'isStarred': instance.isStarred,
-      if (instance.groupId case final value?) 'groupId': value,
-      'priority': instance.priority,
-      if (instance.info?.toJson() case final value?) 'info': value,
-    };
-
-_$FriendRequestImpl _$$FriendRequestImplFromJson(Map<String, dynamic> json) =>
-    _$FriendRequestImpl(
-      id: json['id'] as String,
-      userId: json['userId'] as String,
-      friendId: json['friendId'] as String,
-      status: json['status'] as String? ?? 'Pending',
-      applyMsg: json['applyMsg'] as String?,
-      reqRemark: json['reqRemark'] as String?,
-      respMsg: json['respMsg'] as String?,
-      respRemark: json['respRemark'] as String?,
-      source: json['source'] as String?,
-      createTime: (json['createTime'] as num).toInt(),
-      updateTime: (json['updateTime'] as num?)?.toInt(),
-      operatorId: json['operatorId'] as String?,
-      lastOperation: json['lastOperation'] as String?,
-      deletedTime: (json['deletedTime'] as num?)?.toInt(),
-      userInfo: json['userInfo'] == null
-          ? null
-          : FriendInfo.fromJson(json['userInfo'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$$FriendRequestImplToJson(_$FriendRequestImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'userId': instance.userId,
-      'friendId': instance.friendId,
-      'status': instance.status,
-      if (instance.applyMsg case final value?) 'applyMsg': value,
-      if (instance.reqRemark case final value?) 'reqRemark': value,
-      if (instance.respMsg case final value?) 'respMsg': value,
-      if (instance.respRemark case final value?) 'respRemark': value,
-      if (instance.source case final value?) 'source': value,
-      'createTime': instance.createTime,
-      if (instance.updateTime case final value?) 'updateTime': value,
-      if (instance.operatorId case final value?) 'operatorId': value,
-      if (instance.lastOperation case final value?) 'lastOperation': value,
-      if (instance.deletedTime case final value?) 'deletedTime': value,
-      if (instance.userInfo?.toJson() case final value?) 'userInfo': value,
     };
 
 _$FriendGroupImpl _$$FriendGroupImplFromJson(Map<String, dynamic> json) =>
