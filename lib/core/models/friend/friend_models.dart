@@ -13,6 +13,18 @@ enum FriendRequestStatus {
   hidden,
 }
 
+/// 好友列表响应模型 - 对应服务端的FriendShipList
+@freezed
+class FriendShipList with _$FriendShipList {
+  const factory FriendShipList({
+    @Default([]) List<Map<String, dynamic>> friends,
+    @Default([]) List<Map<String, dynamic>> fs,
+  }) = _FriendShipList;
+
+  factory FriendShipList.fromJson(Map<String, dynamic> json) =>
+      _$FriendShipListFromJson(json);
+}
+
 /// 好友信息模型
 @freezed
 class FriendInfo with _$FriendInfo {
@@ -33,55 +45,29 @@ class FriendInfo with _$FriendInfo {
       _$FriendInfoFromJson(json);
 }
 
-/// 好友关系模型
-@freezed
-class Friend with _$Friend {
-  const factory Friend({
-    required String id,
-    required String fsId,
-    required String userId,
-    required String friendId,
-    @Default(FriendRequestStatus.accepted) String status,
-    String? remark,
-    String? source,
-    required int createTime,
-    required int updateTime,
-    int? deletedTime,
-    @Default(false) bool isStarred,
-    int? groupId,
-    @Default(0) int priority,
-    // 关联信息
-    FriendInfo? info,
-  }) = _Friend;
+/// 好友关系请求与用户信息模型 - 对应服务端的FriendshipWithUser
+// @freezed
+// class FriendshipWithUser with _$FriendshipWithUser {
+//   const factory FriendshipWithUser({
+//     required String fsId,
+//     required String userId,
+//     required String name,
+//     required String avatar,
+//     required String gender,
+//     @Default(0) int age,
+//     String? region,
+//     @Default(0) int status, // FriendshipStatus枚举值
+//     String? applyMsg,
+//     required String source,
+//     required int createTime,
+//     required String account,
+//     String? remark,
+//     String? email,
+//   }) = _FriendshipWithUser;
 
-  factory Friend.fromJson(Map<String, dynamic> json) => _$FriendFromJson(json);
-}
-
-/// 好友申请模型
-@freezed
-class FriendRequest with _$FriendRequest {
-  const factory FriendRequest({
-    required String id,
-    required String userId,
-    required String friendId,
-    @Default(FriendRequestStatus.pending) String status,
-    String? applyMsg,
-    String? reqRemark,
-    String? respMsg,
-    String? respRemark,
-    String? source,
-    required int createTime,
-    int? updateTime,
-    String? operatorId,
-    String? lastOperation,
-    int? deletedTime,
-    // 关联信息
-    FriendInfo? userInfo,
-  }) = _FriendRequest;
-
-  factory FriendRequest.fromJson(Map<String, dynamic> json) =>
-      _$FriendRequestFromJson(json);
-}
+//   factory FriendshipWithUser.fromJson(Map<String, dynamic> json) =>
+//       _$FriendshipWithUserFromJson(json);
+// }
 
 /// 好友分组模型
 @freezed
