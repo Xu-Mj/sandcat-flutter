@@ -1,15 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
+
+import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/ui/utils/responsive_layout.dart';
+import 'package:sandcat/core/db/tables/message_table.dart';
 
 /// 聊天消息组件
 class ChatMessageItem extends StatefulWidget {
   /// 消息数据
-  final Map<String, dynamic> message;
+  final Message message;
 
   /// 消息操作回调
-  final void Function(String action, Map<String, dynamic> message)? onAction;
+  final void Function(String action, Message message)? onAction;
 
   /// 格式化时间的函数
   final String Function(DateTime) formatTimeFunc;
@@ -46,7 +49,7 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
       builder: (context) => Positioned(
         left: position.dx - 100, // 调整菜单位置
         top: position.dy - 50, // 调整菜单位置
-        child: _buildCustomMenuBubble(widget.message['senderId'] == 'me'),
+        child: _buildCustomMenuBubble(widget.message.isSelf),
       ),
     );
 
@@ -96,8 +99,8 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
 
     if (action == 'copy') {
       // 复制消息内容到剪贴板
-      final content = widget.message['content'] as String?;
-      if (content != null && content.isNotEmpty) {
+      final content = widget.message.content;
+      if (content.isNotEmpty) {
         // 捕获当前上下文
         Clipboard.setData(ClipboardData(text: content)).then((_) {
           // 添加mounted检查，防止在异步操作后使用已销毁的上下文
@@ -161,7 +164,7 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
   @override
   Widget build(BuildContext context) {
     final isDesktop = ResponsiveLayout.isDesktop(context);
-    final isMe = widget.message['senderId'] == 'me';
+    final isMe = widget.message.isSelf;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -222,7 +225,7 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                           }
                         },
                         child: Text(
-                          widget.message['content'],
+                          widget.message.content,
                           style: TextStyle(
                             color: isMe
                                 ? CupertinoColors.white
@@ -242,11 +245,15 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                               Flexible(
                                 child: Text(
                                   widget.formatTimeFunc(
-                                      widget.message['timestamp']),
+                                      DateTime.fromMillisecondsSinceEpoch(
+                                          widget.message.sendTime == 0
+                                              ? widget.message.createTime
+                                              : widget.message.sendTime)),
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: isMe
-                                        ? CupertinoColors.white.withOpacity(0.7)
+                                        ? CupertinoColors.white
+                                            .withValues(alpha: 0.7)
                                         : CupertinoColors.systemGrey,
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -255,11 +262,13 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                               if (isMe) ...[
                                 const SizedBox(width: 4),
                                 Icon(
-                                  widget.message['status'] == 'read'
+                                  widget.message.status ==
+                                          MessageStatus.read.value
                                       ? CupertinoIcons.checkmark_alt_circle_fill
-                                      : widget.message['status'] == 'delivered'
+                                      : widget.message.status == 2
                                           ? CupertinoIcons.checkmark_alt_circle
-                                          : widget.message['status'] == 'sent'
+                                          : widget.message.status ==
+                                                  MessageStatus.sent.value
                                               ? CupertinoIcons.checkmark_circle
                                               : CupertinoIcons.clock,
                                   size: 10,
