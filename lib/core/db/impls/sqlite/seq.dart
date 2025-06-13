@@ -6,48 +6,39 @@ import 'package:sandcat/core/services/logger_service.dart';
 /// 序列号数据访问对象
 @injectable
 class SeqDao {
-  final AppDatabase _db;
+  final DatabaseFactory _databaseFactory;
+  AppDatabase get _database => _databaseFactory();
 
-  SeqDao(this._db);
+  SeqDao(this._databaseFactory);
 
   /// 获取用户序列号
   /// 如果不存在则创建一个默认值
-  Future<Map<String, dynamic>?> getSeqForUser(String userId) async {
+  Future<Seq?> getSeqForUser(String userId) async {
     try {
       // 使用生成的表访问对象
-      final query = _db.select(_db.seqs)
+      final query = _database.select(_database.seqs)
         ..where((tbl) => tbl.userId.equals(userId));
 
       final result = await query.getSingleOrNull();
 
       if (result != null) {
         // 将Drift生成的数据对象转换为Map
-        return {
-          'userId': result.userId,
-          'localSeq': result.localSeq,
-          'sendSeq': result.sendSeq,
-          'lastSyncTime': result.lastSyncTime,
-        };
+        return result;
       } else {
         // 不存在则创建一个新的序列号记录
         final lastSyncTime = DateTime.now().millisecondsSinceEpoch;
 
-        await _db.into(_db.seqs).insert(
-              SeqsCompanion.insert(
-                userId: userId,
-                localSeq: const Value(0),
-                sendSeq: const Value(0),
-                lastSyncTime: Value(lastSyncTime),
-              ),
-            );
+        final seq = Seq(
+          userId: userId,
+          localSeq: 0,
+          sendSeq: 0,
+          lastSyncTime: lastSyncTime,
+        );
+
+        await _database.into(_database.seqs).insert(seq);
 
         // 返回新创建的对象
-        return {
-          'userId': userId,
-          'localSeq': 0,
-          'sendSeq': 0,
-          'lastSyncTime': lastSyncTime,
-        };
+        return seq;
       }
     } catch (e) {
       log.e('获取用户序列号失败', error: e, tag: 'SeqDao');
@@ -59,7 +50,7 @@ class SeqDao {
   /// 更新序列号
   Future<bool> updateSeq(String userId, int localSeq, int sendSeq) async {
     try {
-      final updateStatement = _db.update(_db.seqs)
+      final updateStatement = _database.update(_database.seqs)
         ..where((tbl) => tbl.userId.equals(userId));
 
       await updateStatement.write(
@@ -79,7 +70,7 @@ class SeqDao {
   /// 更新最后同步时间
   Future<bool> updateLastSyncTime(String userId) async {
     try {
-      final updateStatement = _db.update(_db.seqs)
+      final updateStatement = _database.update(_database.seqs)
         ..where((tbl) => tbl.userId.equals(userId));
 
       await updateStatement.write(
@@ -97,7 +88,7 @@ class SeqDao {
   /// 获取最后同步时间
   Future<int> getLastSyncTime(String userId) async {
     try {
-      final query = _db.select(_db.seqs)
+      final query = _database.select(_database.seqs)
         ..where((tbl) => tbl.userId.equals(userId));
 
       final seqData = await query.getSingleOrNull();
