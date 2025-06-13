@@ -58,7 +58,7 @@ abstract class FriendRepository {
       {String? respMsg, String? respRemark});
 
   /// 发送好友请求
-  Future<int> sendFriendRequest(FriendRequestsCompanion request);
+  Future<int> saveFriendRequest(FriendRequestsCompanion request);
 
   /// 获取好友标签列表
   Future<List<FriendTag>> getFriendTags();
@@ -94,6 +94,8 @@ abstract class FriendRepository {
   Future<bool> updateFriendPrivacySetting(
       FriendPrivacySettingsCompanion setting);
 
-  /// 创建一些测试数据
-  Future<void> createTestData();
+  /// 监听好友请求状态变化
+  ///
+  /// 返回一个Stream，当好友请求状态变化时会发出通知
+  Stream<FriendRequest> watchFriendRequest();
 }
