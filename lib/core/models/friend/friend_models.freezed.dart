@@ -14,6 +14,196 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
+FriendShipList _$FriendShipListFromJson(Map<String, dynamic> json) {
+  return _FriendShipList.fromJson(json);
+}
+
+/// @nodoc
+mixin _$FriendShipList {
+  List<Map<String, dynamic>> get friends => throw _privateConstructorUsedError;
+  List<Map<String, dynamic>> get fs => throw _privateConstructorUsedError;
+
+  /// Serializes this FriendShipList to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of FriendShipList
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $FriendShipListCopyWith<FriendShipList> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $FriendShipListCopyWith<$Res> {
+  factory $FriendShipListCopyWith(
+          FriendShipList value, $Res Function(FriendShipList) then) =
+      _$FriendShipListCopyWithImpl<$Res, FriendShipList>;
+  @useResult
+  $Res call(
+      {List<Map<String, dynamic>> friends, List<Map<String, dynamic>> fs});
+}
+
+/// @nodoc
+class _$FriendShipListCopyWithImpl<$Res, $Val extends FriendShipList>
+    implements $FriendShipListCopyWith<$Res> {
+  _$FriendShipListCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of FriendShipList
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? friends = null,
+    Object? fs = null,
+  }) {
+    return _then(_value.copyWith(
+      friends: null == friends
+          ? _value.friends
+          : friends // ignore: cast_nullable_to_non_nullable
+              as List<Map<String, dynamic>>,
+      fs: null == fs
+          ? _value.fs
+          : fs // ignore: cast_nullable_to_non_nullable
+              as List<Map<String, dynamic>>,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$FriendShipListImplCopyWith<$Res>
+    implements $FriendShipListCopyWith<$Res> {
+  factory _$$FriendShipListImplCopyWith(_$FriendShipListImpl value,
+          $Res Function(_$FriendShipListImpl) then) =
+      __$$FriendShipListImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {List<Map<String, dynamic>> friends, List<Map<String, dynamic>> fs});
+}
+
+/// @nodoc
+class __$$FriendShipListImplCopyWithImpl<$Res>
+    extends _$FriendShipListCopyWithImpl<$Res, _$FriendShipListImpl>
+    implements _$$FriendShipListImplCopyWith<$Res> {
+  __$$FriendShipListImplCopyWithImpl(
+      _$FriendShipListImpl _value, $Res Function(_$FriendShipListImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of FriendShipList
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? friends = null,
+    Object? fs = null,
+  }) {
+    return _then(_$FriendShipListImpl(
+      friends: null == friends
+          ? _value._friends
+          : friends // ignore: cast_nullable_to_non_nullable
+              as List<Map<String, dynamic>>,
+      fs: null == fs
+          ? _value._fs
+          : fs // ignore: cast_nullable_to_non_nullable
+              as List<Map<String, dynamic>>,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$FriendShipListImpl implements _FriendShipList {
+  const _$FriendShipListImpl(
+      {final List<Map<String, dynamic>> friends = const [],
+      final List<Map<String, dynamic>> fs = const []})
+      : _friends = friends,
+        _fs = fs;
+
+  factory _$FriendShipListImpl.fromJson(Map<String, dynamic> json) =>
+      _$$FriendShipListImplFromJson(json);
+
+  final List<Map<String, dynamic>> _friends;
+  @override
+  @JsonKey()
+  List<Map<String, dynamic>> get friends {
+    if (_friends is EqualUnmodifiableListView) return _friends;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_friends);
+  }
+
+  final List<Map<String, dynamic>> _fs;
+  @override
+  @JsonKey()
+  List<Map<String, dynamic>> get fs {
+    if (_fs is EqualUnmodifiableListView) return _fs;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_fs);
+  }
+
+  @override
+  String toString() {
+    return 'FriendShipList(friends: $friends, fs: $fs)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$FriendShipListImpl &&
+            const DeepCollectionEquality().equals(other._friends, _friends) &&
+            const DeepCollectionEquality().equals(other._fs, _fs));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(_friends),
+      const DeepCollectionEquality().hash(_fs));
+
+  /// Create a copy of FriendShipList
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$FriendShipListImplCopyWith<_$FriendShipListImpl> get copyWith =>
+      __$$FriendShipListImplCopyWithImpl<_$FriendShipListImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$FriendShipListImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _FriendShipList implements FriendShipList {
+  const factory _FriendShipList(
+      {final List<Map<String, dynamic>> friends,
+      final List<Map<String, dynamic>> fs}) = _$FriendShipListImpl;
+
+  factory _FriendShipList.fromJson(Map<String, dynamic> json) =
+      _$FriendShipListImpl.fromJson;
+
+  @override
+  List<Map<String, dynamic>> get friends;
+  @override
+  List<Map<String, dynamic>> get fs;
+
+  /// Create a copy of FriendShipList
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$FriendShipListImplCopyWith<_$FriendShipListImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 FriendInfo _$FriendInfoFromJson(Map<String, dynamic> json) {
   return _FriendInfo.fromJson(json);
 }
@@ -350,939 +540,6 @@ abstract class _FriendInfo implements FriendInfo {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$FriendInfoImplCopyWith<_$FriendInfoImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-Friend _$FriendFromJson(Map<String, dynamic> json) {
-  return _Friend.fromJson(json);
-}
-
-/// @nodoc
-mixin _$Friend {
-  String get id => throw _privateConstructorUsedError;
-  String get fsId => throw _privateConstructorUsedError;
-  String get userId => throw _privateConstructorUsedError;
-  String get friendId => throw _privateConstructorUsedError;
-  String get status => throw _privateConstructorUsedError;
-  String? get remark => throw _privateConstructorUsedError;
-  String? get source => throw _privateConstructorUsedError;
-  int get createTime => throw _privateConstructorUsedError;
-  int get updateTime => throw _privateConstructorUsedError;
-  int? get deletedTime => throw _privateConstructorUsedError;
-  bool get isStarred => throw _privateConstructorUsedError;
-  int? get groupId => throw _privateConstructorUsedError;
-  int get priority => throw _privateConstructorUsedError; // 关联信息
-  FriendInfo? get info => throw _privateConstructorUsedError;
-
-  /// Serializes this Friend to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of Friend
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $FriendCopyWith<Friend> get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $FriendCopyWith<$Res> {
-  factory $FriendCopyWith(Friend value, $Res Function(Friend) then) =
-      _$FriendCopyWithImpl<$Res, Friend>;
-  @useResult
-  $Res call(
-      {String id,
-      String fsId,
-      String userId,
-      String friendId,
-      String status,
-      String? remark,
-      String? source,
-      int createTime,
-      int updateTime,
-      int? deletedTime,
-      bool isStarred,
-      int? groupId,
-      int priority,
-      FriendInfo? info});
-
-  $FriendInfoCopyWith<$Res>? get info;
-}
-
-/// @nodoc
-class _$FriendCopyWithImpl<$Res, $Val extends Friend>
-    implements $FriendCopyWith<$Res> {
-  _$FriendCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of Friend
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? fsId = null,
-    Object? userId = null,
-    Object? friendId = null,
-    Object? status = null,
-    Object? remark = freezed,
-    Object? source = freezed,
-    Object? createTime = null,
-    Object? updateTime = null,
-    Object? deletedTime = freezed,
-    Object? isStarred = null,
-    Object? groupId = freezed,
-    Object? priority = null,
-    Object? info = freezed,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      fsId: null == fsId
-          ? _value.fsId
-          : fsId // ignore: cast_nullable_to_non_nullable
-              as String,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      friendId: null == friendId
-          ? _value.friendId
-          : friendId // ignore: cast_nullable_to_non_nullable
-              as String,
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as String,
-      remark: freezed == remark
-          ? _value.remark
-          : remark // ignore: cast_nullable_to_non_nullable
-              as String?,
-      source: freezed == source
-          ? _value.source
-          : source // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createTime: null == createTime
-          ? _value.createTime
-          : createTime // ignore: cast_nullable_to_non_nullable
-              as int,
-      updateTime: null == updateTime
-          ? _value.updateTime
-          : updateTime // ignore: cast_nullable_to_non_nullable
-              as int,
-      deletedTime: freezed == deletedTime
-          ? _value.deletedTime
-          : deletedTime // ignore: cast_nullable_to_non_nullable
-              as int?,
-      isStarred: null == isStarred
-          ? _value.isStarred
-          : isStarred // ignore: cast_nullable_to_non_nullable
-              as bool,
-      groupId: freezed == groupId
-          ? _value.groupId
-          : groupId // ignore: cast_nullable_to_non_nullable
-              as int?,
-      priority: null == priority
-          ? _value.priority
-          : priority // ignore: cast_nullable_to_non_nullable
-              as int,
-      info: freezed == info
-          ? _value.info
-          : info // ignore: cast_nullable_to_non_nullable
-              as FriendInfo?,
-    ) as $Val);
-  }
-
-  /// Create a copy of Friend
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $FriendInfoCopyWith<$Res>? get info {
-    if (_value.info == null) {
-      return null;
-    }
-
-    return $FriendInfoCopyWith<$Res>(_value.info!, (value) {
-      return _then(_value.copyWith(info: value) as $Val);
-    });
-  }
-}
-
-/// @nodoc
-abstract class _$$FriendImplCopyWith<$Res> implements $FriendCopyWith<$Res> {
-  factory _$$FriendImplCopyWith(
-          _$FriendImpl value, $Res Function(_$FriendImpl) then) =
-      __$$FriendImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {String id,
-      String fsId,
-      String userId,
-      String friendId,
-      String status,
-      String? remark,
-      String? source,
-      int createTime,
-      int updateTime,
-      int? deletedTime,
-      bool isStarred,
-      int? groupId,
-      int priority,
-      FriendInfo? info});
-
-  @override
-  $FriendInfoCopyWith<$Res>? get info;
-}
-
-/// @nodoc
-class __$$FriendImplCopyWithImpl<$Res>
-    extends _$FriendCopyWithImpl<$Res, _$FriendImpl>
-    implements _$$FriendImplCopyWith<$Res> {
-  __$$FriendImplCopyWithImpl(
-      _$FriendImpl _value, $Res Function(_$FriendImpl) _then)
-      : super(_value, _then);
-
-  /// Create a copy of Friend
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? fsId = null,
-    Object? userId = null,
-    Object? friendId = null,
-    Object? status = null,
-    Object? remark = freezed,
-    Object? source = freezed,
-    Object? createTime = null,
-    Object? updateTime = null,
-    Object? deletedTime = freezed,
-    Object? isStarred = null,
-    Object? groupId = freezed,
-    Object? priority = null,
-    Object? info = freezed,
-  }) {
-    return _then(_$FriendImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      fsId: null == fsId
-          ? _value.fsId
-          : fsId // ignore: cast_nullable_to_non_nullable
-              as String,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      friendId: null == friendId
-          ? _value.friendId
-          : friendId // ignore: cast_nullable_to_non_nullable
-              as String,
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as String,
-      remark: freezed == remark
-          ? _value.remark
-          : remark // ignore: cast_nullable_to_non_nullable
-              as String?,
-      source: freezed == source
-          ? _value.source
-          : source // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createTime: null == createTime
-          ? _value.createTime
-          : createTime // ignore: cast_nullable_to_non_nullable
-              as int,
-      updateTime: null == updateTime
-          ? _value.updateTime
-          : updateTime // ignore: cast_nullable_to_non_nullable
-              as int,
-      deletedTime: freezed == deletedTime
-          ? _value.deletedTime
-          : deletedTime // ignore: cast_nullable_to_non_nullable
-              as int?,
-      isStarred: null == isStarred
-          ? _value.isStarred
-          : isStarred // ignore: cast_nullable_to_non_nullable
-              as bool,
-      groupId: freezed == groupId
-          ? _value.groupId
-          : groupId // ignore: cast_nullable_to_non_nullable
-              as int?,
-      priority: null == priority
-          ? _value.priority
-          : priority // ignore: cast_nullable_to_non_nullable
-              as int,
-      info: freezed == info
-          ? _value.info
-          : info // ignore: cast_nullable_to_non_nullable
-              as FriendInfo?,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$FriendImpl implements _Friend {
-  const _$FriendImpl(
-      {required this.id,
-      required this.fsId,
-      required this.userId,
-      required this.friendId,
-      this.status = '',
-      this.remark,
-      this.source,
-      required this.createTime,
-      required this.updateTime,
-      this.deletedTime,
-      this.isStarred = false,
-      this.groupId,
-      this.priority = 0,
-      this.info});
-
-  factory _$FriendImpl.fromJson(Map<String, dynamic> json) =>
-      _$$FriendImplFromJson(json);
-
-  @override
-  final String id;
-  @override
-  final String fsId;
-  @override
-  final String userId;
-  @override
-  final String friendId;
-  @override
-  @JsonKey()
-  final String status;
-  @override
-  final String? remark;
-  @override
-  final String? source;
-  @override
-  final int createTime;
-  @override
-  final int updateTime;
-  @override
-  final int? deletedTime;
-  @override
-  @JsonKey()
-  final bool isStarred;
-  @override
-  final int? groupId;
-  @override
-  @JsonKey()
-  final int priority;
-// 关联信息
-  @override
-  final FriendInfo? info;
-
-  @override
-  String toString() {
-    return 'Friend(id: $id, fsId: $fsId, userId: $userId, friendId: $friendId, status: $status, remark: $remark, source: $source, createTime: $createTime, updateTime: $updateTime, deletedTime: $deletedTime, isStarred: $isStarred, groupId: $groupId, priority: $priority, info: $info)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$FriendImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.fsId, fsId) || other.fsId == fsId) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.friendId, friendId) ||
-                other.friendId == friendId) &&
-            (identical(other.status, status) || other.status == status) &&
-            (identical(other.remark, remark) || other.remark == remark) &&
-            (identical(other.source, source) || other.source == source) &&
-            (identical(other.createTime, createTime) ||
-                other.createTime == createTime) &&
-            (identical(other.updateTime, updateTime) ||
-                other.updateTime == updateTime) &&
-            (identical(other.deletedTime, deletedTime) ||
-                other.deletedTime == deletedTime) &&
-            (identical(other.isStarred, isStarred) ||
-                other.isStarred == isStarred) &&
-            (identical(other.groupId, groupId) || other.groupId == groupId) &&
-            (identical(other.priority, priority) ||
-                other.priority == priority) &&
-            (identical(other.info, info) || other.info == info));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      fsId,
-      userId,
-      friendId,
-      status,
-      remark,
-      source,
-      createTime,
-      updateTime,
-      deletedTime,
-      isStarred,
-      groupId,
-      priority,
-      info);
-
-  /// Create a copy of Friend
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$FriendImplCopyWith<_$FriendImpl> get copyWith =>
-      __$$FriendImplCopyWithImpl<_$FriendImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$FriendImplToJson(
-      this,
-    );
-  }
-}
-
-abstract class _Friend implements Friend {
-  const factory _Friend(
-      {required final String id,
-      required final String fsId,
-      required final String userId,
-      required final String friendId,
-      final String status,
-      final String? remark,
-      final String? source,
-      required final int createTime,
-      required final int updateTime,
-      final int? deletedTime,
-      final bool isStarred,
-      final int? groupId,
-      final int priority,
-      final FriendInfo? info}) = _$FriendImpl;
-
-  factory _Friend.fromJson(Map<String, dynamic> json) = _$FriendImpl.fromJson;
-
-  @override
-  String get id;
-  @override
-  String get fsId;
-  @override
-  String get userId;
-  @override
-  String get friendId;
-  @override
-  String get status;
-  @override
-  String? get remark;
-  @override
-  String? get source;
-  @override
-  int get createTime;
-  @override
-  int get updateTime;
-  @override
-  int? get deletedTime;
-  @override
-  bool get isStarred;
-  @override
-  int? get groupId;
-  @override
-  int get priority; // 关联信息
-  @override
-  FriendInfo? get info;
-
-  /// Create a copy of Friend
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$FriendImplCopyWith<_$FriendImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-FriendRequest _$FriendRequestFromJson(Map<String, dynamic> json) {
-  return _FriendRequest.fromJson(json);
-}
-
-/// @nodoc
-mixin _$FriendRequest {
-  String get id => throw _privateConstructorUsedError;
-  String get userId => throw _privateConstructorUsedError;
-  String get friendId => throw _privateConstructorUsedError;
-  String get status => throw _privateConstructorUsedError;
-  String? get applyMsg => throw _privateConstructorUsedError;
-  String? get reqRemark => throw _privateConstructorUsedError;
-  String? get respMsg => throw _privateConstructorUsedError;
-  String? get respRemark => throw _privateConstructorUsedError;
-  String? get source => throw _privateConstructorUsedError;
-  int get createTime => throw _privateConstructorUsedError;
-  int? get updateTime => throw _privateConstructorUsedError;
-  String? get operatorId => throw _privateConstructorUsedError;
-  String? get lastOperation => throw _privateConstructorUsedError;
-  int? get deletedTime => throw _privateConstructorUsedError; // 关联信息
-  FriendInfo? get userInfo => throw _privateConstructorUsedError;
-
-  /// Serializes this FriendRequest to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of FriendRequest
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $FriendRequestCopyWith<FriendRequest> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $FriendRequestCopyWith<$Res> {
-  factory $FriendRequestCopyWith(
-          FriendRequest value, $Res Function(FriendRequest) then) =
-      _$FriendRequestCopyWithImpl<$Res, FriendRequest>;
-  @useResult
-  $Res call(
-      {String id,
-      String userId,
-      String friendId,
-      String status,
-      String? applyMsg,
-      String? reqRemark,
-      String? respMsg,
-      String? respRemark,
-      String? source,
-      int createTime,
-      int? updateTime,
-      String? operatorId,
-      String? lastOperation,
-      int? deletedTime,
-      FriendInfo? userInfo});
-
-  $FriendInfoCopyWith<$Res>? get userInfo;
-}
-
-/// @nodoc
-class _$FriendRequestCopyWithImpl<$Res, $Val extends FriendRequest>
-    implements $FriendRequestCopyWith<$Res> {
-  _$FriendRequestCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of FriendRequest
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? userId = null,
-    Object? friendId = null,
-    Object? status = null,
-    Object? applyMsg = freezed,
-    Object? reqRemark = freezed,
-    Object? respMsg = freezed,
-    Object? respRemark = freezed,
-    Object? source = freezed,
-    Object? createTime = null,
-    Object? updateTime = freezed,
-    Object? operatorId = freezed,
-    Object? lastOperation = freezed,
-    Object? deletedTime = freezed,
-    Object? userInfo = freezed,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      friendId: null == friendId
-          ? _value.friendId
-          : friendId // ignore: cast_nullable_to_non_nullable
-              as String,
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as String,
-      applyMsg: freezed == applyMsg
-          ? _value.applyMsg
-          : applyMsg // ignore: cast_nullable_to_non_nullable
-              as String?,
-      reqRemark: freezed == reqRemark
-          ? _value.reqRemark
-          : reqRemark // ignore: cast_nullable_to_non_nullable
-              as String?,
-      respMsg: freezed == respMsg
-          ? _value.respMsg
-          : respMsg // ignore: cast_nullable_to_non_nullable
-              as String?,
-      respRemark: freezed == respRemark
-          ? _value.respRemark
-          : respRemark // ignore: cast_nullable_to_non_nullable
-              as String?,
-      source: freezed == source
-          ? _value.source
-          : source // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createTime: null == createTime
-          ? _value.createTime
-          : createTime // ignore: cast_nullable_to_non_nullable
-              as int,
-      updateTime: freezed == updateTime
-          ? _value.updateTime
-          : updateTime // ignore: cast_nullable_to_non_nullable
-              as int?,
-      operatorId: freezed == operatorId
-          ? _value.operatorId
-          : operatorId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      lastOperation: freezed == lastOperation
-          ? _value.lastOperation
-          : lastOperation // ignore: cast_nullable_to_non_nullable
-              as String?,
-      deletedTime: freezed == deletedTime
-          ? _value.deletedTime
-          : deletedTime // ignore: cast_nullable_to_non_nullable
-              as int?,
-      userInfo: freezed == userInfo
-          ? _value.userInfo
-          : userInfo // ignore: cast_nullable_to_non_nullable
-              as FriendInfo?,
-    ) as $Val);
-  }
-
-  /// Create a copy of FriendRequest
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $FriendInfoCopyWith<$Res>? get userInfo {
-    if (_value.userInfo == null) {
-      return null;
-    }
-
-    return $FriendInfoCopyWith<$Res>(_value.userInfo!, (value) {
-      return _then(_value.copyWith(userInfo: value) as $Val);
-    });
-  }
-}
-
-/// @nodoc
-abstract class _$$FriendRequestImplCopyWith<$Res>
-    implements $FriendRequestCopyWith<$Res> {
-  factory _$$FriendRequestImplCopyWith(
-          _$FriendRequestImpl value, $Res Function(_$FriendRequestImpl) then) =
-      __$$FriendRequestImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {String id,
-      String userId,
-      String friendId,
-      String status,
-      String? applyMsg,
-      String? reqRemark,
-      String? respMsg,
-      String? respRemark,
-      String? source,
-      int createTime,
-      int? updateTime,
-      String? operatorId,
-      String? lastOperation,
-      int? deletedTime,
-      FriendInfo? userInfo});
-
-  @override
-  $FriendInfoCopyWith<$Res>? get userInfo;
-}
-
-/// @nodoc
-class __$$FriendRequestImplCopyWithImpl<$Res>
-    extends _$FriendRequestCopyWithImpl<$Res, _$FriendRequestImpl>
-    implements _$$FriendRequestImplCopyWith<$Res> {
-  __$$FriendRequestImplCopyWithImpl(
-      _$FriendRequestImpl _value, $Res Function(_$FriendRequestImpl) _then)
-      : super(_value, _then);
-
-  /// Create a copy of FriendRequest
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? userId = null,
-    Object? friendId = null,
-    Object? status = null,
-    Object? applyMsg = freezed,
-    Object? reqRemark = freezed,
-    Object? respMsg = freezed,
-    Object? respRemark = freezed,
-    Object? source = freezed,
-    Object? createTime = null,
-    Object? updateTime = freezed,
-    Object? operatorId = freezed,
-    Object? lastOperation = freezed,
-    Object? deletedTime = freezed,
-    Object? userInfo = freezed,
-  }) {
-    return _then(_$FriendRequestImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      friendId: null == friendId
-          ? _value.friendId
-          : friendId // ignore: cast_nullable_to_non_nullable
-              as String,
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as String,
-      applyMsg: freezed == applyMsg
-          ? _value.applyMsg
-          : applyMsg // ignore: cast_nullable_to_non_nullable
-              as String?,
-      reqRemark: freezed == reqRemark
-          ? _value.reqRemark
-          : reqRemark // ignore: cast_nullable_to_non_nullable
-              as String?,
-      respMsg: freezed == respMsg
-          ? _value.respMsg
-          : respMsg // ignore: cast_nullable_to_non_nullable
-              as String?,
-      respRemark: freezed == respRemark
-          ? _value.respRemark
-          : respRemark // ignore: cast_nullable_to_non_nullable
-              as String?,
-      source: freezed == source
-          ? _value.source
-          : source // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createTime: null == createTime
-          ? _value.createTime
-          : createTime // ignore: cast_nullable_to_non_nullable
-              as int,
-      updateTime: freezed == updateTime
-          ? _value.updateTime
-          : updateTime // ignore: cast_nullable_to_non_nullable
-              as int?,
-      operatorId: freezed == operatorId
-          ? _value.operatorId
-          : operatorId // ignore: cast_nullable_to_non_nullable
-              as String?,
-      lastOperation: freezed == lastOperation
-          ? _value.lastOperation
-          : lastOperation // ignore: cast_nullable_to_non_nullable
-              as String?,
-      deletedTime: freezed == deletedTime
-          ? _value.deletedTime
-          : deletedTime // ignore: cast_nullable_to_non_nullable
-              as int?,
-      userInfo: freezed == userInfo
-          ? _value.userInfo
-          : userInfo // ignore: cast_nullable_to_non_nullable
-              as FriendInfo?,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$FriendRequestImpl implements _FriendRequest {
-  const _$FriendRequestImpl(
-      {required this.id,
-      required this.userId,
-      required this.friendId,
-      this.status = 'Pending',
-      this.applyMsg,
-      this.reqRemark,
-      this.respMsg,
-      this.respRemark,
-      this.source,
-      required this.createTime,
-      this.updateTime,
-      this.operatorId,
-      this.lastOperation,
-      this.deletedTime,
-      this.userInfo});
-
-  factory _$FriendRequestImpl.fromJson(Map<String, dynamic> json) =>
-      _$$FriendRequestImplFromJson(json);
-
-  @override
-  final String id;
-  @override
-  final String userId;
-  @override
-  final String friendId;
-  @override
-  @JsonKey()
-  final String status;
-  @override
-  final String? applyMsg;
-  @override
-  final String? reqRemark;
-  @override
-  final String? respMsg;
-  @override
-  final String? respRemark;
-  @override
-  final String? source;
-  @override
-  final int createTime;
-  @override
-  final int? updateTime;
-  @override
-  final String? operatorId;
-  @override
-  final String? lastOperation;
-  @override
-  final int? deletedTime;
-// 关联信息
-  @override
-  final FriendInfo? userInfo;
-
-  @override
-  String toString() {
-    return 'FriendRequest(id: $id, userId: $userId, friendId: $friendId, status: $status, applyMsg: $applyMsg, reqRemark: $reqRemark, respMsg: $respMsg, respRemark: $respRemark, source: $source, createTime: $createTime, updateTime: $updateTime, operatorId: $operatorId, lastOperation: $lastOperation, deletedTime: $deletedTime, userInfo: $userInfo)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$FriendRequestImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.friendId, friendId) ||
-                other.friendId == friendId) &&
-            (identical(other.status, status) || other.status == status) &&
-            (identical(other.applyMsg, applyMsg) ||
-                other.applyMsg == applyMsg) &&
-            (identical(other.reqRemark, reqRemark) ||
-                other.reqRemark == reqRemark) &&
-            (identical(other.respMsg, respMsg) || other.respMsg == respMsg) &&
-            (identical(other.respRemark, respRemark) ||
-                other.respRemark == respRemark) &&
-            (identical(other.source, source) || other.source == source) &&
-            (identical(other.createTime, createTime) ||
-                other.createTime == createTime) &&
-            (identical(other.updateTime, updateTime) ||
-                other.updateTime == updateTime) &&
-            (identical(other.operatorId, operatorId) ||
-                other.operatorId == operatorId) &&
-            (identical(other.lastOperation, lastOperation) ||
-                other.lastOperation == lastOperation) &&
-            (identical(other.deletedTime, deletedTime) ||
-                other.deletedTime == deletedTime) &&
-            (identical(other.userInfo, userInfo) ||
-                other.userInfo == userInfo));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      userId,
-      friendId,
-      status,
-      applyMsg,
-      reqRemark,
-      respMsg,
-      respRemark,
-      source,
-      createTime,
-      updateTime,
-      operatorId,
-      lastOperation,
-      deletedTime,
-      userInfo);
-
-  /// Create a copy of FriendRequest
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$FriendRequestImplCopyWith<_$FriendRequestImpl> get copyWith =>
-      __$$FriendRequestImplCopyWithImpl<_$FriendRequestImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$FriendRequestImplToJson(
-      this,
-    );
-  }
-}
-
-abstract class _FriendRequest implements FriendRequest {
-  const factory _FriendRequest(
-      {required final String id,
-      required final String userId,
-      required final String friendId,
-      final String status,
-      final String? applyMsg,
-      final String? reqRemark,
-      final String? respMsg,
-      final String? respRemark,
-      final String? source,
-      required final int createTime,
-      final int? updateTime,
-      final String? operatorId,
-      final String? lastOperation,
-      final int? deletedTime,
-      final FriendInfo? userInfo}) = _$FriendRequestImpl;
-
-  factory _FriendRequest.fromJson(Map<String, dynamic> json) =
-      _$FriendRequestImpl.fromJson;
-
-  @override
-  String get id;
-  @override
-  String get userId;
-  @override
-  String get friendId;
-  @override
-  String get status;
-  @override
-  String? get applyMsg;
-  @override
-  String? get reqRemark;
-  @override
-  String? get respMsg;
-  @override
-  String? get respRemark;
-  @override
-  String? get source;
-  @override
-  int get createTime;
-  @override
-  int? get updateTime;
-  @override
-  String? get operatorId;
-  @override
-  String? get lastOperation;
-  @override
-  int? get deletedTime; // 关联信息
-  @override
-  FriendInfo? get userInfo;
-
-  /// Create a copy of FriendRequest
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$FriendRequestImplCopyWith<_$FriendRequestImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
