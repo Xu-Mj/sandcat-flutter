@@ -60,6 +60,7 @@ dependencies:
   # Serialization
   freezed_annotation: ^2.4.1
   json_annotation: ^4.9.0
+  protobuf: ^4.0.0
   
   # Utils
   dartz: ^0.10.1
@@ -76,6 +77,7 @@ dependencies:
   device_info_plus: ^10.1.2
   uuid: ^4.5.1
   flutter_slidable: ^4.0.0
+  d_bincode: ^3.2.0
 
 dev_dependencies:
   analyzer: ^7.4.5
@@ -88,6 +90,7 @@ dev_dependencies:
   json_serializable: ^6.7.1
   injectable_generator: ^2.4.1
   retrofit_generator: 9.2.0
+  protoc_plugin: ^22.3.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
