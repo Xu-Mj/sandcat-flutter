@@ -198,16 +198,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('Asia/Shanghai'));
-  static const VerificationMeta _isDeleteMeta =
-      const VerificationMeta('isDelete');
-  @override
-  late final GeneratedColumn<bool> isDelete = GeneratedColumn<bool>(
-      'is_delete', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_delete" IN (0, 1))'),
-      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -237,8 +227,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         friendRequestsPrivacy,
         profileVisibility,
         theme,
-        timezone,
-        isDelete
+        timezone
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -399,10 +388,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       context.handle(_timezoneMeta,
           timezone.isAcceptableOrUnknown(data['timezone']!, _timezoneMeta));
     }
-    if (data.containsKey('is_delete')) {
-      context.handle(_isDeleteMeta,
-          isDelete.isAcceptableOrUnknown(data['is_delete']!, _isDeleteMeta));
-    }
     return context;
   }
 
@@ -470,8 +455,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
           .read(DriftSqlType.string, data['${effectivePrefix}theme'])!,
       timezone: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}timezone'])!,
-      isDelete: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_delete'])!,
     );
   }
 
@@ -510,7 +493,6 @@ class User extends DataClass implements Insertable<User> {
   final String profileVisibility;
   final String theme;
   final String timezone;
-  final bool isDelete;
   const User(
       {required this.id,
       required this.name,
@@ -539,8 +521,7 @@ class User extends DataClass implements Insertable<User> {
       required this.friendRequestsPrivacy,
       required this.profileVisibility,
       required this.theme,
-      required this.timezone,
-      required this.isDelete});
+      required this.timezone});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -592,7 +573,6 @@ class User extends DataClass implements Insertable<User> {
     map['profile_visibility'] = Variable<String>(profileVisibility);
     map['theme'] = Variable<String>(theme);
     map['timezone'] = Variable<String>(timezone);
-    map['is_delete'] = Variable<bool>(isDelete);
     return map;
   }
 
@@ -643,7 +623,6 @@ class User extends DataClass implements Insertable<User> {
       profileVisibility: Value(profileVisibility),
       theme: Value(theme),
       timezone: Value(timezone),
-      isDelete: Value(isDelete),
     );
   }
 
@@ -681,7 +660,6 @@ class User extends DataClass implements Insertable<User> {
       profileVisibility: serializer.fromJson<String>(json['profileVisibility']),
       theme: serializer.fromJson<String>(json['theme']),
       timezone: serializer.fromJson<String>(json['timezone']),
-      isDelete: serializer.fromJson<bool>(json['isDelete']),
     );
   }
   factory User.fromJsonString(String encodedJson,
@@ -720,7 +698,6 @@ class User extends DataClass implements Insertable<User> {
       'profileVisibility': serializer.toJson<String>(profileVisibility),
       'theme': serializer.toJson<String>(theme),
       'timezone': serializer.toJson<String>(timezone),
-      'isDelete': serializer.toJson<bool>(isDelete),
     };
   }
 
@@ -752,8 +729,7 @@ class User extends DataClass implements Insertable<User> {
           String? friendRequestsPrivacy,
           String? profileVisibility,
           String? theme,
-          String? timezone,
-          bool? isDelete}) =>
+          String? timezone}) =>
       User(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -787,7 +763,6 @@ class User extends DataClass implements Insertable<User> {
         profileVisibility: profileVisibility ?? this.profileVisibility,
         theme: theme ?? this.theme,
         timezone: timezone ?? this.timezone,
-        isDelete: isDelete ?? this.isDelete,
       );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -840,7 +815,6 @@ class User extends DataClass implements Insertable<User> {
           : this.profileVisibility,
       theme: data.theme.present ? data.theme.value : this.theme,
       timezone: data.timezone.present ? data.timezone.value : this.timezone,
-      isDelete: data.isDelete.present ? data.isDelete.value : this.isDelete,
     );
   }
 
@@ -874,8 +848,7 @@ class User extends DataClass implements Insertable<User> {
           ..write('friendRequestsPrivacy: $friendRequestsPrivacy, ')
           ..write('profileVisibility: $profileVisibility, ')
           ..write('theme: $theme, ')
-          ..write('timezone: $timezone, ')
-          ..write('isDelete: $isDelete')
+          ..write('timezone: $timezone')
           ..write(')'))
         .toString();
   }
@@ -909,8 +882,7 @@ class User extends DataClass implements Insertable<User> {
         friendRequestsPrivacy,
         profileVisibility,
         theme,
-        timezone,
-        isDelete
+        timezone
       ]);
   @override
   bool operator ==(Object other) =>
@@ -943,8 +915,7 @@ class User extends DataClass implements Insertable<User> {
           other.friendRequestsPrivacy == this.friendRequestsPrivacy &&
           other.profileVisibility == this.profileVisibility &&
           other.theme == this.theme &&
-          other.timezone == this.timezone &&
-          other.isDelete == this.isDelete);
+          other.timezone == this.timezone);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -976,7 +947,6 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> profileVisibility;
   final Value<String> theme;
   final Value<String> timezone;
-  final Value<bool> isDelete;
   final Value<int> rowid;
   const UsersCompanion({
     this.id = const Value.absent(),
@@ -1007,7 +977,6 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.profileVisibility = const Value.absent(),
     this.theme = const Value.absent(),
     this.timezone = const Value.absent(),
-    this.isDelete = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   UsersCompanion.insert({
@@ -1039,7 +1008,6 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.profileVisibility = const Value.absent(),
     this.theme = const Value.absent(),
     this.timezone = const Value.absent(),
-    this.isDelete = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         name = Value(name),
@@ -1077,7 +1045,6 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<String>? profileVisibility,
     Expression<String>? theme,
     Expression<String>? timezone,
-    Expression<bool>? isDelete,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1111,7 +1078,6 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (profileVisibility != null) 'profile_visibility': profileVisibility,
       if (theme != null) 'theme': theme,
       if (timezone != null) 'timezone': timezone,
-      if (isDelete != null) 'is_delete': isDelete,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1145,7 +1111,6 @@ class UsersCompanion extends UpdateCompanion<User> {
       Value<String>? profileVisibility,
       Value<String>? theme,
       Value<String>? timezone,
-      Value<bool>? isDelete,
       Value<int>? rowid}) {
     return UsersCompanion(
       id: id ?? this.id,
@@ -1177,7 +1142,6 @@ class UsersCompanion extends UpdateCompanion<User> {
       profileVisibility: profileVisibility ?? this.profileVisibility,
       theme: theme ?? this.theme,
       timezone: timezone ?? this.timezone,
-      isDelete: isDelete ?? this.isDelete,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1271,9 +1235,6 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (timezone.present) {
       map['timezone'] = Variable<String>(timezone.value);
     }
-    if (isDelete.present) {
-      map['is_delete'] = Variable<bool>(isDelete.value);
-    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1311,7 +1272,6 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('profileVisibility: $profileVisibility, ')
           ..write('theme: $theme, ')
           ..write('timezone: $timezone, ')
-          ..write('isDelete: $isDelete, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1323,11 +1283,6 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $FriendsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-      'id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _fsIdMeta = const VerificationMeta('fsId');
   @override
   late final GeneratedColumn<String> fsId = GeneratedColumn<String>(
@@ -1343,6 +1298,36 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
   @override
   late final GeneratedColumn<String> friendId = GeneratedColumn<String>(
       'friend_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _avatarMeta = const VerificationMeta('avatar');
+  @override
+  late final GeneratedColumn<String> avatar = GeneratedColumn<String>(
+      'avatar', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _genderMeta = const VerificationMeta('gender');
+  @override
+  late final GeneratedColumn<String> gender = GeneratedColumn<String>(
+      'gender', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ageMeta = const VerificationMeta('age');
+  @override
+  late final GeneratedColumn<int> age = GeneratedColumn<int>(
+      'age', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _regionMeta = const VerificationMeta('region');
+  @override
+  late final GeneratedColumn<String> region = GeneratedColumn<String>(
+      'region', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+      'email', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
@@ -1405,10 +1390,15 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
       defaultValue: const Constant(0));
   @override
   List<GeneratedColumn> get $columns => [
-        id,
         fsId,
         userId,
         friendId,
+        name,
+        avatar,
+        gender,
+        age,
+        region,
+        email,
         status,
         remark,
         source,
@@ -1429,11 +1419,6 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
     if (data.containsKey('fs_id')) {
       context.handle(
           _fsIdMeta, fsId.isAcceptableOrUnknown(data['fs_id']!, _fsIdMeta));
@@ -1451,6 +1436,40 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
           friendId.isAcceptableOrUnknown(data['friend_id']!, _friendIdMeta));
     } else if (isInserting) {
       context.missing(_friendIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('avatar')) {
+      context.handle(_avatarMeta,
+          avatar.isAcceptableOrUnknown(data['avatar']!, _avatarMeta));
+    } else if (isInserting) {
+      context.missing(_avatarMeta);
+    }
+    if (data.containsKey('gender')) {
+      context.handle(_genderMeta,
+          gender.isAcceptableOrUnknown(data['gender']!, _genderMeta));
+    } else if (isInserting) {
+      context.missing(_genderMeta);
+    }
+    if (data.containsKey('age')) {
+      context.handle(
+          _ageMeta, age.isAcceptableOrUnknown(data['age']!, _ageMeta));
+    } else if (isInserting) {
+      context.missing(_ageMeta);
+    }
+    if (data.containsKey('region')) {
+      context.handle(_regionMeta,
+          region.isAcceptableOrUnknown(data['region']!, _regionMeta));
+    }
+    if (data.containsKey('email')) {
+      context.handle(
+          _emailMeta, email.isAcceptableOrUnknown(data['email']!, _emailMeta));
+    } else if (isInserting) {
+      context.missing(_emailMeta);
     }
     if (data.containsKey('status')) {
       context.handle(_statusMeta,
@@ -1502,19 +1521,29 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {fsId};
   @override
   Friend map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Friend(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       fsId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}fs_id'])!,
       userId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
       friendId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}friend_id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      avatar: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}avatar'])!,
+      gender: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gender'])!,
+      age: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}age'])!,
+      region: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}region']),
+      email: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}email'])!,
       status: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
       remark: attachedDatabase.typeMapping
@@ -1543,10 +1572,15 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
 }
 
 class Friend extends DataClass implements Insertable<Friend> {
-  final String id;
   final String fsId;
   final String userId;
   final String friendId;
+  final String name;
+  final String avatar;
+  final String gender;
+  final int age;
+  final String? region;
+  final String email;
   final String status;
   final String? remark;
   final String? source;
@@ -1557,10 +1591,15 @@ class Friend extends DataClass implements Insertable<Friend> {
   final int? groupId;
   final int priority;
   const Friend(
-      {required this.id,
-      required this.fsId,
+      {required this.fsId,
       required this.userId,
       required this.friendId,
+      required this.name,
+      required this.avatar,
+      required this.gender,
+      required this.age,
+      this.region,
+      required this.email,
       required this.status,
       this.remark,
       this.source,
@@ -1573,10 +1612,17 @@ class Friend extends DataClass implements Insertable<Friend> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
     map['fs_id'] = Variable<String>(fsId);
     map['user_id'] = Variable<String>(userId);
     map['friend_id'] = Variable<String>(friendId);
+    map['name'] = Variable<String>(name);
+    map['avatar'] = Variable<String>(avatar);
+    map['gender'] = Variable<String>(gender);
+    map['age'] = Variable<int>(age);
+    if (!nullToAbsent || region != null) {
+      map['region'] = Variable<String>(region);
+    }
+    map['email'] = Variable<String>(email);
     map['status'] = Variable<String>(status);
     if (!nullToAbsent || remark != null) {
       map['remark'] = Variable<String>(remark);
@@ -1599,10 +1645,16 @@ class Friend extends DataClass implements Insertable<Friend> {
 
   FriendsCompanion toCompanion(bool nullToAbsent) {
     return FriendsCompanion(
-      id: Value(id),
       fsId: Value(fsId),
       userId: Value(userId),
       friendId: Value(friendId),
+      name: Value(name),
+      avatar: Value(avatar),
+      gender: Value(gender),
+      age: Value(age),
+      region:
+          region == null && nullToAbsent ? const Value.absent() : Value(region),
+      email: Value(email),
       status: Value(status),
       remark:
           remark == null && nullToAbsent ? const Value.absent() : Value(remark),
@@ -1625,10 +1677,15 @@ class Friend extends DataClass implements Insertable<Friend> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Friend(
-      id: serializer.fromJson<String>(json['id']),
       fsId: serializer.fromJson<String>(json['fsId']),
       userId: serializer.fromJson<String>(json['userId']),
       friendId: serializer.fromJson<String>(json['friendId']),
+      name: serializer.fromJson<String>(json['name']),
+      avatar: serializer.fromJson<String>(json['avatar']),
+      gender: serializer.fromJson<String>(json['gender']),
+      age: serializer.fromJson<int>(json['age']),
+      region: serializer.fromJson<String?>(json['region']),
+      email: serializer.fromJson<String>(json['email']),
       status: serializer.fromJson<String>(json['status']),
       remark: serializer.fromJson<String?>(json['remark']),
       source: serializer.fromJson<String?>(json['source']),
@@ -1648,10 +1705,15 @@ class Friend extends DataClass implements Insertable<Friend> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
       'fsId': serializer.toJson<String>(fsId),
       'userId': serializer.toJson<String>(userId),
       'friendId': serializer.toJson<String>(friendId),
+      'name': serializer.toJson<String>(name),
+      'avatar': serializer.toJson<String>(avatar),
+      'gender': serializer.toJson<String>(gender),
+      'age': serializer.toJson<int>(age),
+      'region': serializer.toJson<String?>(region),
+      'email': serializer.toJson<String>(email),
       'status': serializer.toJson<String>(status),
       'remark': serializer.toJson<String?>(remark),
       'source': serializer.toJson<String?>(source),
@@ -1665,10 +1727,15 @@ class Friend extends DataClass implements Insertable<Friend> {
   }
 
   Friend copyWith(
-          {String? id,
-          String? fsId,
+          {String? fsId,
           String? userId,
           String? friendId,
+          String? name,
+          String? avatar,
+          String? gender,
+          int? age,
+          Value<String?> region = const Value.absent(),
+          String? email,
           String? status,
           Value<String?> remark = const Value.absent(),
           Value<String?> source = const Value.absent(),
@@ -1679,10 +1746,15 @@ class Friend extends DataClass implements Insertable<Friend> {
           Value<int?> groupId = const Value.absent(),
           int? priority}) =>
       Friend(
-        id: id ?? this.id,
         fsId: fsId ?? this.fsId,
         userId: userId ?? this.userId,
         friendId: friendId ?? this.friendId,
+        name: name ?? this.name,
+        avatar: avatar ?? this.avatar,
+        gender: gender ?? this.gender,
+        age: age ?? this.age,
+        region: region.present ? region.value : this.region,
+        email: email ?? this.email,
         status: status ?? this.status,
         remark: remark.present ? remark.value : this.remark,
         source: source.present ? source.value : this.source,
@@ -1695,10 +1767,15 @@ class Friend extends DataClass implements Insertable<Friend> {
       );
   Friend copyWithCompanion(FriendsCompanion data) {
     return Friend(
-      id: data.id.present ? data.id.value : this.id,
       fsId: data.fsId.present ? data.fsId.value : this.fsId,
       userId: data.userId.present ? data.userId.value : this.userId,
       friendId: data.friendId.present ? data.friendId.value : this.friendId,
+      name: data.name.present ? data.name.value : this.name,
+      avatar: data.avatar.present ? data.avatar.value : this.avatar,
+      gender: data.gender.present ? data.gender.value : this.gender,
+      age: data.age.present ? data.age.value : this.age,
+      region: data.region.present ? data.region.value : this.region,
+      email: data.email.present ? data.email.value : this.email,
       status: data.status.present ? data.status.value : this.status,
       remark: data.remark.present ? data.remark.value : this.remark,
       source: data.source.present ? data.source.value : this.source,
@@ -1717,10 +1794,15 @@ class Friend extends DataClass implements Insertable<Friend> {
   @override
   String toString() {
     return (StringBuffer('Friend(')
-          ..write('id: $id, ')
           ..write('fsId: $fsId, ')
           ..write('userId: $userId, ')
           ..write('friendId: $friendId, ')
+          ..write('name: $name, ')
+          ..write('avatar: $avatar, ')
+          ..write('gender: $gender, ')
+          ..write('age: $age, ')
+          ..write('region: $region, ')
+          ..write('email: $email, ')
           ..write('status: $status, ')
           ..write('remark: $remark, ')
           ..write('source: $source, ')
@@ -1736,10 +1818,15 @@ class Friend extends DataClass implements Insertable<Friend> {
 
   @override
   int get hashCode => Object.hash(
-      id,
       fsId,
       userId,
       friendId,
+      name,
+      avatar,
+      gender,
+      age,
+      region,
+      email,
       status,
       remark,
       source,
@@ -1753,10 +1840,15 @@ class Friend extends DataClass implements Insertable<Friend> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Friend &&
-          other.id == this.id &&
           other.fsId == this.fsId &&
           other.userId == this.userId &&
           other.friendId == this.friendId &&
+          other.name == this.name &&
+          other.avatar == this.avatar &&
+          other.gender == this.gender &&
+          other.age == this.age &&
+          other.region == this.region &&
+          other.email == this.email &&
           other.status == this.status &&
           other.remark == this.remark &&
           other.source == this.source &&
@@ -1769,10 +1861,15 @@ class Friend extends DataClass implements Insertable<Friend> {
 }
 
 class FriendsCompanion extends UpdateCompanion<Friend> {
-  final Value<String> id;
   final Value<String> fsId;
   final Value<String> userId;
   final Value<String> friendId;
+  final Value<String> name;
+  final Value<String> avatar;
+  final Value<String> gender;
+  final Value<int> age;
+  final Value<String?> region;
+  final Value<String> email;
   final Value<String> status;
   final Value<String?> remark;
   final Value<String?> source;
@@ -1784,10 +1881,15 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
   final Value<int> priority;
   final Value<int> rowid;
   const FriendsCompanion({
-    this.id = const Value.absent(),
     this.fsId = const Value.absent(),
     this.userId = const Value.absent(),
     this.friendId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.avatar = const Value.absent(),
+    this.gender = const Value.absent(),
+    this.age = const Value.absent(),
+    this.region = const Value.absent(),
+    this.email = const Value.absent(),
     this.status = const Value.absent(),
     this.remark = const Value.absent(),
     this.source = const Value.absent(),
@@ -1800,10 +1902,15 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
     this.rowid = const Value.absent(),
   });
   FriendsCompanion.insert({
-    required String id,
     required String fsId,
     required String userId,
     required String friendId,
+    required String name,
+    required String avatar,
+    required String gender,
+    required int age,
+    this.region = const Value.absent(),
+    required String email,
     this.status = const Value.absent(),
     this.remark = const Value.absent(),
     this.source = const Value.absent(),
@@ -1814,17 +1921,26 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
     this.groupId = const Value.absent(),
     this.priority = const Value.absent(),
     this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        fsId = Value(fsId),
+  })  : fsId = Value(fsId),
         userId = Value(userId),
         friendId = Value(friendId),
+        name = Value(name),
+        avatar = Value(avatar),
+        gender = Value(gender),
+        age = Value(age),
+        email = Value(email),
         createTime = Value(createTime),
         updateTime = Value(updateTime);
   static Insertable<Friend> custom({
-    Expression<String>? id,
     Expression<String>? fsId,
     Expression<String>? userId,
     Expression<String>? friendId,
+    Expression<String>? name,
+    Expression<String>? avatar,
+    Expression<String>? gender,
+    Expression<int>? age,
+    Expression<String>? region,
+    Expression<String>? email,
     Expression<String>? status,
     Expression<String>? remark,
     Expression<String>? source,
@@ -1837,10 +1953,15 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (fsId != null) 'fs_id': fsId,
       if (userId != null) 'user_id': userId,
       if (friendId != null) 'friend_id': friendId,
+      if (name != null) 'name': name,
+      if (avatar != null) 'avatar': avatar,
+      if (gender != null) 'gender': gender,
+      if (age != null) 'age': age,
+      if (region != null) 'region': region,
+      if (email != null) 'email': email,
       if (status != null) 'status': status,
       if (remark != null) 'remark': remark,
       if (source != null) 'source': source,
@@ -1855,10 +1976,15 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
   }
 
   FriendsCompanion copyWith(
-      {Value<String>? id,
-      Value<String>? fsId,
+      {Value<String>? fsId,
       Value<String>? userId,
       Value<String>? friendId,
+      Value<String>? name,
+      Value<String>? avatar,
+      Value<String>? gender,
+      Value<int>? age,
+      Value<String?>? region,
+      Value<String>? email,
       Value<String>? status,
       Value<String?>? remark,
       Value<String?>? source,
@@ -1870,10 +1996,15 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
       Value<int>? priority,
       Value<int>? rowid}) {
     return FriendsCompanion(
-      id: id ?? this.id,
       fsId: fsId ?? this.fsId,
       userId: userId ?? this.userId,
       friendId: friendId ?? this.friendId,
+      name: name ?? this.name,
+      avatar: avatar ?? this.avatar,
+      gender: gender ?? this.gender,
+      age: age ?? this.age,
+      region: region ?? this.region,
+      email: email ?? this.email,
       status: status ?? this.status,
       remark: remark ?? this.remark,
       source: source ?? this.source,
@@ -1890,9 +2021,6 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
     if (fsId.present) {
       map['fs_id'] = Variable<String>(fsId.value);
     }
@@ -1901,6 +2029,24 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
     }
     if (friendId.present) {
       map['friend_id'] = Variable<String>(friendId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (avatar.present) {
+      map['avatar'] = Variable<String>(avatar.value);
+    }
+    if (gender.present) {
+      map['gender'] = Variable<String>(gender.value);
+    }
+    if (age.present) {
+      map['age'] = Variable<int>(age.value);
+    }
+    if (region.present) {
+      map['region'] = Variable<String>(region.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
     }
     if (status.present) {
       map['status'] = Variable<String>(status.value);
@@ -1938,10 +2084,15 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
   @override
   String toString() {
     return (StringBuffer('FriendsCompanion(')
-          ..write('id: $id, ')
           ..write('fsId: $fsId, ')
           ..write('userId: $userId, ')
           ..write('friendId: $friendId, ')
+          ..write('name: $name, ')
+          ..write('avatar: $avatar, ')
+          ..write('gender: $gender, ')
+          ..write('age: $age, ')
+          ..write('region: $region, ')
+          ..write('email: $email, ')
           ..write('status: $status, ')
           ..write('remark: $remark, ')
           ..write('source: $source, ')
@@ -1979,6 +2130,31 @@ class $FriendRequestsTable extends FriendRequests
   late final GeneratedColumn<String> friendId = GeneratedColumn<String>(
       'friend_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _avatarMeta = const VerificationMeta('avatar');
+  @override
+  late final GeneratedColumn<String> avatar = GeneratedColumn<String>(
+      'avatar', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _genderMeta = const VerificationMeta('gender');
+  @override
+  late final GeneratedColumn<String> gender = GeneratedColumn<String>(
+      'gender', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ageMeta = const VerificationMeta('age');
+  @override
+  late final GeneratedColumn<int> age = GeneratedColumn<int>(
+      'age', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _regionMeta = const VerificationMeta('region');
+  @override
+  late final GeneratedColumn<String> region = GeneratedColumn<String>(
+      'region', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
   late final GeneratedColumn<String> status = GeneratedColumn<String>(
@@ -2050,6 +2226,11 @@ class $FriendRequestsTable extends FriendRequests
         id,
         userId,
         friendId,
+        name,
+        avatar,
+        gender,
+        age,
+        region,
         status,
         applyMsg,
         reqRemark,
@@ -2088,6 +2269,34 @@ class $FriendRequestsTable extends FriendRequests
           friendId.isAcceptableOrUnknown(data['friend_id']!, _friendIdMeta));
     } else if (isInserting) {
       context.missing(_friendIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('avatar')) {
+      context.handle(_avatarMeta,
+          avatar.isAcceptableOrUnknown(data['avatar']!, _avatarMeta));
+    } else if (isInserting) {
+      context.missing(_avatarMeta);
+    }
+    if (data.containsKey('gender')) {
+      context.handle(_genderMeta,
+          gender.isAcceptableOrUnknown(data['gender']!, _genderMeta));
+    } else if (isInserting) {
+      context.missing(_genderMeta);
+    }
+    if (data.containsKey('age')) {
+      context.handle(
+          _ageMeta, age.isAcceptableOrUnknown(data['age']!, _ageMeta));
+    } else if (isInserting) {
+      context.missing(_ageMeta);
+    }
+    if (data.containsKey('region')) {
+      context.handle(_regionMeta,
+          region.isAcceptableOrUnknown(data['region']!, _regionMeta));
     }
     if (data.containsKey('status')) {
       context.handle(_statusMeta,
@@ -2162,6 +2371,16 @@ class $FriendRequestsTable extends FriendRequests
           .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
       friendId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}friend_id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      avatar: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}avatar'])!,
+      gender: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gender'])!,
+      age: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}age'])!,
+      region: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}region']),
       status: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
       applyMsg: attachedDatabase.typeMapping
@@ -2197,6 +2416,11 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
   final String id;
   final String userId;
   final String friendId;
+  final String name;
+  final String avatar;
+  final String gender;
+  final int age;
+  final String? region;
   final String status;
   final String? applyMsg;
   final String? reqRemark;
@@ -2212,6 +2436,11 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
       {required this.id,
       required this.userId,
       required this.friendId,
+      required this.name,
+      required this.avatar,
+      required this.gender,
+      required this.age,
+      this.region,
       required this.status,
       this.applyMsg,
       this.reqRemark,
@@ -2229,6 +2458,13 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
     map['id'] = Variable<String>(id);
     map['user_id'] = Variable<String>(userId);
     map['friend_id'] = Variable<String>(friendId);
+    map['name'] = Variable<String>(name);
+    map['avatar'] = Variable<String>(avatar);
+    map['gender'] = Variable<String>(gender);
+    map['age'] = Variable<int>(age);
+    if (!nullToAbsent || region != null) {
+      map['region'] = Variable<String>(region);
+    }
     map['status'] = Variable<String>(status);
     if (!nullToAbsent || applyMsg != null) {
       map['apply_msg'] = Variable<String>(applyMsg);
@@ -2266,6 +2502,12 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
       id: Value(id),
       userId: Value(userId),
       friendId: Value(friendId),
+      name: Value(name),
+      avatar: Value(avatar),
+      gender: Value(gender),
+      age: Value(age),
+      region:
+          region == null && nullToAbsent ? const Value.absent() : Value(region),
       status: Value(status),
       applyMsg: applyMsg == null && nullToAbsent
           ? const Value.absent()
@@ -2304,6 +2546,11 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
       id: serializer.fromJson<String>(json['id']),
       userId: serializer.fromJson<String>(json['userId']),
       friendId: serializer.fromJson<String>(json['friendId']),
+      name: serializer.fromJson<String>(json['name']),
+      avatar: serializer.fromJson<String>(json['avatar']),
+      gender: serializer.fromJson<String>(json['gender']),
+      age: serializer.fromJson<int>(json['age']),
+      region: serializer.fromJson<String?>(json['region']),
       status: serializer.fromJson<String>(json['status']),
       applyMsg: serializer.fromJson<String?>(json['applyMsg']),
       reqRemark: serializer.fromJson<String?>(json['reqRemark']),
@@ -2329,6 +2576,11 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
       'id': serializer.toJson<String>(id),
       'userId': serializer.toJson<String>(userId),
       'friendId': serializer.toJson<String>(friendId),
+      'name': serializer.toJson<String>(name),
+      'avatar': serializer.toJson<String>(avatar),
+      'gender': serializer.toJson<String>(gender),
+      'age': serializer.toJson<int>(age),
+      'region': serializer.toJson<String?>(region),
       'status': serializer.toJson<String>(status),
       'applyMsg': serializer.toJson<String?>(applyMsg),
       'reqRemark': serializer.toJson<String?>(reqRemark),
@@ -2347,6 +2599,11 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
           {String? id,
           String? userId,
           String? friendId,
+          String? name,
+          String? avatar,
+          String? gender,
+          int? age,
+          Value<String?> region = const Value.absent(),
           String? status,
           Value<String?> applyMsg = const Value.absent(),
           Value<String?> reqRemark = const Value.absent(),
@@ -2362,6 +2619,11 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
         id: id ?? this.id,
         userId: userId ?? this.userId,
         friendId: friendId ?? this.friendId,
+        name: name ?? this.name,
+        avatar: avatar ?? this.avatar,
+        gender: gender ?? this.gender,
+        age: age ?? this.age,
+        region: region.present ? region.value : this.region,
         status: status ?? this.status,
         applyMsg: applyMsg.present ? applyMsg.value : this.applyMsg,
         reqRemark: reqRemark.present ? reqRemark.value : this.reqRemark,
@@ -2380,6 +2642,11 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
       id: data.id.present ? data.id.value : this.id,
       userId: data.userId.present ? data.userId.value : this.userId,
       friendId: data.friendId.present ? data.friendId.value : this.friendId,
+      name: data.name.present ? data.name.value : this.name,
+      avatar: data.avatar.present ? data.avatar.value : this.avatar,
+      gender: data.gender.present ? data.gender.value : this.gender,
+      age: data.age.present ? data.age.value : this.age,
+      region: data.region.present ? data.region.value : this.region,
       status: data.status.present ? data.status.value : this.status,
       applyMsg: data.applyMsg.present ? data.applyMsg.value : this.applyMsg,
       reqRemark: data.reqRemark.present ? data.reqRemark.value : this.reqRemark,
@@ -2407,6 +2674,11 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
           ..write('id: $id, ')
           ..write('userId: $userId, ')
           ..write('friendId: $friendId, ')
+          ..write('name: $name, ')
+          ..write('avatar: $avatar, ')
+          ..write('gender: $gender, ')
+          ..write('age: $age, ')
+          ..write('region: $region, ')
           ..write('status: $status, ')
           ..write('applyMsg: $applyMsg, ')
           ..write('reqRemark: $reqRemark, ')
@@ -2427,6 +2699,11 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
       id,
       userId,
       friendId,
+      name,
+      avatar,
+      gender,
+      age,
+      region,
       status,
       applyMsg,
       reqRemark,
@@ -2445,6 +2722,11 @@ class FriendRequest extends DataClass implements Insertable<FriendRequest> {
           other.id == this.id &&
           other.userId == this.userId &&
           other.friendId == this.friendId &&
+          other.name == this.name &&
+          other.avatar == this.avatar &&
+          other.gender == this.gender &&
+          other.age == this.age &&
+          other.region == this.region &&
           other.status == this.status &&
           other.applyMsg == this.applyMsg &&
           other.reqRemark == this.reqRemark &&
@@ -2462,6 +2744,11 @@ class FriendRequestsCompanion extends UpdateCompanion<FriendRequest> {
   final Value<String> id;
   final Value<String> userId;
   final Value<String> friendId;
+  final Value<String> name;
+  final Value<String> avatar;
+  final Value<String> gender;
+  final Value<int> age;
+  final Value<String?> region;
   final Value<String> status;
   final Value<String?> applyMsg;
   final Value<String?> reqRemark;
@@ -2478,6 +2765,11 @@ class FriendRequestsCompanion extends UpdateCompanion<FriendRequest> {
     this.id = const Value.absent(),
     this.userId = const Value.absent(),
     this.friendId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.avatar = const Value.absent(),
+    this.gender = const Value.absent(),
+    this.age = const Value.absent(),
+    this.region = const Value.absent(),
     this.status = const Value.absent(),
     this.applyMsg = const Value.absent(),
     this.reqRemark = const Value.absent(),
@@ -2495,6 +2787,11 @@ class FriendRequestsCompanion extends UpdateCompanion<FriendRequest> {
     required String id,
     required String userId,
     required String friendId,
+    required String name,
+    required String avatar,
+    required String gender,
+    required int age,
+    this.region = const Value.absent(),
     this.status = const Value.absent(),
     this.applyMsg = const Value.absent(),
     this.reqRemark = const Value.absent(),
@@ -2510,11 +2807,20 @@ class FriendRequestsCompanion extends UpdateCompanion<FriendRequest> {
   })  : id = Value(id),
         userId = Value(userId),
         friendId = Value(friendId),
+        name = Value(name),
+        avatar = Value(avatar),
+        gender = Value(gender),
+        age = Value(age),
         createTime = Value(createTime);
   static Insertable<FriendRequest> custom({
     Expression<String>? id,
     Expression<String>? userId,
     Expression<String>? friendId,
+    Expression<String>? name,
+    Expression<String>? avatar,
+    Expression<String>? gender,
+    Expression<int>? age,
+    Expression<String>? region,
     Expression<String>? status,
     Expression<String>? applyMsg,
     Expression<String>? reqRemark,
@@ -2532,6 +2838,11 @@ class FriendRequestsCompanion extends UpdateCompanion<FriendRequest> {
       if (id != null) 'id': id,
       if (userId != null) 'user_id': userId,
       if (friendId != null) 'friend_id': friendId,
+      if (name != null) 'name': name,
+      if (avatar != null) 'avatar': avatar,
+      if (gender != null) 'gender': gender,
+      if (age != null) 'age': age,
+      if (region != null) 'region': region,
       if (status != null) 'status': status,
       if (applyMsg != null) 'apply_msg': applyMsg,
       if (reqRemark != null) 'req_remark': reqRemark,
@@ -2551,6 +2862,11 @@ class FriendRequestsCompanion extends UpdateCompanion<FriendRequest> {
       {Value<String>? id,
       Value<String>? userId,
       Value<String>? friendId,
+      Value<String>? name,
+      Value<String>? avatar,
+      Value<String>? gender,
+      Value<int>? age,
+      Value<String?>? region,
       Value<String>? status,
       Value<String?>? applyMsg,
       Value<String?>? reqRemark,
@@ -2567,6 +2883,11 @@ class FriendRequestsCompanion extends UpdateCompanion<FriendRequest> {
       id: id ?? this.id,
       userId: userId ?? this.userId,
       friendId: friendId ?? this.friendId,
+      name: name ?? this.name,
+      avatar: avatar ?? this.avatar,
+      gender: gender ?? this.gender,
+      age: age ?? this.age,
+      region: region ?? this.region,
       status: status ?? this.status,
       applyMsg: applyMsg ?? this.applyMsg,
       reqRemark: reqRemark ?? this.reqRemark,
@@ -2593,6 +2914,21 @@ class FriendRequestsCompanion extends UpdateCompanion<FriendRequest> {
     }
     if (friendId.present) {
       map['friend_id'] = Variable<String>(friendId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (avatar.present) {
+      map['avatar'] = Variable<String>(avatar.value);
+    }
+    if (gender.present) {
+      map['gender'] = Variable<String>(gender.value);
+    }
+    if (age.present) {
+      map['age'] = Variable<int>(age.value);
+    }
+    if (region.present) {
+      map['region'] = Variable<String>(region.value);
     }
     if (status.present) {
       map['status'] = Variable<String>(status.value);
@@ -2639,6 +2975,11 @@ class FriendRequestsCompanion extends UpdateCompanion<FriendRequest> {
           ..write('id: $id, ')
           ..write('userId: $userId, ')
           ..write('friendId: $friendId, ')
+          ..write('name: $name, ')
+          ..write('avatar: $avatar, ')
+          ..write('gender: $gender, ')
+          ..write('age: $age, ')
+          ..write('region: $region, ')
           ..write('status: $status, ')
           ..write('applyMsg: $applyMsg, ')
           ..write('reqRemark: $reqRemark, ')
@@ -5805,27 +6146,23 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $MessagesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  static const VerificationMeta _clientIdMeta =
+      const VerificationMeta('clientId');
   @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-      'id', aliasedName, false,
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+      'client_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _sendIdMeta = const VerificationMeta('sendId');
+  static const VerificationMeta _senderIdMeta =
+      const VerificationMeta('senderId');
   @override
-  late final GeneratedColumn<String> sendId = GeneratedColumn<String>(
-      'send_id', aliasedName, false,
+  late final GeneratedColumn<String> senderId = GeneratedColumn<String>(
+      'sender_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _receiverIdMeta =
       const VerificationMeta('receiverId');
   @override
   late final GeneratedColumn<String> receiverId = GeneratedColumn<String>(
       'receiver_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _clientIdMeta =
-      const VerificationMeta('clientId');
-  @override
-  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
-      'client_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _serverIdMeta =
       const VerificationMeta('serverId');
@@ -5843,29 +6180,25 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       const VerificationMeta('sendTime');
   @override
   late final GeneratedColumn<int> sendTime = GeneratedColumn<int>(
-      'send_time', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+      'send_time', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _seqMeta = const VerificationMeta('seq');
   @override
   late final GeneratedColumn<int> seq = GeneratedColumn<int>(
-      'seq', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _sendSeqMeta =
-      const VerificationMeta('sendSeq');
+      'seq', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _msgTypeMeta =
+      const VerificationMeta('msgType');
   @override
-  late final GeneratedColumn<int> sendSeq = GeneratedColumn<int>(
-      'send_seq', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+  late final GeneratedColumn<int> msgType = GeneratedColumn<int>(
+      'msg_type', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _contentTypeMeta =
+      const VerificationMeta('contentType');
   @override
-  late final GeneratedColumnWithTypeConverter<MessageType, int> msgType =
-      GeneratedColumn<int>('msg_type', aliasedName, false,
-              type: DriftSqlType.int, requiredDuringInsert: true)
-          .withConverter<MessageType>($MessagesTable.$convertermsgType);
-  @override
-  late final GeneratedColumnWithTypeConverter<ContentType, int> contentType =
-      GeneratedColumn<int>('content_type', aliasedName, false,
-              type: DriftSqlType.int, requiredDuringInsert: true)
-          .withConverter<ContentType>($MessagesTable.$convertercontentType);
+  late final GeneratedColumn<int> contentType = GeneratedColumn<int>(
+      'content_type', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _contentMeta =
       const VerificationMeta('content');
   @override
@@ -5885,119 +6218,113 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       const VerificationMeta('groupId');
   @override
   late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
-      'group_id', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(''));
+      'group_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _platformMeta =
+      const VerificationMeta('platform');
   @override
-  late final GeneratedColumnWithTypeConverter<PlatformType, int> platform =
-      GeneratedColumn<int>('platform', aliasedName, false,
-              type: DriftSqlType.int,
-              requiredDuringInsert: false,
-              defaultValue: const Constant(1))
-          .withConverter<PlatformType>($MessagesTable.$converterplatform);
-  static const VerificationMeta _avatarMeta = const VerificationMeta('avatar');
-  @override
-  late final GeneratedColumn<String> avatar = GeneratedColumn<String>(
-      'avatar', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(''));
-  static const VerificationMeta _nicknameMeta =
-      const VerificationMeta('nickname');
-  @override
-  late final GeneratedColumn<String> nickname = GeneratedColumn<String>(
-      'nickname', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(''));
+  late final GeneratedColumn<int> platform = GeneratedColumn<int>(
+      'platform', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _relatedMsgIdMeta =
       const VerificationMeta('relatedMsgId');
   @override
   late final GeneratedColumn<String> relatedMsgId = GeneratedColumn<String>(
       'related_msg_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sendSeqMeta =
+      const VerificationMeta('sendSeq');
   @override
-  late final GeneratedColumnWithTypeConverter<MessageStatus, int> status =
-      GeneratedColumn<int>('status', aliasedName, false,
-              type: DriftSqlType.int,
-              requiredDuringInsert: false,
-              defaultValue: const Constant(0))
-          .withConverter<MessageStatus>($MessagesTable.$converterstatus);
-  static const VerificationMeta _chatIdMeta = const VerificationMeta('chatId');
+  late final GeneratedColumn<int> sendSeq = GeneratedColumn<int>(
+      'send_seq', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _conversationIdMeta =
+      const VerificationMeta('conversationId');
   @override
-  late final GeneratedColumn<String> chatId = GeneratedColumn<String>(
-      'chat_id', aliasedName, false,
+  late final GeneratedColumn<String> conversationId = GeneratedColumn<String>(
+      'conversation_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _isMentionMeta =
-      const VerificationMeta('isMention');
+  static const VerificationMeta _isSelfMeta = const VerificationMeta('isSelf');
   @override
-  late final GeneratedColumn<bool> isMention = GeneratedColumn<bool>(
-      'is_mention', aliasedName, false,
+  late final GeneratedColumn<bool> isSelf = GeneratedColumn<bool>(
+      'is_self', aliasedName, false,
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_mention" IN (0, 1))'),
+          GeneratedColumn.constraintIsAlways('CHECK ("is_self" IN (0, 1))'),
       defaultValue: const Constant(false));
-  static const VerificationMeta _isMentionAllMeta =
-      const VerificationMeta('isMentionAll');
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
-  late final GeneratedColumn<bool> isMentionAll = GeneratedColumn<bool>(
-      'is_mention_all', aliasedName, false,
-      type: DriftSqlType.bool,
+  late final GeneratedColumn<int> status = GeneratedColumn<int>(
+      'status', aliasedName, false,
+      type: DriftSqlType.int,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("is_mention_all" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _mentionedUserIdsMeta =
-      const VerificationMeta('mentionedUserIds');
-  @override
-  late final GeneratedColumn<String> mentionedUserIds = GeneratedColumn<String>(
-      'mentioned_user_ids', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _isDraftMeta =
-      const VerificationMeta('isDraft');
-  @override
-  late final GeneratedColumn<bool> isDraft = GeneratedColumn<bool>(
-      'is_draft', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_draft" IN (0, 1))'),
-      defaultValue: const Constant(false));
+      defaultValue: const Constant(0));
   static const VerificationMeta _localPathMeta =
       const VerificationMeta('localPath');
   @override
   late final GeneratedColumn<String> localPath = GeneratedColumn<String>(
       'local_path', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _remoteUrlMeta =
+      const VerificationMeta('remoteUrl');
+  @override
+  late final GeneratedColumn<String> remoteUrl = GeneratedColumn<String>(
+      'remote_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _extraMeta = const VerificationMeta('extra');
+  @override
+  late final GeneratedColumn<String> extra = GeneratedColumn<String>(
+      'extra', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _deletedTimeMeta =
+      const VerificationMeta('deletedTime');
+  @override
+  late final GeneratedColumn<int> deletedTime = GeneratedColumn<int>(
+      'deleted_time', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _updatedTimeMeta =
+      const VerificationMeta('updatedTime');
+  @override
+  late final GeneratedColumn<int> updatedTime = GeneratedColumn<int>(
+      'updated_time', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-        id,
-        sendId,
-        receiverId,
         clientId,
+        senderId,
+        receiverId,
         serverId,
         createTime,
         sendTime,
         seq,
-        sendSeq,
         msgType,
         contentType,
         content,
         isRead,
         groupId,
         platform,
-        avatar,
-        nickname,
         relatedMsgId,
+        sendSeq,
+        conversationId,
+        isSelf,
         status,
-        chatId,
-        isMention,
-        isMentionAll,
-        mentionedUserIds,
-        isDraft,
-        localPath
+        localPath,
+        remoteUrl,
+        extra,
+        deletedTime,
+        isDeleted,
+        updatedTime
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6009,16 +6336,17 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    if (data.containsKey('client_id')) {
+      context.handle(_clientIdMeta,
+          clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta));
     } else if (isInserting) {
-      context.missing(_idMeta);
+      context.missing(_clientIdMeta);
     }
-    if (data.containsKey('send_id')) {
-      context.handle(_sendIdMeta,
-          sendId.isAcceptableOrUnknown(data['send_id']!, _sendIdMeta));
+    if (data.containsKey('sender_id')) {
+      context.handle(_senderIdMeta,
+          senderId.isAcceptableOrUnknown(data['sender_id']!, _senderIdMeta));
     } else if (isInserting) {
-      context.missing(_sendIdMeta);
+      context.missing(_senderIdMeta);
     }
     if (data.containsKey('receiver_id')) {
       context.handle(
@@ -6027,12 +6355,6 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
               data['receiver_id']!, _receiverIdMeta));
     } else if (isInserting) {
       context.missing(_receiverIdMeta);
-    }
-    if (data.containsKey('client_id')) {
-      context.handle(_clientIdMeta,
-          clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta));
-    } else if (isInserting) {
-      context.missing(_clientIdMeta);
     }
     if (data.containsKey('server_id')) {
       context.handle(_serverIdMeta,
@@ -6049,14 +6371,28 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
     if (data.containsKey('send_time')) {
       context.handle(_sendTimeMeta,
           sendTime.isAcceptableOrUnknown(data['send_time']!, _sendTimeMeta));
+    } else if (isInserting) {
+      context.missing(_sendTimeMeta);
     }
     if (data.containsKey('seq')) {
       context.handle(
           _seqMeta, seq.isAcceptableOrUnknown(data['seq']!, _seqMeta));
+    } else if (isInserting) {
+      context.missing(_seqMeta);
     }
-    if (data.containsKey('send_seq')) {
-      context.handle(_sendSeqMeta,
-          sendSeq.isAcceptableOrUnknown(data['send_seq']!, _sendSeqMeta));
+    if (data.containsKey('msg_type')) {
+      context.handle(_msgTypeMeta,
+          msgType.isAcceptableOrUnknown(data['msg_type']!, _msgTypeMeta));
+    } else if (isInserting) {
+      context.missing(_msgTypeMeta);
+    }
+    if (data.containsKey('content_type')) {
+      context.handle(
+          _contentTypeMeta,
+          contentType.isAcceptableOrUnknown(
+              data['content_type']!, _contentTypeMeta));
+    } else if (isInserting) {
+      context.missing(_contentTypeMeta);
     }
     if (data.containsKey('content')) {
       context.handle(_contentMeta,
@@ -6072,13 +6408,11 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
       context.handle(_groupIdMeta,
           groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
     }
-    if (data.containsKey('avatar')) {
-      context.handle(_avatarMeta,
-          avatar.isAcceptableOrUnknown(data['avatar']!, _avatarMeta));
-    }
-    if (data.containsKey('nickname')) {
-      context.handle(_nicknameMeta,
-          nickname.isAcceptableOrUnknown(data['nickname']!, _nicknameMeta));
+    if (data.containsKey('platform')) {
+      context.handle(_platformMeta,
+          platform.isAcceptableOrUnknown(data['platform']!, _platformMeta));
+    } else if (isInserting) {
+      context.missing(_platformMeta);
     }
     if (data.containsKey('related_msg_id')) {
       context.handle(
@@ -6086,99 +6420,113 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
           relatedMsgId.isAcceptableOrUnknown(
               data['related_msg_id']!, _relatedMsgIdMeta));
     }
-    if (data.containsKey('chat_id')) {
-      context.handle(_chatIdMeta,
-          chatId.isAcceptableOrUnknown(data['chat_id']!, _chatIdMeta));
+    if (data.containsKey('send_seq')) {
+      context.handle(_sendSeqMeta,
+          sendSeq.isAcceptableOrUnknown(data['send_seq']!, _sendSeqMeta));
+    }
+    if (data.containsKey('conversation_id')) {
+      context.handle(
+          _conversationIdMeta,
+          conversationId.isAcceptableOrUnknown(
+              data['conversation_id']!, _conversationIdMeta));
     } else if (isInserting) {
-      context.missing(_chatIdMeta);
+      context.missing(_conversationIdMeta);
     }
-    if (data.containsKey('is_mention')) {
-      context.handle(_isMentionMeta,
-          isMention.isAcceptableOrUnknown(data['is_mention']!, _isMentionMeta));
+    if (data.containsKey('is_self')) {
+      context.handle(_isSelfMeta,
+          isSelf.isAcceptableOrUnknown(data['is_self']!, _isSelfMeta));
     }
-    if (data.containsKey('is_mention_all')) {
-      context.handle(
-          _isMentionAllMeta,
-          isMentionAll.isAcceptableOrUnknown(
-              data['is_mention_all']!, _isMentionAllMeta));
-    }
-    if (data.containsKey('mentioned_user_ids')) {
-      context.handle(
-          _mentionedUserIdsMeta,
-          mentionedUserIds.isAcceptableOrUnknown(
-              data['mentioned_user_ids']!, _mentionedUserIdsMeta));
-    }
-    if (data.containsKey('is_draft')) {
-      context.handle(_isDraftMeta,
-          isDraft.isAcceptableOrUnknown(data['is_draft']!, _isDraftMeta));
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
     }
     if (data.containsKey('local_path')) {
       context.handle(_localPathMeta,
           localPath.isAcceptableOrUnknown(data['local_path']!, _localPathMeta));
     }
+    if (data.containsKey('remote_url')) {
+      context.handle(_remoteUrlMeta,
+          remoteUrl.isAcceptableOrUnknown(data['remote_url']!, _remoteUrlMeta));
+    }
+    if (data.containsKey('extra')) {
+      context.handle(
+          _extraMeta, extra.isAcceptableOrUnknown(data['extra']!, _extraMeta));
+    }
+    if (data.containsKey('deleted_time')) {
+      context.handle(
+          _deletedTimeMeta,
+          deletedTime.isAcceptableOrUnknown(
+              data['deleted_time']!, _deletedTimeMeta));
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
+    if (data.containsKey('updated_time')) {
+      context.handle(
+          _updatedTimeMeta,
+          updatedTime.isAcceptableOrUnknown(
+              data['updated_time']!, _updatedTimeMeta));
+    } else if (isInserting) {
+      context.missing(_updatedTimeMeta);
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {clientId};
   @override
   Message map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Message(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      sendId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}send_id'])!,
-      receiverId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}receiver_id'])!,
       clientId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}client_id'])!,
+      senderId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sender_id'])!,
+      receiverId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}receiver_id'])!,
       serverId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}server_id']),
       createTime: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}create_time'])!,
       sendTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}send_time']),
+          .read(DriftSqlType.int, data['${effectivePrefix}send_time'])!,
       seq: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}seq']),
-      sendSeq: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}send_seq']),
-      msgType: $MessagesTable.$convertermsgType.fromSql(attachedDatabase
-          .typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}msg_type'])!),
-      contentType: $MessagesTable.$convertercontentType.fromSql(attachedDatabase
-          .typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}content_type'])!),
+          .read(DriftSqlType.int, data['${effectivePrefix}seq'])!,
+      msgType: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}msg_type'])!,
+      contentType: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}content_type'])!,
       content: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
       isRead: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_read'])!,
       groupId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}group_id'])!,
-      platform: $MessagesTable.$converterplatform.fromSql(attachedDatabase
-          .typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}platform'])!),
-      avatar: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}avatar'])!,
-      nickname: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}nickname'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}group_id']),
+      platform: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}platform'])!,
       relatedMsgId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}related_msg_id']),
-      status: $MessagesTable.$converterstatus.fromSql(attachedDatabase
-          .typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}status'])!),
-      chatId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}chat_id'])!,
-      isMention: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_mention'])!,
-      isMentionAll: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_mention_all'])!,
-      mentionedUserIds: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}mentioned_user_ids']),
-      isDraft: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_draft'])!,
+      sendSeq: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}send_seq']),
+      conversationId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}conversation_id'])!,
+      isSelf: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_self'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}status'])!,
       localPath: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}local_path']),
+      remoteUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remote_url']),
+      extra: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}extra']),
+      deletedTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}deleted_time']),
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
+      updatedTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_time'])!,
     );
   }
 
@@ -6186,214 +6534,192 @@ class $MessagesTable extends Messages with TableInfo<$MessagesTable, Message> {
   $MessagesTable createAlias(String alias) {
     return $MessagesTable(attachedDatabase, alias);
   }
-
-  static JsonTypeConverter2<MessageType, int, int> $convertermsgType =
-      const EnumIndexConverter<MessageType>(MessageType.values);
-  static JsonTypeConverter2<ContentType, int, int> $convertercontentType =
-      const EnumIndexConverter<ContentType>(ContentType.values);
-  static JsonTypeConverter2<PlatformType, int, int> $converterplatform =
-      const EnumIndexConverter<PlatformType>(PlatformType.values);
-  static JsonTypeConverter2<MessageStatus, int, int> $converterstatus =
-      const EnumIndexConverter<MessageStatus>(MessageStatus.values);
 }
 
 class Message extends DataClass implements Insertable<Message> {
-  /// 消息ID（客户端ID + 服务端ID的组合）
-  final String id;
-
-  /// 发送者ID
-  final String sendId;
-
-  /// 接收者ID
-  final String receiverId;
-
-  /// 客户端生成的ID
+  /// The client ID (local ID). primary key
   final String clientId;
 
-  /// 服务端生成的ID
+  /// The sender ID.
+  final String senderId;
+
+  /// The receiver ID.
+  final String receiverId;
+
+  /// The server ID.
   final String? serverId;
 
-  /// 创建时间
+  /// The create time.
   final int createTime;
 
-  /// 发送时间
-  final int? sendTime;
+  /// The send time.
+  final int sendTime;
 
-  /// 接收者序列号（用于消息排序和同步）
-  final int? seq;
+  /// The sequence number.
+  final int seq;
 
-  /// 发送者序列号
-  final int? sendSeq;
+  /// The message type.
+  final int msgType;
 
-  /// 消息类型
-  final MessageType msgType;
+  /// The content type.
+  final int contentType;
 
-  /// 内容类型
-  final ContentType contentType;
-
-  /// 消息内容（二进制数据的Base64编码）
+  /// The content.
   final String content;
 
-  /// 是否已读
+  /// Whether the message is read.
   final bool isRead;
 
-  /// 群组ID（群聊时）
-  final String groupId;
+  /// The group ID.
+  final String? groupId;
 
-  /// 发送平台
-  final PlatformType platform;
+  /// The platform.
+  final int platform;
 
-  /// 发送者头像
-  final String avatar;
-
-  /// 发送者昵称
-  final String nickname;
-
-  /// 关联消息ID（回复/引用消息）
+  /// The related message ID.
   final String? relatedMsgId;
 
-  /// 本地消息状态
-  final MessageStatus status;
+  /// The send sequence number.
+  final int? sendSeq;
 
-  /// 会话ID（用于快速查询）
-  final String chatId;
+  /// The conversation ID.
+  final String conversationId;
 
-  /// 是否为@消息
-  final bool isMention;
+  /// Whether the message is sent by the current user.
+  final bool isSelf;
 
-  /// 是否@全体成员
-  final bool isMentionAll;
+  /// The message status (0: sending, 1: sent, 2: delivered, 3: read, 4: failed).
+  final int status;
 
-  /// 被@的用户ID列表（JSON格式）
-  final String? mentionedUserIds;
-
-  /// 是否为草稿
-  final bool isDraft;
-
-  /// 本地附件路径
+  /// The local path of the attachment.
   final String? localPath;
+
+  /// The remote URL of the attachment.
+  final String? remoteUrl;
+
+  /// The message extra data.
+  final String? extra;
+
+  /// The deleted time.
+  final int? deletedTime;
+
+  /// Whether the message is deleted.
+  final bool isDeleted;
+
+  /// The last update time.
+  final int updatedTime;
   const Message(
-      {required this.id,
-      required this.sendId,
+      {required this.clientId,
+      required this.senderId,
       required this.receiverId,
-      required this.clientId,
       this.serverId,
       required this.createTime,
-      this.sendTime,
-      this.seq,
-      this.sendSeq,
+      required this.sendTime,
+      required this.seq,
       required this.msgType,
       required this.contentType,
       required this.content,
       required this.isRead,
-      required this.groupId,
+      this.groupId,
       required this.platform,
-      required this.avatar,
-      required this.nickname,
       this.relatedMsgId,
+      this.sendSeq,
+      required this.conversationId,
+      required this.isSelf,
       required this.status,
-      required this.chatId,
-      required this.isMention,
-      required this.isMentionAll,
-      this.mentionedUserIds,
-      required this.isDraft,
-      this.localPath});
+      this.localPath,
+      this.remoteUrl,
+      this.extra,
+      this.deletedTime,
+      required this.isDeleted,
+      required this.updatedTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['send_id'] = Variable<String>(sendId);
-    map['receiver_id'] = Variable<String>(receiverId);
     map['client_id'] = Variable<String>(clientId);
+    map['sender_id'] = Variable<String>(senderId);
+    map['receiver_id'] = Variable<String>(receiverId);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
     }
     map['create_time'] = Variable<int>(createTime);
-    if (!nullToAbsent || sendTime != null) {
-      map['send_time'] = Variable<int>(sendTime);
+    map['send_time'] = Variable<int>(sendTime);
+    map['seq'] = Variable<int>(seq);
+    map['msg_type'] = Variable<int>(msgType);
+    map['content_type'] = Variable<int>(contentType);
+    map['content'] = Variable<String>(content);
+    map['is_read'] = Variable<bool>(isRead);
+    if (!nullToAbsent || groupId != null) {
+      map['group_id'] = Variable<String>(groupId);
     }
-    if (!nullToAbsent || seq != null) {
-      map['seq'] = Variable<int>(seq);
+    map['platform'] = Variable<int>(platform);
+    if (!nullToAbsent || relatedMsgId != null) {
+      map['related_msg_id'] = Variable<String>(relatedMsgId);
     }
     if (!nullToAbsent || sendSeq != null) {
       map['send_seq'] = Variable<int>(sendSeq);
     }
-    {
-      map['msg_type'] =
-          Variable<int>($MessagesTable.$convertermsgType.toSql(msgType));
-    }
-    {
-      map['content_type'] = Variable<int>(
-          $MessagesTable.$convertercontentType.toSql(contentType));
-    }
-    map['content'] = Variable<String>(content);
-    map['is_read'] = Variable<bool>(isRead);
-    map['group_id'] = Variable<String>(groupId);
-    {
-      map['platform'] =
-          Variable<int>($MessagesTable.$converterplatform.toSql(platform));
-    }
-    map['avatar'] = Variable<String>(avatar);
-    map['nickname'] = Variable<String>(nickname);
-    if (!nullToAbsent || relatedMsgId != null) {
-      map['related_msg_id'] = Variable<String>(relatedMsgId);
-    }
-    {
-      map['status'] =
-          Variable<int>($MessagesTable.$converterstatus.toSql(status));
-    }
-    map['chat_id'] = Variable<String>(chatId);
-    map['is_mention'] = Variable<bool>(isMention);
-    map['is_mention_all'] = Variable<bool>(isMentionAll);
-    if (!nullToAbsent || mentionedUserIds != null) {
-      map['mentioned_user_ids'] = Variable<String>(mentionedUserIds);
-    }
-    map['is_draft'] = Variable<bool>(isDraft);
+    map['conversation_id'] = Variable<String>(conversationId);
+    map['is_self'] = Variable<bool>(isSelf);
+    map['status'] = Variable<int>(status);
     if (!nullToAbsent || localPath != null) {
       map['local_path'] = Variable<String>(localPath);
     }
+    if (!nullToAbsent || remoteUrl != null) {
+      map['remote_url'] = Variable<String>(remoteUrl);
+    }
+    if (!nullToAbsent || extra != null) {
+      map['extra'] = Variable<String>(extra);
+    }
+    if (!nullToAbsent || deletedTime != null) {
+      map['deleted_time'] = Variable<int>(deletedTime);
+    }
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['updated_time'] = Variable<int>(updatedTime);
     return map;
   }
 
   MessagesCompanion toCompanion(bool nullToAbsent) {
     return MessagesCompanion(
-      id: Value(id),
-      sendId: Value(sendId),
-      receiverId: Value(receiverId),
       clientId: Value(clientId),
+      senderId: Value(senderId),
+      receiverId: Value(receiverId),
       serverId: serverId == null && nullToAbsent
           ? const Value.absent()
           : Value(serverId),
       createTime: Value(createTime),
-      sendTime: sendTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sendTime),
-      seq: seq == null && nullToAbsent ? const Value.absent() : Value(seq),
-      sendSeq: sendSeq == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sendSeq),
+      sendTime: Value(sendTime),
+      seq: Value(seq),
       msgType: Value(msgType),
       contentType: Value(contentType),
       content: Value(content),
       isRead: Value(isRead),
-      groupId: Value(groupId),
+      groupId: groupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupId),
       platform: Value(platform),
-      avatar: Value(avatar),
-      nickname: Value(nickname),
       relatedMsgId: relatedMsgId == null && nullToAbsent
           ? const Value.absent()
           : Value(relatedMsgId),
-      status: Value(status),
-      chatId: Value(chatId),
-      isMention: Value(isMention),
-      isMentionAll: Value(isMentionAll),
-      mentionedUserIds: mentionedUserIds == null && nullToAbsent
+      sendSeq: sendSeq == null && nullToAbsent
           ? const Value.absent()
-          : Value(mentionedUserIds),
-      isDraft: Value(isDraft),
+          : Value(sendSeq),
+      conversationId: Value(conversationId),
+      isSelf: Value(isSelf),
+      status: Value(status),
       localPath: localPath == null && nullToAbsent
           ? const Value.absent()
           : Value(localPath),
+      remoteUrl: remoteUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteUrl),
+      extra:
+          extra == null && nullToAbsent ? const Value.absent() : Value(extra),
+      deletedTime: deletedTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedTime),
+      isDeleted: Value(isDeleted),
+      updatedTime: Value(updatedTime),
     );
   }
 
@@ -6401,35 +6727,30 @@ class Message extends DataClass implements Insertable<Message> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Message(
-      id: serializer.fromJson<String>(json['id']),
-      sendId: serializer.fromJson<String>(json['sendId']),
-      receiverId: serializer.fromJson<String>(json['receiverId']),
       clientId: serializer.fromJson<String>(json['clientId']),
+      senderId: serializer.fromJson<String>(json['senderId']),
+      receiverId: serializer.fromJson<String>(json['receiverId']),
       serverId: serializer.fromJson<String?>(json['serverId']),
       createTime: serializer.fromJson<int>(json['createTime']),
-      sendTime: serializer.fromJson<int?>(json['sendTime']),
-      seq: serializer.fromJson<int?>(json['seq']),
-      sendSeq: serializer.fromJson<int?>(json['sendSeq']),
-      msgType: $MessagesTable.$convertermsgType
-          .fromJson(serializer.fromJson<int>(json['msgType'])),
-      contentType: $MessagesTable.$convertercontentType
-          .fromJson(serializer.fromJson<int>(json['contentType'])),
+      sendTime: serializer.fromJson<int>(json['sendTime']),
+      seq: serializer.fromJson<int>(json['seq']),
+      msgType: serializer.fromJson<int>(json['msgType']),
+      contentType: serializer.fromJson<int>(json['contentType']),
       content: serializer.fromJson<String>(json['content']),
       isRead: serializer.fromJson<bool>(json['isRead']),
-      groupId: serializer.fromJson<String>(json['groupId']),
-      platform: $MessagesTable.$converterplatform
-          .fromJson(serializer.fromJson<int>(json['platform'])),
-      avatar: serializer.fromJson<String>(json['avatar']),
-      nickname: serializer.fromJson<String>(json['nickname']),
+      groupId: serializer.fromJson<String?>(json['groupId']),
+      platform: serializer.fromJson<int>(json['platform']),
       relatedMsgId: serializer.fromJson<String?>(json['relatedMsgId']),
-      status: $MessagesTable.$converterstatus
-          .fromJson(serializer.fromJson<int>(json['status'])),
-      chatId: serializer.fromJson<String>(json['chatId']),
-      isMention: serializer.fromJson<bool>(json['isMention']),
-      isMentionAll: serializer.fromJson<bool>(json['isMentionAll']),
-      mentionedUserIds: serializer.fromJson<String?>(json['mentionedUserIds']),
-      isDraft: serializer.fromJson<bool>(json['isDraft']),
+      sendSeq: serializer.fromJson<int?>(json['sendSeq']),
+      conversationId: serializer.fromJson<String>(json['conversationId']),
+      isSelf: serializer.fromJson<bool>(json['isSelf']),
+      status: serializer.fromJson<int>(json['status']),
       localPath: serializer.fromJson<String?>(json['localPath']),
+      remoteUrl: serializer.fromJson<String?>(json['remoteUrl']),
+      extra: serializer.fromJson<String?>(json['extra']),
+      deletedTime: serializer.fromJson<int?>(json['deletedTime']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      updatedTime: serializer.fromJson<int>(json['updatedTime']),
     );
   }
   factory Message.fromJsonString(String encodedJson,
@@ -6440,107 +6761,96 @@ class Message extends DataClass implements Insertable<Message> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'sendId': serializer.toJson<String>(sendId),
-      'receiverId': serializer.toJson<String>(receiverId),
       'clientId': serializer.toJson<String>(clientId),
+      'senderId': serializer.toJson<String>(senderId),
+      'receiverId': serializer.toJson<String>(receiverId),
       'serverId': serializer.toJson<String?>(serverId),
       'createTime': serializer.toJson<int>(createTime),
-      'sendTime': serializer.toJson<int?>(sendTime),
-      'seq': serializer.toJson<int?>(seq),
-      'sendSeq': serializer.toJson<int?>(sendSeq),
-      'msgType': serializer
-          .toJson<int>($MessagesTable.$convertermsgType.toJson(msgType)),
-      'contentType': serializer.toJson<int>(
-          $MessagesTable.$convertercontentType.toJson(contentType)),
+      'sendTime': serializer.toJson<int>(sendTime),
+      'seq': serializer.toJson<int>(seq),
+      'msgType': serializer.toJson<int>(msgType),
+      'contentType': serializer.toJson<int>(contentType),
       'content': serializer.toJson<String>(content),
       'isRead': serializer.toJson<bool>(isRead),
-      'groupId': serializer.toJson<String>(groupId),
-      'platform': serializer
-          .toJson<int>($MessagesTable.$converterplatform.toJson(platform)),
-      'avatar': serializer.toJson<String>(avatar),
-      'nickname': serializer.toJson<String>(nickname),
+      'groupId': serializer.toJson<String?>(groupId),
+      'platform': serializer.toJson<int>(platform),
       'relatedMsgId': serializer.toJson<String?>(relatedMsgId),
-      'status': serializer
-          .toJson<int>($MessagesTable.$converterstatus.toJson(status)),
-      'chatId': serializer.toJson<String>(chatId),
-      'isMention': serializer.toJson<bool>(isMention),
-      'isMentionAll': serializer.toJson<bool>(isMentionAll),
-      'mentionedUserIds': serializer.toJson<String?>(mentionedUserIds),
-      'isDraft': serializer.toJson<bool>(isDraft),
+      'sendSeq': serializer.toJson<int?>(sendSeq),
+      'conversationId': serializer.toJson<String>(conversationId),
+      'isSelf': serializer.toJson<bool>(isSelf),
+      'status': serializer.toJson<int>(status),
       'localPath': serializer.toJson<String?>(localPath),
+      'remoteUrl': serializer.toJson<String?>(remoteUrl),
+      'extra': serializer.toJson<String?>(extra),
+      'deletedTime': serializer.toJson<int?>(deletedTime),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'updatedTime': serializer.toJson<int>(updatedTime),
     };
   }
 
   Message copyWith(
-          {String? id,
-          String? sendId,
+          {String? clientId,
+          String? senderId,
           String? receiverId,
-          String? clientId,
           Value<String?> serverId = const Value.absent(),
           int? createTime,
-          Value<int?> sendTime = const Value.absent(),
-          Value<int?> seq = const Value.absent(),
-          Value<int?> sendSeq = const Value.absent(),
-          MessageType? msgType,
-          ContentType? contentType,
+          int? sendTime,
+          int? seq,
+          int? msgType,
+          int? contentType,
           String? content,
           bool? isRead,
-          String? groupId,
-          PlatformType? platform,
-          String? avatar,
-          String? nickname,
+          Value<String?> groupId = const Value.absent(),
+          int? platform,
           Value<String?> relatedMsgId = const Value.absent(),
-          MessageStatus? status,
-          String? chatId,
-          bool? isMention,
-          bool? isMentionAll,
-          Value<String?> mentionedUserIds = const Value.absent(),
-          bool? isDraft,
-          Value<String?> localPath = const Value.absent()}) =>
+          Value<int?> sendSeq = const Value.absent(),
+          String? conversationId,
+          bool? isSelf,
+          int? status,
+          Value<String?> localPath = const Value.absent(),
+          Value<String?> remoteUrl = const Value.absent(),
+          Value<String?> extra = const Value.absent(),
+          Value<int?> deletedTime = const Value.absent(),
+          bool? isDeleted,
+          int? updatedTime}) =>
       Message(
-        id: id ?? this.id,
-        sendId: sendId ?? this.sendId,
-        receiverId: receiverId ?? this.receiverId,
         clientId: clientId ?? this.clientId,
+        senderId: senderId ?? this.senderId,
+        receiverId: receiverId ?? this.receiverId,
         serverId: serverId.present ? serverId.value : this.serverId,
         createTime: createTime ?? this.createTime,
-        sendTime: sendTime.present ? sendTime.value : this.sendTime,
-        seq: seq.present ? seq.value : this.seq,
-        sendSeq: sendSeq.present ? sendSeq.value : this.sendSeq,
+        sendTime: sendTime ?? this.sendTime,
+        seq: seq ?? this.seq,
         msgType: msgType ?? this.msgType,
         contentType: contentType ?? this.contentType,
         content: content ?? this.content,
         isRead: isRead ?? this.isRead,
-        groupId: groupId ?? this.groupId,
+        groupId: groupId.present ? groupId.value : this.groupId,
         platform: platform ?? this.platform,
-        avatar: avatar ?? this.avatar,
-        nickname: nickname ?? this.nickname,
         relatedMsgId:
             relatedMsgId.present ? relatedMsgId.value : this.relatedMsgId,
+        sendSeq: sendSeq.present ? sendSeq.value : this.sendSeq,
+        conversationId: conversationId ?? this.conversationId,
+        isSelf: isSelf ?? this.isSelf,
         status: status ?? this.status,
-        chatId: chatId ?? this.chatId,
-        isMention: isMention ?? this.isMention,
-        isMentionAll: isMentionAll ?? this.isMentionAll,
-        mentionedUserIds: mentionedUserIds.present
-            ? mentionedUserIds.value
-            : this.mentionedUserIds,
-        isDraft: isDraft ?? this.isDraft,
         localPath: localPath.present ? localPath.value : this.localPath,
+        remoteUrl: remoteUrl.present ? remoteUrl.value : this.remoteUrl,
+        extra: extra.present ? extra.value : this.extra,
+        deletedTime: deletedTime.present ? deletedTime.value : this.deletedTime,
+        isDeleted: isDeleted ?? this.isDeleted,
+        updatedTime: updatedTime ?? this.updatedTime,
       );
   Message copyWithCompanion(MessagesCompanion data) {
     return Message(
-      id: data.id.present ? data.id.value : this.id,
-      sendId: data.sendId.present ? data.sendId.value : this.sendId,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      senderId: data.senderId.present ? data.senderId.value : this.senderId,
       receiverId:
           data.receiverId.present ? data.receiverId.value : this.receiverId,
-      clientId: data.clientId.present ? data.clientId.value : this.clientId,
       serverId: data.serverId.present ? data.serverId.value : this.serverId,
       createTime:
           data.createTime.present ? data.createTime.value : this.createTime,
       sendTime: data.sendTime.present ? data.sendTime.value : this.sendTime,
       seq: data.seq.present ? data.seq.value : this.seq,
-      sendSeq: data.sendSeq.present ? data.sendSeq.value : this.sendSeq,
       msgType: data.msgType.present ? data.msgType.value : this.msgType,
       contentType:
           data.contentType.present ? data.contentType.value : this.contentType,
@@ -6548,318 +6858,312 @@ class Message extends DataClass implements Insertable<Message> {
       isRead: data.isRead.present ? data.isRead.value : this.isRead,
       groupId: data.groupId.present ? data.groupId.value : this.groupId,
       platform: data.platform.present ? data.platform.value : this.platform,
-      avatar: data.avatar.present ? data.avatar.value : this.avatar,
-      nickname: data.nickname.present ? data.nickname.value : this.nickname,
       relatedMsgId: data.relatedMsgId.present
           ? data.relatedMsgId.value
           : this.relatedMsgId,
+      sendSeq: data.sendSeq.present ? data.sendSeq.value : this.sendSeq,
+      conversationId: data.conversationId.present
+          ? data.conversationId.value
+          : this.conversationId,
+      isSelf: data.isSelf.present ? data.isSelf.value : this.isSelf,
       status: data.status.present ? data.status.value : this.status,
-      chatId: data.chatId.present ? data.chatId.value : this.chatId,
-      isMention: data.isMention.present ? data.isMention.value : this.isMention,
-      isMentionAll: data.isMentionAll.present
-          ? data.isMentionAll.value
-          : this.isMentionAll,
-      mentionedUserIds: data.mentionedUserIds.present
-          ? data.mentionedUserIds.value
-          : this.mentionedUserIds,
-      isDraft: data.isDraft.present ? data.isDraft.value : this.isDraft,
       localPath: data.localPath.present ? data.localPath.value : this.localPath,
+      remoteUrl: data.remoteUrl.present ? data.remoteUrl.value : this.remoteUrl,
+      extra: data.extra.present ? data.extra.value : this.extra,
+      deletedTime:
+          data.deletedTime.present ? data.deletedTime.value : this.deletedTime,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      updatedTime:
+          data.updatedTime.present ? data.updatedTime.value : this.updatedTime,
     );
   }
 
   @override
   String toString() {
     return (StringBuffer('Message(')
-          ..write('id: $id, ')
-          ..write('sendId: $sendId, ')
-          ..write('receiverId: $receiverId, ')
           ..write('clientId: $clientId, ')
+          ..write('senderId: $senderId, ')
+          ..write('receiverId: $receiverId, ')
           ..write('serverId: $serverId, ')
           ..write('createTime: $createTime, ')
           ..write('sendTime: $sendTime, ')
           ..write('seq: $seq, ')
-          ..write('sendSeq: $sendSeq, ')
           ..write('msgType: $msgType, ')
           ..write('contentType: $contentType, ')
           ..write('content: $content, ')
           ..write('isRead: $isRead, ')
           ..write('groupId: $groupId, ')
           ..write('platform: $platform, ')
-          ..write('avatar: $avatar, ')
-          ..write('nickname: $nickname, ')
           ..write('relatedMsgId: $relatedMsgId, ')
+          ..write('sendSeq: $sendSeq, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('isSelf: $isSelf, ')
           ..write('status: $status, ')
-          ..write('chatId: $chatId, ')
-          ..write('isMention: $isMention, ')
-          ..write('isMentionAll: $isMentionAll, ')
-          ..write('mentionedUserIds: $mentionedUserIds, ')
-          ..write('isDraft: $isDraft, ')
-          ..write('localPath: $localPath')
+          ..write('localPath: $localPath, ')
+          ..write('remoteUrl: $remoteUrl, ')
+          ..write('extra: $extra, ')
+          ..write('deletedTime: $deletedTime, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('updatedTime: $updatedTime')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hashAll([
-        id,
-        sendId,
-        receiverId,
         clientId,
+        senderId,
+        receiverId,
         serverId,
         createTime,
         sendTime,
         seq,
-        sendSeq,
         msgType,
         contentType,
         content,
         isRead,
         groupId,
         platform,
-        avatar,
-        nickname,
         relatedMsgId,
+        sendSeq,
+        conversationId,
+        isSelf,
         status,
-        chatId,
-        isMention,
-        isMentionAll,
-        mentionedUserIds,
-        isDraft,
-        localPath
+        localPath,
+        remoteUrl,
+        extra,
+        deletedTime,
+        isDeleted,
+        updatedTime
       ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Message &&
-          other.id == this.id &&
-          other.sendId == this.sendId &&
-          other.receiverId == this.receiverId &&
           other.clientId == this.clientId &&
+          other.senderId == this.senderId &&
+          other.receiverId == this.receiverId &&
           other.serverId == this.serverId &&
           other.createTime == this.createTime &&
           other.sendTime == this.sendTime &&
           other.seq == this.seq &&
-          other.sendSeq == this.sendSeq &&
           other.msgType == this.msgType &&
           other.contentType == this.contentType &&
           other.content == this.content &&
           other.isRead == this.isRead &&
           other.groupId == this.groupId &&
           other.platform == this.platform &&
-          other.avatar == this.avatar &&
-          other.nickname == this.nickname &&
           other.relatedMsgId == this.relatedMsgId &&
+          other.sendSeq == this.sendSeq &&
+          other.conversationId == this.conversationId &&
+          other.isSelf == this.isSelf &&
           other.status == this.status &&
-          other.chatId == this.chatId &&
-          other.isMention == this.isMention &&
-          other.isMentionAll == this.isMentionAll &&
-          other.mentionedUserIds == this.mentionedUserIds &&
-          other.isDraft == this.isDraft &&
-          other.localPath == this.localPath);
+          other.localPath == this.localPath &&
+          other.remoteUrl == this.remoteUrl &&
+          other.extra == this.extra &&
+          other.deletedTime == this.deletedTime &&
+          other.isDeleted == this.isDeleted &&
+          other.updatedTime == this.updatedTime);
 }
 
 class MessagesCompanion extends UpdateCompanion<Message> {
-  final Value<String> id;
-  final Value<String> sendId;
-  final Value<String> receiverId;
   final Value<String> clientId;
+  final Value<String> senderId;
+  final Value<String> receiverId;
   final Value<String?> serverId;
   final Value<int> createTime;
-  final Value<int?> sendTime;
-  final Value<int?> seq;
-  final Value<int?> sendSeq;
-  final Value<MessageType> msgType;
-  final Value<ContentType> contentType;
+  final Value<int> sendTime;
+  final Value<int> seq;
+  final Value<int> msgType;
+  final Value<int> contentType;
   final Value<String> content;
   final Value<bool> isRead;
-  final Value<String> groupId;
-  final Value<PlatformType> platform;
-  final Value<String> avatar;
-  final Value<String> nickname;
+  final Value<String?> groupId;
+  final Value<int> platform;
   final Value<String?> relatedMsgId;
-  final Value<MessageStatus> status;
-  final Value<String> chatId;
-  final Value<bool> isMention;
-  final Value<bool> isMentionAll;
-  final Value<String?> mentionedUserIds;
-  final Value<bool> isDraft;
+  final Value<int?> sendSeq;
+  final Value<String> conversationId;
+  final Value<bool> isSelf;
+  final Value<int> status;
   final Value<String?> localPath;
+  final Value<String?> remoteUrl;
+  final Value<String?> extra;
+  final Value<int?> deletedTime;
+  final Value<bool> isDeleted;
+  final Value<int> updatedTime;
   final Value<int> rowid;
   const MessagesCompanion({
-    this.id = const Value.absent(),
-    this.sendId = const Value.absent(),
-    this.receiverId = const Value.absent(),
     this.clientId = const Value.absent(),
+    this.senderId = const Value.absent(),
+    this.receiverId = const Value.absent(),
     this.serverId = const Value.absent(),
     this.createTime = const Value.absent(),
     this.sendTime = const Value.absent(),
     this.seq = const Value.absent(),
-    this.sendSeq = const Value.absent(),
     this.msgType = const Value.absent(),
     this.contentType = const Value.absent(),
     this.content = const Value.absent(),
     this.isRead = const Value.absent(),
     this.groupId = const Value.absent(),
     this.platform = const Value.absent(),
-    this.avatar = const Value.absent(),
-    this.nickname = const Value.absent(),
     this.relatedMsgId = const Value.absent(),
+    this.sendSeq = const Value.absent(),
+    this.conversationId = const Value.absent(),
+    this.isSelf = const Value.absent(),
     this.status = const Value.absent(),
-    this.chatId = const Value.absent(),
-    this.isMention = const Value.absent(),
-    this.isMentionAll = const Value.absent(),
-    this.mentionedUserIds = const Value.absent(),
-    this.isDraft = const Value.absent(),
     this.localPath = const Value.absent(),
+    this.remoteUrl = const Value.absent(),
+    this.extra = const Value.absent(),
+    this.deletedTime = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.updatedTime = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MessagesCompanion.insert({
-    required String id,
-    required String sendId,
-    required String receiverId,
     required String clientId,
+    required String senderId,
+    required String receiverId,
     this.serverId = const Value.absent(),
     required int createTime,
-    this.sendTime = const Value.absent(),
-    this.seq = const Value.absent(),
-    this.sendSeq = const Value.absent(),
-    required MessageType msgType,
-    required ContentType contentType,
+    required int sendTime,
+    required int seq,
+    required int msgType,
+    required int contentType,
     required String content,
     this.isRead = const Value.absent(),
     this.groupId = const Value.absent(),
-    this.platform = const Value.absent(),
-    this.avatar = const Value.absent(),
-    this.nickname = const Value.absent(),
+    required int platform,
     this.relatedMsgId = const Value.absent(),
+    this.sendSeq = const Value.absent(),
+    required String conversationId,
+    this.isSelf = const Value.absent(),
     this.status = const Value.absent(),
-    required String chatId,
-    this.isMention = const Value.absent(),
-    this.isMentionAll = const Value.absent(),
-    this.mentionedUserIds = const Value.absent(),
-    this.isDraft = const Value.absent(),
     this.localPath = const Value.absent(),
+    this.remoteUrl = const Value.absent(),
+    this.extra = const Value.absent(),
+    this.deletedTime = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    required int updatedTime,
     this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        sendId = Value(sendId),
+  })  : clientId = Value(clientId),
+        senderId = Value(senderId),
         receiverId = Value(receiverId),
-        clientId = Value(clientId),
         createTime = Value(createTime),
+        sendTime = Value(sendTime),
+        seq = Value(seq),
         msgType = Value(msgType),
         contentType = Value(contentType),
         content = Value(content),
-        chatId = Value(chatId);
+        platform = Value(platform),
+        conversationId = Value(conversationId),
+        updatedTime = Value(updatedTime);
   static Insertable<Message> custom({
-    Expression<String>? id,
-    Expression<String>? sendId,
-    Expression<String>? receiverId,
     Expression<String>? clientId,
+    Expression<String>? senderId,
+    Expression<String>? receiverId,
     Expression<String>? serverId,
     Expression<int>? createTime,
     Expression<int>? sendTime,
     Expression<int>? seq,
-    Expression<int>? sendSeq,
     Expression<int>? msgType,
     Expression<int>? contentType,
     Expression<String>? content,
     Expression<bool>? isRead,
     Expression<String>? groupId,
     Expression<int>? platform,
-    Expression<String>? avatar,
-    Expression<String>? nickname,
     Expression<String>? relatedMsgId,
+    Expression<int>? sendSeq,
+    Expression<String>? conversationId,
+    Expression<bool>? isSelf,
     Expression<int>? status,
-    Expression<String>? chatId,
-    Expression<bool>? isMention,
-    Expression<bool>? isMentionAll,
-    Expression<String>? mentionedUserIds,
-    Expression<bool>? isDraft,
     Expression<String>? localPath,
+    Expression<String>? remoteUrl,
+    Expression<String>? extra,
+    Expression<int>? deletedTime,
+    Expression<bool>? isDeleted,
+    Expression<int>? updatedTime,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (sendId != null) 'send_id': sendId,
-      if (receiverId != null) 'receiver_id': receiverId,
       if (clientId != null) 'client_id': clientId,
+      if (senderId != null) 'sender_id': senderId,
+      if (receiverId != null) 'receiver_id': receiverId,
       if (serverId != null) 'server_id': serverId,
       if (createTime != null) 'create_time': createTime,
       if (sendTime != null) 'send_time': sendTime,
       if (seq != null) 'seq': seq,
-      if (sendSeq != null) 'send_seq': sendSeq,
       if (msgType != null) 'msg_type': msgType,
       if (contentType != null) 'content_type': contentType,
       if (content != null) 'content': content,
       if (isRead != null) 'is_read': isRead,
       if (groupId != null) 'group_id': groupId,
       if (platform != null) 'platform': platform,
-      if (avatar != null) 'avatar': avatar,
-      if (nickname != null) 'nickname': nickname,
       if (relatedMsgId != null) 'related_msg_id': relatedMsgId,
+      if (sendSeq != null) 'send_seq': sendSeq,
+      if (conversationId != null) 'conversation_id': conversationId,
+      if (isSelf != null) 'is_self': isSelf,
       if (status != null) 'status': status,
-      if (chatId != null) 'chat_id': chatId,
-      if (isMention != null) 'is_mention': isMention,
-      if (isMentionAll != null) 'is_mention_all': isMentionAll,
-      if (mentionedUserIds != null) 'mentioned_user_ids': mentionedUserIds,
-      if (isDraft != null) 'is_draft': isDraft,
       if (localPath != null) 'local_path': localPath,
+      if (remoteUrl != null) 'remote_url': remoteUrl,
+      if (extra != null) 'extra': extra,
+      if (deletedTime != null) 'deleted_time': deletedTime,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (updatedTime != null) 'updated_time': updatedTime,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   MessagesCompanion copyWith(
-      {Value<String>? id,
-      Value<String>? sendId,
+      {Value<String>? clientId,
+      Value<String>? senderId,
       Value<String>? receiverId,
-      Value<String>? clientId,
       Value<String?>? serverId,
       Value<int>? createTime,
-      Value<int?>? sendTime,
-      Value<int?>? seq,
-      Value<int?>? sendSeq,
-      Value<MessageType>? msgType,
-      Value<ContentType>? contentType,
+      Value<int>? sendTime,
+      Value<int>? seq,
+      Value<int>? msgType,
+      Value<int>? contentType,
       Value<String>? content,
       Value<bool>? isRead,
-      Value<String>? groupId,
-      Value<PlatformType>? platform,
-      Value<String>? avatar,
-      Value<String>? nickname,
+      Value<String?>? groupId,
+      Value<int>? platform,
       Value<String?>? relatedMsgId,
-      Value<MessageStatus>? status,
-      Value<String>? chatId,
-      Value<bool>? isMention,
-      Value<bool>? isMentionAll,
-      Value<String?>? mentionedUserIds,
-      Value<bool>? isDraft,
+      Value<int?>? sendSeq,
+      Value<String>? conversationId,
+      Value<bool>? isSelf,
+      Value<int>? status,
       Value<String?>? localPath,
+      Value<String?>? remoteUrl,
+      Value<String?>? extra,
+      Value<int?>? deletedTime,
+      Value<bool>? isDeleted,
+      Value<int>? updatedTime,
       Value<int>? rowid}) {
     return MessagesCompanion(
-      id: id ?? this.id,
-      sendId: sendId ?? this.sendId,
-      receiverId: receiverId ?? this.receiverId,
       clientId: clientId ?? this.clientId,
+      senderId: senderId ?? this.senderId,
+      receiverId: receiverId ?? this.receiverId,
       serverId: serverId ?? this.serverId,
       createTime: createTime ?? this.createTime,
       sendTime: sendTime ?? this.sendTime,
       seq: seq ?? this.seq,
-      sendSeq: sendSeq ?? this.sendSeq,
       msgType: msgType ?? this.msgType,
       contentType: contentType ?? this.contentType,
       content: content ?? this.content,
       isRead: isRead ?? this.isRead,
       groupId: groupId ?? this.groupId,
       platform: platform ?? this.platform,
-      avatar: avatar ?? this.avatar,
-      nickname: nickname ?? this.nickname,
       relatedMsgId: relatedMsgId ?? this.relatedMsgId,
+      sendSeq: sendSeq ?? this.sendSeq,
+      conversationId: conversationId ?? this.conversationId,
+      isSelf: isSelf ?? this.isSelf,
       status: status ?? this.status,
-      chatId: chatId ?? this.chatId,
-      isMention: isMention ?? this.isMention,
-      isMentionAll: isMentionAll ?? this.isMentionAll,
-      mentionedUserIds: mentionedUserIds ?? this.mentionedUserIds,
-      isDraft: isDraft ?? this.isDraft,
       localPath: localPath ?? this.localPath,
+      remoteUrl: remoteUrl ?? this.remoteUrl,
+      extra: extra ?? this.extra,
+      deletedTime: deletedTime ?? this.deletedTime,
+      isDeleted: isDeleted ?? this.isDeleted,
+      updatedTime: updatedTime ?? this.updatedTime,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6867,17 +7171,14 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
     }
-    if (sendId.present) {
-      map['send_id'] = Variable<String>(sendId.value);
+    if (senderId.present) {
+      map['sender_id'] = Variable<String>(senderId.value);
     }
     if (receiverId.present) {
       map['receiver_id'] = Variable<String>(receiverId.value);
-    }
-    if (clientId.present) {
-      map['client_id'] = Variable<String>(clientId.value);
     }
     if (serverId.present) {
       map['server_id'] = Variable<String>(serverId.value);
@@ -6891,16 +7192,11 @@ class MessagesCompanion extends UpdateCompanion<Message> {
     if (seq.present) {
       map['seq'] = Variable<int>(seq.value);
     }
-    if (sendSeq.present) {
-      map['send_seq'] = Variable<int>(sendSeq.value);
-    }
     if (msgType.present) {
-      map['msg_type'] =
-          Variable<int>($MessagesTable.$convertermsgType.toSql(msgType.value));
+      map['msg_type'] = Variable<int>(msgType.value);
     }
     if (contentType.present) {
-      map['content_type'] = Variable<int>(
-          $MessagesTable.$convertercontentType.toSql(contentType.value));
+      map['content_type'] = Variable<int>(contentType.value);
     }
     if (content.present) {
       map['content'] = Variable<String>(content.value);
@@ -6912,39 +7208,40 @@ class MessagesCompanion extends UpdateCompanion<Message> {
       map['group_id'] = Variable<String>(groupId.value);
     }
     if (platform.present) {
-      map['platform'] = Variable<int>(
-          $MessagesTable.$converterplatform.toSql(platform.value));
-    }
-    if (avatar.present) {
-      map['avatar'] = Variable<String>(avatar.value);
-    }
-    if (nickname.present) {
-      map['nickname'] = Variable<String>(nickname.value);
+      map['platform'] = Variable<int>(platform.value);
     }
     if (relatedMsgId.present) {
       map['related_msg_id'] = Variable<String>(relatedMsgId.value);
     }
+    if (sendSeq.present) {
+      map['send_seq'] = Variable<int>(sendSeq.value);
+    }
+    if (conversationId.present) {
+      map['conversation_id'] = Variable<String>(conversationId.value);
+    }
+    if (isSelf.present) {
+      map['is_self'] = Variable<bool>(isSelf.value);
+    }
     if (status.present) {
-      map['status'] =
-          Variable<int>($MessagesTable.$converterstatus.toSql(status.value));
-    }
-    if (chatId.present) {
-      map['chat_id'] = Variable<String>(chatId.value);
-    }
-    if (isMention.present) {
-      map['is_mention'] = Variable<bool>(isMention.value);
-    }
-    if (isMentionAll.present) {
-      map['is_mention_all'] = Variable<bool>(isMentionAll.value);
-    }
-    if (mentionedUserIds.present) {
-      map['mentioned_user_ids'] = Variable<String>(mentionedUserIds.value);
-    }
-    if (isDraft.present) {
-      map['is_draft'] = Variable<bool>(isDraft.value);
+      map['status'] = Variable<int>(status.value);
     }
     if (localPath.present) {
       map['local_path'] = Variable<String>(localPath.value);
+    }
+    if (remoteUrl.present) {
+      map['remote_url'] = Variable<String>(remoteUrl.value);
+    }
+    if (extra.present) {
+      map['extra'] = Variable<String>(extra.value);
+    }
+    if (deletedTime.present) {
+      map['deleted_time'] = Variable<int>(deletedTime.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (updatedTime.present) {
+      map['updated_time'] = Variable<int>(updatedTime.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -6955,31 +7252,30 @@ class MessagesCompanion extends UpdateCompanion<Message> {
   @override
   String toString() {
     return (StringBuffer('MessagesCompanion(')
-          ..write('id: $id, ')
-          ..write('sendId: $sendId, ')
-          ..write('receiverId: $receiverId, ')
           ..write('clientId: $clientId, ')
+          ..write('senderId: $senderId, ')
+          ..write('receiverId: $receiverId, ')
           ..write('serverId: $serverId, ')
           ..write('createTime: $createTime, ')
           ..write('sendTime: $sendTime, ')
           ..write('seq: $seq, ')
-          ..write('sendSeq: $sendSeq, ')
           ..write('msgType: $msgType, ')
           ..write('contentType: $contentType, ')
           ..write('content: $content, ')
           ..write('isRead: $isRead, ')
           ..write('groupId: $groupId, ')
           ..write('platform: $platform, ')
-          ..write('avatar: $avatar, ')
-          ..write('nickname: $nickname, ')
           ..write('relatedMsgId: $relatedMsgId, ')
+          ..write('sendSeq: $sendSeq, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('isSelf: $isSelf, ')
           ..write('status: $status, ')
-          ..write('chatId: $chatId, ')
-          ..write('isMention: $isMention, ')
-          ..write('isMentionAll: $isMentionAll, ')
-          ..write('mentionedUserIds: $mentionedUserIds, ')
-          ..write('isDraft: $isDraft, ')
           ..write('localPath: $localPath, ')
+          ..write('remoteUrl: $remoteUrl, ')
+          ..write('extra: $extra, ')
+          ..write('deletedTime: $deletedTime, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('updatedTime: $updatedTime, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7334,7 +7630,6 @@ typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
   Value<String> profileVisibility,
   Value<String> theme,
   Value<String> timezone,
-  Value<bool> isDelete,
   Value<int> rowid,
 });
 typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
@@ -7366,7 +7661,6 @@ typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
   Value<String> profileVisibility,
   Value<String> theme,
   Value<String> timezone,
-  Value<bool> isDelete,
   Value<int> rowid,
 });
 
@@ -7467,9 +7761,6 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<String> get timezone => $composableBuilder(
       column: $table.timezone, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isDelete => $composableBuilder(
-      column: $table.isDelete, builder: (column) => ColumnFilters(column));
 }
 
 class $$UsersTableOrderingComposer
@@ -7573,9 +7864,6 @@ class $$UsersTableOrderingComposer
 
   ColumnOrderings<String> get timezone => $composableBuilder(
       column: $table.timezone, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isDelete => $composableBuilder(
-      column: $table.isDelete, builder: (column) => ColumnOrderings(column));
 }
 
 class $$UsersTableAnnotationComposer
@@ -7670,9 +7958,6 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<String> get timezone =>
       $composableBuilder(column: $table.timezone, builder: (column) => column);
-
-  GeneratedColumn<bool> get isDelete =>
-      $composableBuilder(column: $table.isDelete, builder: (column) => column);
 }
 
 class $$UsersTableTableManager extends RootTableManager<
@@ -7726,7 +8011,6 @@ class $$UsersTableTableManager extends RootTableManager<
             Value<String> profileVisibility = const Value.absent(),
             Value<String> theme = const Value.absent(),
             Value<String> timezone = const Value.absent(),
-            Value<bool> isDelete = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               UsersCompanion(
@@ -7758,7 +8042,6 @@ class $$UsersTableTableManager extends RootTableManager<
             profileVisibility: profileVisibility,
             theme: theme,
             timezone: timezone,
-            isDelete: isDelete,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -7790,7 +8073,6 @@ class $$UsersTableTableManager extends RootTableManager<
             Value<String> profileVisibility = const Value.absent(),
             Value<String> theme = const Value.absent(),
             Value<String> timezone = const Value.absent(),
-            Value<bool> isDelete = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               UsersCompanion.insert(
@@ -7822,7 +8104,6 @@ class $$UsersTableTableManager extends RootTableManager<
             profileVisibility: profileVisibility,
             theme: theme,
             timezone: timezone,
-            isDelete: isDelete,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -7845,10 +8126,15 @@ typedef $$UsersTableProcessedTableManager = ProcessedTableManager<
     User,
     PrefetchHooks Function()>;
 typedef $$FriendsTableCreateCompanionBuilder = FriendsCompanion Function({
-  required String id,
   required String fsId,
   required String userId,
   required String friendId,
+  required String name,
+  required String avatar,
+  required String gender,
+  required int age,
+  Value<String?> region,
+  required String email,
   Value<String> status,
   Value<String?> remark,
   Value<String?> source,
@@ -7861,10 +8147,15 @@ typedef $$FriendsTableCreateCompanionBuilder = FriendsCompanion Function({
   Value<int> rowid,
 });
 typedef $$FriendsTableUpdateCompanionBuilder = FriendsCompanion Function({
-  Value<String> id,
   Value<String> fsId,
   Value<String> userId,
   Value<String> friendId,
+  Value<String> name,
+  Value<String> avatar,
+  Value<String> gender,
+  Value<int> age,
+  Value<String?> region,
+  Value<String> email,
   Value<String> status,
   Value<String?> remark,
   Value<String?> source,
@@ -7886,9 +8177,6 @@ class $$FriendsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<String> get fsId => $composableBuilder(
       column: $table.fsId, builder: (column) => ColumnFilters(column));
 
@@ -7897,6 +8185,24 @@ class $$FriendsTableFilterComposer
 
   ColumnFilters<String> get friendId => $composableBuilder(
       column: $table.friendId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get avatar => $composableBuilder(
+      column: $table.avatar, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gender => $composableBuilder(
+      column: $table.gender, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get age => $composableBuilder(
+      column: $table.age, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get email => $composableBuilder(
+      column: $table.email, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnFilters(column));
@@ -7935,9 +8241,6 @@ class $$FriendsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get fsId => $composableBuilder(
       column: $table.fsId, builder: (column) => ColumnOrderings(column));
 
@@ -7946,6 +8249,24 @@ class $$FriendsTableOrderingComposer
 
   ColumnOrderings<String> get friendId => $composableBuilder(
       column: $table.friendId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get avatar => $composableBuilder(
+      column: $table.avatar, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gender => $composableBuilder(
+      column: $table.gender, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get age => $composableBuilder(
+      column: $table.age, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get email => $composableBuilder(
+      column: $table.email, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnOrderings(column));
@@ -7984,9 +8305,6 @@ class $$FriendsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
   GeneratedColumn<String> get fsId =>
       $composableBuilder(column: $table.fsId, builder: (column) => column);
 
@@ -7995,6 +8313,24 @@ class $$FriendsTableAnnotationComposer
 
   GeneratedColumn<String> get friendId =>
       $composableBuilder(column: $table.friendId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get avatar =>
+      $composableBuilder(column: $table.avatar, builder: (column) => column);
+
+  GeneratedColumn<String> get gender =>
+      $composableBuilder(column: $table.gender, builder: (column) => column);
+
+  GeneratedColumn<int> get age =>
+      $composableBuilder(column: $table.age, builder: (column) => column);
+
+  GeneratedColumn<String> get region =>
+      $composableBuilder(column: $table.region, builder: (column) => column);
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
 
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
@@ -8047,10 +8383,15 @@ class $$FriendsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$FriendsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<String> id = const Value.absent(),
             Value<String> fsId = const Value.absent(),
             Value<String> userId = const Value.absent(),
             Value<String> friendId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> avatar = const Value.absent(),
+            Value<String> gender = const Value.absent(),
+            Value<int> age = const Value.absent(),
+            Value<String?> region = const Value.absent(),
+            Value<String> email = const Value.absent(),
             Value<String> status = const Value.absent(),
             Value<String?> remark = const Value.absent(),
             Value<String?> source = const Value.absent(),
@@ -8063,10 +8404,15 @@ class $$FriendsTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               FriendsCompanion(
-            id: id,
             fsId: fsId,
             userId: userId,
             friendId: friendId,
+            name: name,
+            avatar: avatar,
+            gender: gender,
+            age: age,
+            region: region,
+            email: email,
             status: status,
             remark: remark,
             source: source,
@@ -8079,10 +8425,15 @@ class $$FriendsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           createCompanionCallback: ({
-            required String id,
             required String fsId,
             required String userId,
             required String friendId,
+            required String name,
+            required String avatar,
+            required String gender,
+            required int age,
+            Value<String?> region = const Value.absent(),
+            required String email,
             Value<String> status = const Value.absent(),
             Value<String?> remark = const Value.absent(),
             Value<String?> source = const Value.absent(),
@@ -8095,10 +8446,15 @@ class $$FriendsTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               FriendsCompanion.insert(
-            id: id,
             fsId: fsId,
             userId: userId,
             friendId: friendId,
+            name: name,
+            avatar: avatar,
+            gender: gender,
+            age: age,
+            region: region,
+            email: email,
             status: status,
             remark: remark,
             source: source,
@@ -8134,6 +8490,11 @@ typedef $$FriendRequestsTableCreateCompanionBuilder = FriendRequestsCompanion
   required String id,
   required String userId,
   required String friendId,
+  required String name,
+  required String avatar,
+  required String gender,
+  required int age,
+  Value<String?> region,
   Value<String> status,
   Value<String?> applyMsg,
   Value<String?> reqRemark,
@@ -8152,6 +8513,11 @@ typedef $$FriendRequestsTableUpdateCompanionBuilder = FriendRequestsCompanion
   Value<String> id,
   Value<String> userId,
   Value<String> friendId,
+  Value<String> name,
+  Value<String> avatar,
+  Value<String> gender,
+  Value<int> age,
+  Value<String?> region,
   Value<String> status,
   Value<String?> applyMsg,
   Value<String?> reqRemark,
@@ -8183,6 +8549,21 @@ class $$FriendRequestsTableFilterComposer
 
   ColumnFilters<String> get friendId => $composableBuilder(
       column: $table.friendId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get avatar => $composableBuilder(
+      column: $table.avatar, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gender => $composableBuilder(
+      column: $table.gender, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get age => $composableBuilder(
+      column: $table.age, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnFilters(column));
@@ -8236,6 +8617,21 @@ class $$FriendRequestsTableOrderingComposer
   ColumnOrderings<String> get friendId => $composableBuilder(
       column: $table.friendId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get avatar => $composableBuilder(
+      column: $table.avatar, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gender => $composableBuilder(
+      column: $table.gender, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get age => $composableBuilder(
+      column: $table.age, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get region => $composableBuilder(
+      column: $table.region, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnOrderings(column));
 
@@ -8288,6 +8684,21 @@ class $$FriendRequestsTableAnnotationComposer
 
   GeneratedColumn<String> get friendId =>
       $composableBuilder(column: $table.friendId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get avatar =>
+      $composableBuilder(column: $table.avatar, builder: (column) => column);
+
+  GeneratedColumn<String> get gender =>
+      $composableBuilder(column: $table.gender, builder: (column) => column);
+
+  GeneratedColumn<int> get age =>
+      $composableBuilder(column: $table.age, builder: (column) => column);
+
+  GeneratedColumn<String> get region =>
+      $composableBuilder(column: $table.region, builder: (column) => column);
 
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
@@ -8353,6 +8764,11 @@ class $$FriendRequestsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> userId = const Value.absent(),
             Value<String> friendId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> avatar = const Value.absent(),
+            Value<String> gender = const Value.absent(),
+            Value<int> age = const Value.absent(),
+            Value<String?> region = const Value.absent(),
             Value<String> status = const Value.absent(),
             Value<String?> applyMsg = const Value.absent(),
             Value<String?> reqRemark = const Value.absent(),
@@ -8370,6 +8786,11 @@ class $$FriendRequestsTableTableManager extends RootTableManager<
             id: id,
             userId: userId,
             friendId: friendId,
+            name: name,
+            avatar: avatar,
+            gender: gender,
+            age: age,
+            region: region,
             status: status,
             applyMsg: applyMsg,
             reqRemark: reqRemark,
@@ -8387,6 +8808,11 @@ class $$FriendRequestsTableTableManager extends RootTableManager<
             required String id,
             required String userId,
             required String friendId,
+            required String name,
+            required String avatar,
+            required String gender,
+            required int age,
+            Value<String?> region = const Value.absent(),
             Value<String> status = const Value.absent(),
             Value<String?> applyMsg = const Value.absent(),
             Value<String?> reqRemark = const Value.absent(),
@@ -8404,6 +8830,11 @@ class $$FriendRequestsTableTableManager extends RootTableManager<
             id: id,
             userId: userId,
             friendId: friendId,
+            name: name,
+            avatar: avatar,
+            gender: gender,
+            age: age,
+            region: region,
             status: status,
             applyMsg: applyMsg,
             reqRemark: reqRemark,
@@ -9970,59 +10401,57 @@ typedef $$ChatsTableProcessedTableManager = ProcessedTableManager<
     Chat,
     PrefetchHooks Function()>;
 typedef $$MessagesTableCreateCompanionBuilder = MessagesCompanion Function({
-  required String id,
-  required String sendId,
-  required String receiverId,
   required String clientId,
+  required String senderId,
+  required String receiverId,
   Value<String?> serverId,
   required int createTime,
-  Value<int?> sendTime,
-  Value<int?> seq,
-  Value<int?> sendSeq,
-  required MessageType msgType,
-  required ContentType contentType,
+  required int sendTime,
+  required int seq,
+  required int msgType,
+  required int contentType,
   required String content,
   Value<bool> isRead,
-  Value<String> groupId,
-  Value<PlatformType> platform,
-  Value<String> avatar,
-  Value<String> nickname,
+  Value<String?> groupId,
+  required int platform,
   Value<String?> relatedMsgId,
-  Value<MessageStatus> status,
-  required String chatId,
-  Value<bool> isMention,
-  Value<bool> isMentionAll,
-  Value<String?> mentionedUserIds,
-  Value<bool> isDraft,
+  Value<int?> sendSeq,
+  required String conversationId,
+  Value<bool> isSelf,
+  Value<int> status,
   Value<String?> localPath,
+  Value<String?> remoteUrl,
+  Value<String?> extra,
+  Value<int?> deletedTime,
+  Value<bool> isDeleted,
+  required int updatedTime,
   Value<int> rowid,
 });
 typedef $$MessagesTableUpdateCompanionBuilder = MessagesCompanion Function({
-  Value<String> id,
-  Value<String> sendId,
-  Value<String> receiverId,
   Value<String> clientId,
+  Value<String> senderId,
+  Value<String> receiverId,
   Value<String?> serverId,
   Value<int> createTime,
-  Value<int?> sendTime,
-  Value<int?> seq,
-  Value<int?> sendSeq,
-  Value<MessageType> msgType,
-  Value<ContentType> contentType,
+  Value<int> sendTime,
+  Value<int> seq,
+  Value<int> msgType,
+  Value<int> contentType,
   Value<String> content,
   Value<bool> isRead,
-  Value<String> groupId,
-  Value<PlatformType> platform,
-  Value<String> avatar,
-  Value<String> nickname,
+  Value<String?> groupId,
+  Value<int> platform,
   Value<String?> relatedMsgId,
-  Value<MessageStatus> status,
-  Value<String> chatId,
-  Value<bool> isMention,
-  Value<bool> isMentionAll,
-  Value<String?> mentionedUserIds,
-  Value<bool> isDraft,
+  Value<int?> sendSeq,
+  Value<String> conversationId,
+  Value<bool> isSelf,
+  Value<int> status,
   Value<String?> localPath,
+  Value<String?> remoteUrl,
+  Value<String?> extra,
+  Value<int?> deletedTime,
+  Value<bool> isDeleted,
+  Value<int> updatedTime,
   Value<int> rowid,
 });
 
@@ -10035,17 +10464,14 @@ class $$MessagesTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get clientId => $composableBuilder(
+      column: $table.clientId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get sendId => $composableBuilder(
-      column: $table.sendId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get senderId => $composableBuilder(
+      column: $table.senderId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get receiverId => $composableBuilder(
       column: $table.receiverId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get clientId => $composableBuilder(
-      column: $table.clientId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get serverId => $composableBuilder(
       column: $table.serverId, builder: (column) => ColumnFilters(column));
@@ -10059,18 +10485,11 @@ class $$MessagesTableFilterComposer
   ColumnFilters<int> get seq => $composableBuilder(
       column: $table.seq, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get sendSeq => $composableBuilder(
-      column: $table.sendSeq, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get msgType => $composableBuilder(
+      column: $table.msgType, builder: (column) => ColumnFilters(column));
 
-  ColumnWithTypeConverterFilters<MessageType, MessageType, int> get msgType =>
-      $composableBuilder(
-          column: $table.msgType,
-          builder: (column) => ColumnWithTypeConverterFilters(column));
-
-  ColumnWithTypeConverterFilters<ContentType, ContentType, int>
-      get contentType => $composableBuilder(
-          column: $table.contentType,
-          builder: (column) => ColumnWithTypeConverterFilters(column));
+  ColumnFilters<int> get contentType => $composableBuilder(
+      column: $table.contentType, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get content => $composableBuilder(
       column: $table.content, builder: (column) => ColumnFilters(column));
@@ -10081,43 +10500,42 @@ class $$MessagesTableFilterComposer
   ColumnFilters<String> get groupId => $composableBuilder(
       column: $table.groupId, builder: (column) => ColumnFilters(column));
 
-  ColumnWithTypeConverterFilters<PlatformType, PlatformType, int>
-      get platform => $composableBuilder(
-          column: $table.platform,
-          builder: (column) => ColumnWithTypeConverterFilters(column));
-
-  ColumnFilters<String> get avatar => $composableBuilder(
-      column: $table.avatar, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get nickname => $composableBuilder(
-      column: $table.nickname, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get platform => $composableBuilder(
+      column: $table.platform, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get relatedMsgId => $composableBuilder(
       column: $table.relatedMsgId, builder: (column) => ColumnFilters(column));
 
-  ColumnWithTypeConverterFilters<MessageStatus, MessageStatus, int>
-      get status => $composableBuilder(
-          column: $table.status,
-          builder: (column) => ColumnWithTypeConverterFilters(column));
+  ColumnFilters<int> get sendSeq => $composableBuilder(
+      column: $table.sendSeq, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get chatId => $composableBuilder(
-      column: $table.chatId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isMention => $composableBuilder(
-      column: $table.isMention, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isMentionAll => $composableBuilder(
-      column: $table.isMentionAll, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get mentionedUserIds => $composableBuilder(
-      column: $table.mentionedUserIds,
+  ColumnFilters<String> get conversationId => $composableBuilder(
+      column: $table.conversationId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<bool> get isDraft => $composableBuilder(
-      column: $table.isDraft, builder: (column) => ColumnFilters(column));
+  ColumnFilters<bool> get isSelf => $composableBuilder(
+      column: $table.isSelf, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get localPath => $composableBuilder(
       column: $table.localPath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteUrl => $composableBuilder(
+      column: $table.remoteUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get extra => $composableBuilder(
+      column: $table.extra, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get deletedTime => $composableBuilder(
+      column: $table.deletedTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedTime => $composableBuilder(
+      column: $table.updatedTime, builder: (column) => ColumnFilters(column));
 }
 
 class $$MessagesTableOrderingComposer
@@ -10129,17 +10547,14 @@ class $$MessagesTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get clientId => $composableBuilder(
+      column: $table.clientId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get sendId => $composableBuilder(
-      column: $table.sendId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get senderId => $composableBuilder(
+      column: $table.senderId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get receiverId => $composableBuilder(
       column: $table.receiverId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get clientId => $composableBuilder(
-      column: $table.clientId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get serverId => $composableBuilder(
       column: $table.serverId, builder: (column) => ColumnOrderings(column));
@@ -10152,9 +10567,6 @@ class $$MessagesTableOrderingComposer
 
   ColumnOrderings<int> get seq => $composableBuilder(
       column: $table.seq, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get sendSeq => $composableBuilder(
-      column: $table.sendSeq, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get msgType => $composableBuilder(
       column: $table.msgType, builder: (column) => ColumnOrderings(column));
@@ -10174,38 +10586,40 @@ class $$MessagesTableOrderingComposer
   ColumnOrderings<int> get platform => $composableBuilder(
       column: $table.platform, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get avatar => $composableBuilder(
-      column: $table.avatar, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get nickname => $composableBuilder(
-      column: $table.nickname, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get relatedMsgId => $composableBuilder(
       column: $table.relatedMsgId,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get sendSeq => $composableBuilder(
+      column: $table.sendSeq, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get conversationId => $composableBuilder(
+      column: $table.conversationId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isSelf => $composableBuilder(
+      column: $table.isSelf, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get status => $composableBuilder(
       column: $table.status, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get chatId => $composableBuilder(
-      column: $table.chatId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isMention => $composableBuilder(
-      column: $table.isMention, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isMentionAll => $composableBuilder(
-      column: $table.isMentionAll,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get mentionedUserIds => $composableBuilder(
-      column: $table.mentionedUserIds,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isDraft => $composableBuilder(
-      column: $table.isDraft, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get localPath => $composableBuilder(
       column: $table.localPath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteUrl => $composableBuilder(
+      column: $table.remoteUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get extra => $composableBuilder(
+      column: $table.extra, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get deletedTime => $composableBuilder(
+      column: $table.deletedTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedTime => $composableBuilder(
+      column: $table.updatedTime, builder: (column) => ColumnOrderings(column));
 }
 
 class $$MessagesTableAnnotationComposer
@@ -10217,17 +10631,14 @@ class $$MessagesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
 
-  GeneratedColumn<String> get sendId =>
-      $composableBuilder(column: $table.sendId, builder: (column) => column);
+  GeneratedColumn<String> get senderId =>
+      $composableBuilder(column: $table.senderId, builder: (column) => column);
 
   GeneratedColumn<String> get receiverId => $composableBuilder(
       column: $table.receiverId, builder: (column) => column);
-
-  GeneratedColumn<String> get clientId =>
-      $composableBuilder(column: $table.clientId, builder: (column) => column);
 
   GeneratedColumn<String> get serverId =>
       $composableBuilder(column: $table.serverId, builder: (column) => column);
@@ -10241,15 +10652,11 @@ class $$MessagesTableAnnotationComposer
   GeneratedColumn<int> get seq =>
       $composableBuilder(column: $table.seq, builder: (column) => column);
 
-  GeneratedColumn<int> get sendSeq =>
-      $composableBuilder(column: $table.sendSeq, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<MessageType, int> get msgType =>
+  GeneratedColumn<int> get msgType =>
       $composableBuilder(column: $table.msgType, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<ContentType, int> get contentType =>
-      $composableBuilder(
-          column: $table.contentType, builder: (column) => column);
+  GeneratedColumn<int> get contentType => $composableBuilder(
+      column: $table.contentType, builder: (column) => column);
 
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
@@ -10260,38 +10667,41 @@ class $$MessagesTableAnnotationComposer
   GeneratedColumn<String> get groupId =>
       $composableBuilder(column: $table.groupId, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<PlatformType, int> get platform =>
+  GeneratedColumn<int> get platform =>
       $composableBuilder(column: $table.platform, builder: (column) => column);
-
-  GeneratedColumn<String> get avatar =>
-      $composableBuilder(column: $table.avatar, builder: (column) => column);
-
-  GeneratedColumn<String> get nickname =>
-      $composableBuilder(column: $table.nickname, builder: (column) => column);
 
   GeneratedColumn<String> get relatedMsgId => $composableBuilder(
       column: $table.relatedMsgId, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<MessageStatus, int> get status =>
+  GeneratedColumn<int> get sendSeq =>
+      $composableBuilder(column: $table.sendSeq, builder: (column) => column);
+
+  GeneratedColumn<String> get conversationId => $composableBuilder(
+      column: $table.conversationId, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSelf =>
+      $composableBuilder(column: $table.isSelf, builder: (column) => column);
+
+  GeneratedColumn<int> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<String> get chatId =>
-      $composableBuilder(column: $table.chatId, builder: (column) => column);
-
-  GeneratedColumn<bool> get isMention =>
-      $composableBuilder(column: $table.isMention, builder: (column) => column);
-
-  GeneratedColumn<bool> get isMentionAll => $composableBuilder(
-      column: $table.isMentionAll, builder: (column) => column);
-
-  GeneratedColumn<String> get mentionedUserIds => $composableBuilder(
-      column: $table.mentionedUserIds, builder: (column) => column);
-
-  GeneratedColumn<bool> get isDraft =>
-      $composableBuilder(column: $table.isDraft, builder: (column) => column);
 
   GeneratedColumn<String> get localPath =>
       $composableBuilder(column: $table.localPath, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteUrl =>
+      $composableBuilder(column: $table.remoteUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get extra =>
+      $composableBuilder(column: $table.extra, builder: (column) => column);
+
+  GeneratedColumn<int> get deletedTime => $composableBuilder(
+      column: $table.deletedTime, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedTime => $composableBuilder(
+      column: $table.updatedTime, builder: (column) => column);
 }
 
 class $$MessagesTableTableManager extends RootTableManager<
@@ -10317,115 +10727,111 @@ class $$MessagesTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$MessagesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<String> id = const Value.absent(),
-            Value<String> sendId = const Value.absent(),
-            Value<String> receiverId = const Value.absent(),
             Value<String> clientId = const Value.absent(),
+            Value<String> senderId = const Value.absent(),
+            Value<String> receiverId = const Value.absent(),
             Value<String?> serverId = const Value.absent(),
             Value<int> createTime = const Value.absent(),
-            Value<int?> sendTime = const Value.absent(),
-            Value<int?> seq = const Value.absent(),
-            Value<int?> sendSeq = const Value.absent(),
-            Value<MessageType> msgType = const Value.absent(),
-            Value<ContentType> contentType = const Value.absent(),
+            Value<int> sendTime = const Value.absent(),
+            Value<int> seq = const Value.absent(),
+            Value<int> msgType = const Value.absent(),
+            Value<int> contentType = const Value.absent(),
             Value<String> content = const Value.absent(),
             Value<bool> isRead = const Value.absent(),
-            Value<String> groupId = const Value.absent(),
-            Value<PlatformType> platform = const Value.absent(),
-            Value<String> avatar = const Value.absent(),
-            Value<String> nickname = const Value.absent(),
+            Value<String?> groupId = const Value.absent(),
+            Value<int> platform = const Value.absent(),
             Value<String?> relatedMsgId = const Value.absent(),
-            Value<MessageStatus> status = const Value.absent(),
-            Value<String> chatId = const Value.absent(),
-            Value<bool> isMention = const Value.absent(),
-            Value<bool> isMentionAll = const Value.absent(),
-            Value<String?> mentionedUserIds = const Value.absent(),
-            Value<bool> isDraft = const Value.absent(),
+            Value<int?> sendSeq = const Value.absent(),
+            Value<String> conversationId = const Value.absent(),
+            Value<bool> isSelf = const Value.absent(),
+            Value<int> status = const Value.absent(),
             Value<String?> localPath = const Value.absent(),
+            Value<String?> remoteUrl = const Value.absent(),
+            Value<String?> extra = const Value.absent(),
+            Value<int?> deletedTime = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
+            Value<int> updatedTime = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MessagesCompanion(
-            id: id,
-            sendId: sendId,
-            receiverId: receiverId,
             clientId: clientId,
+            senderId: senderId,
+            receiverId: receiverId,
             serverId: serverId,
             createTime: createTime,
             sendTime: sendTime,
             seq: seq,
-            sendSeq: sendSeq,
             msgType: msgType,
             contentType: contentType,
             content: content,
             isRead: isRead,
             groupId: groupId,
             platform: platform,
-            avatar: avatar,
-            nickname: nickname,
             relatedMsgId: relatedMsgId,
+            sendSeq: sendSeq,
+            conversationId: conversationId,
+            isSelf: isSelf,
             status: status,
-            chatId: chatId,
-            isMention: isMention,
-            isMentionAll: isMentionAll,
-            mentionedUserIds: mentionedUserIds,
-            isDraft: isDraft,
             localPath: localPath,
+            remoteUrl: remoteUrl,
+            extra: extra,
+            deletedTime: deletedTime,
+            isDeleted: isDeleted,
+            updatedTime: updatedTime,
             rowid: rowid,
           ),
           createCompanionCallback: ({
-            required String id,
-            required String sendId,
-            required String receiverId,
             required String clientId,
+            required String senderId,
+            required String receiverId,
             Value<String?> serverId = const Value.absent(),
             required int createTime,
-            Value<int?> sendTime = const Value.absent(),
-            Value<int?> seq = const Value.absent(),
-            Value<int?> sendSeq = const Value.absent(),
-            required MessageType msgType,
-            required ContentType contentType,
+            required int sendTime,
+            required int seq,
+            required int msgType,
+            required int contentType,
             required String content,
             Value<bool> isRead = const Value.absent(),
-            Value<String> groupId = const Value.absent(),
-            Value<PlatformType> platform = const Value.absent(),
-            Value<String> avatar = const Value.absent(),
-            Value<String> nickname = const Value.absent(),
+            Value<String?> groupId = const Value.absent(),
+            required int platform,
             Value<String?> relatedMsgId = const Value.absent(),
-            Value<MessageStatus> status = const Value.absent(),
-            required String chatId,
-            Value<bool> isMention = const Value.absent(),
-            Value<bool> isMentionAll = const Value.absent(),
-            Value<String?> mentionedUserIds = const Value.absent(),
-            Value<bool> isDraft = const Value.absent(),
+            Value<int?> sendSeq = const Value.absent(),
+            required String conversationId,
+            Value<bool> isSelf = const Value.absent(),
+            Value<int> status = const Value.absent(),
             Value<String?> localPath = const Value.absent(),
+            Value<String?> remoteUrl = const Value.absent(),
+            Value<String?> extra = const Value.absent(),
+            Value<int?> deletedTime = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
+            required int updatedTime,
             Value<int> rowid = const Value.absent(),
           }) =>
               MessagesCompanion.insert(
-            id: id,
-            sendId: sendId,
-            receiverId: receiverId,
             clientId: clientId,
+            senderId: senderId,
+            receiverId: receiverId,
             serverId: serverId,
             createTime: createTime,
             sendTime: sendTime,
             seq: seq,
-            sendSeq: sendSeq,
             msgType: msgType,
             contentType: contentType,
             content: content,
             isRead: isRead,
             groupId: groupId,
             platform: platform,
-            avatar: avatar,
-            nickname: nickname,
             relatedMsgId: relatedMsgId,
+            sendSeq: sendSeq,
+            conversationId: conversationId,
+            isSelf: isSelf,
             status: status,
-            chatId: chatId,
-            isMention: isMention,
-            isMentionAll: isMentionAll,
-            mentionedUserIds: mentionedUserIds,
-            isDraft: isDraft,
             localPath: localPath,
+            remoteUrl: remoteUrl,
+            extra: extra,
+            deletedTime: deletedTime,
+            isDeleted: isDeleted,
+            updatedTime: updatedTime,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
