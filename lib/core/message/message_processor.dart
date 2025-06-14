@@ -101,7 +101,7 @@ class MessageProcessor {
   ///
   /// [message] 原始消息数据
   /// [isFromSocket] 是否来自Socket连接（实时消息）
-  Future<void> processRawMessage(Uint8List message,
+  Future<void> processRawMessage(List<int> message,
       {bool isFromSocket = true}) async {
     try {
       // 解析原始消息为ProtoBuf消息
@@ -122,7 +122,7 @@ class MessageProcessor {
       // 确定会话ID
       final conversationId = isGroupMessage
           ? msg.groupId
-          : (msg.sendId == _currentUserId ? msg.receiverId : msg.sendId);
+          : (msg.senderId == _currentUserId ? msg.receiverId : msg.senderId);
 
       // 创建消息数据库对象
       final messageCompanion = _createMessageCompanion(msg, conversationId);
@@ -134,7 +134,7 @@ class MessageProcessor {
       await _updateConversationLastMessage(msg, conversationId);
 
       // 如果是实时消息且不是自己发的，需要发送确认回执
-      if (isFromSocket && msg.sendId != _currentUserId) {
+      if (isFromSocket && msg.senderId != _currentUserId) {
         await _sendMessageReceipt(msg);
       }
 
@@ -206,6 +206,12 @@ class MessageProcessor {
           fsId: Value(friendshipId),
           userId: Value(_currentUserId ?? ''),
           friendId: Value(f.friendId),
+          account: Value(f.account),
+          name: Value(f.name),
+          avatar: Value(f.avatar),
+          gender: Value(f.gender),
+          age: Value(f.age),
+          region: Value(f.region),
           remark: Value(reqRemark),
           status: Value(FriendshipStatus.Accepted.name),
           source: Value(f.source),
@@ -215,6 +221,9 @@ class MessageProcessor {
           groupId: const Value(0),
           priority: const Value(0),
           email: Value(f.email),
+          signature: Value(f.signature),
+          interactionScore: Value(f.interactionScore),
+          notificationsEnabled: Value(f.notificationsEnabled),
         );
 
         await _friendRepository.addFriend(friend);
@@ -233,7 +242,7 @@ class MessageProcessor {
   Future<void> _processFriendDelete(Msg msg) async {
     try {
       // 解析消息内容获取要删除的好友ID
-      final friendId = msg.sendId;
+      final friendId = msg.senderId;
 
       // 查找这个好友
       final friend = await _friendRepository.getFriendByFriendId(friendId);
@@ -257,7 +266,7 @@ class MessageProcessor {
   Future<void> _processFriendBlack(Msg msg) async {
     try {
       // 解析消息内容获取要拉黑的好友ID
-      final friendId = msg.sendId;
+      final friendId = msg.senderId;
 
       // 查找这个好友
       final friend = await _friendRepository.getFriendByFriendId(friendId);
@@ -323,11 +332,11 @@ class MessageProcessor {
       content = base64Encode(msg.content);
     }
 
-    final isSelf = msg.sendId == _currentUserId;
+    final isSelf = msg.senderId == _currentUserId;
 
     return MessagesCompanion(
       clientId: Value(msg.clientId),
-      senderId: Value(msg.sendId),
+      senderId: Value(msg.senderId),
       receiverId: Value(msg.receiverId),
       serverId: Value(msg.serverId.isEmpty ? null : msg.serverId),
       createTime: Value(msg.createTime.toInt()),
@@ -391,7 +400,7 @@ class MessageProcessor {
           lastMessageTime: Value(
               DateTime.fromMillisecondsSinceEpoch(msg.createTime.toInt())),
           // 如果不是自己发的消息，增加未读数
-          unreadCount: msg.sendId == _currentUserId
+          unreadCount: msg.senderId == _currentUserId
               ? const Value.absent()
               : Value(chat.unreadCount + 1),
           updatedAt: Value(DateTime.now()),
@@ -401,7 +410,7 @@ class MessageProcessor {
         final isSingle = msg.msgType == MsgType.MsgTypeSingleMsg;
         final chatType = isSingle ? ChatType.direct : ChatType.group;
         final targetId = isSingle
-            ? (msg.sendId == _currentUserId ? msg.receiverId : msg.sendId)
+            ? (msg.senderId == _currentUserId ? msg.receiverId : msg.senderId)
             : msg.groupId;
 
         await _database.into(_database.chats).insert(ChatsCompanion(
@@ -412,7 +421,7 @@ class MessageProcessor {
               lastMessageType: Value(msg.contentType.toString()),
               lastMessageTime: Value(
                   DateTime.fromMillisecondsSinceEpoch(msg.createTime.toInt())),
-              unreadCount: msg.sendId == _currentUserId
+              unreadCount: msg.senderId == _currentUserId
                   ? const Value(0)
                   : const Value(1),
               createdAt: Value(DateTime.now()),
