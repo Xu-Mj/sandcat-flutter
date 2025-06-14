@@ -11,6 +11,8 @@ import 'package:sandcat/ui/contacts/create_friend_page.dart';
 import 'package:sandcat/ui/contacts/friend_detail_page.dart';
 import 'package:sandcat/ui/contacts/friend_requests_page.dart';
 import 'package:sandcat/ui/home/home_page.dart';
+import 'package:sandcat/ui/profile/user_profile_page.dart';
+import 'package:sandcat/ui/profile/edit_profile_page.dart';
 import 'package:sandcat/shared/presentation/pages/splash_page.dart';
 
 // 添加GoRouter刷新流，用于监听状态变化
@@ -101,6 +103,15 @@ class AppRouter {
             final friendId = state.pathParameters['id']!;
             return FriendDetailPage(friendId: friendId);
           },
+        ),
+        // 个人资料相关路由
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const UserProfilePage(),
+        ),
+        GoRoute(
+          path: '/profile/edit',
+          builder: (context, state) => const EditProfilePage(),
         ),
       ],
     );
