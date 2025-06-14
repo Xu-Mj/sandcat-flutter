@@ -24,8 +24,8 @@ const PlatformType$json = {
 };
 
 /// Descriptor for `PlatformType`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List platformTypeDescriptor = $convert
-    .base64Decode('CgxQbGF0Zm9ybVR5cGUSCwoHRGVza3RvcBAAEgoKBk1vYmlsZRAB');
+final $typed_data.Uint8List platformTypeDescriptor = $convert.base64Decode(
+    'CgxQbGF0Zm9ybVR5cGUSCwoHRGVza3RvcBAAEgoKBk1vYmlsZRAB');
 
 @$core.Deprecated('Use contentTypeDescriptor instead')
 const ContentType$json = {
@@ -160,51 +160,22 @@ final $typed_data.Uint8List groupMemberRoleDescriptor = $convert.base64Decode(
 const Msg$json = {
   '1': 'Msg',
   '2': [
-    {'1': 'sender_id', '3': 1, '4': 1, '5': 9, '10': 'sendId'},
+    {'1': 'sender_id', '3': 1, '4': 1, '5': 9, '10': 'senderId'},
     {'1': 'receiver_id', '3': 2, '4': 1, '5': 9, '10': 'receiverId'},
     {'1': 'client_id', '3': 3, '4': 1, '5': 9, '10': 'clientId'},
     {'1': 'server_id', '3': 4, '4': 1, '5': 9, '10': 'serverId'},
     {'1': 'create_time', '3': 5, '4': 1, '5': 3, '10': 'createTime'},
     {'1': 'send_time', '3': 6, '4': 1, '5': 3, '10': 'sendTime'},
     {'1': 'seq', '3': 7, '4': 1, '5': 3, '10': 'seq'},
-    {
-      '1': 'msg_type',
-      '3': 8,
-      '4': 1,
-      '5': 14,
-      '6': '.message.MsgType',
-      '10': 'msgType'
-    },
-    {
-      '1': 'content_type',
-      '3': 9,
-      '4': 1,
-      '5': 14,
-      '6': '.message.ContentType',
-      '10': 'contentType'
-    },
+    {'1': 'msg_type', '3': 8, '4': 1, '5': 14, '6': '.message.MsgType', '10': 'msgType'},
+    {'1': 'content_type', '3': 9, '4': 1, '5': 14, '6': '.message.ContentType', '10': 'contentType'},
     {'1': 'content', '3': 10, '4': 1, '5': 12, '10': 'content'},
     {'1': 'is_read', '3': 11, '4': 1, '5': 8, '10': 'isRead'},
     {'1': 'group_id', '3': 12, '4': 1, '5': 9, '10': 'groupId'},
-    {
-      '1': 'platform',
-      '3': 13,
-      '4': 1,
-      '5': 14,
-      '6': '.message.PlatformType',
-      '10': 'platform'
-    },
+    {'1': 'platform', '3': 13, '4': 1, '5': 14, '6': '.message.PlatformType', '10': 'platform'},
     {'1': 'avatar', '3': 14, '4': 1, '5': 9, '10': 'avatar'},
     {'1': 'nickname', '3': 15, '4': 1, '5': 9, '10': 'nickname'},
-    {
-      '1': 'related_msg_id',
-      '3': 16,
-      '4': 1,
-      '5': 9,
-      '9': 0,
-      '10': 'relatedMsgId',
-      '17': true
-    },
+    {'1': 'related_msg_id', '3': 16, '4': 1, '5': 9, '9': 0, '10': 'relatedMsgId', '17': true},
     {'1': 'send_seq', '3': 17, '4': 1, '5': 3, '10': 'sendSeq'},
   ],
   '8': [
@@ -214,33 +185,24 @@ const Msg$json = {
 
 /// Descriptor for `Msg`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List msgDescriptor = $convert.base64Decode(
-    'CgNNc2cSFwoHc2VuZF9pZBgBIAEoCVIGc2VuZElkEh8KC3JlY2VpdmVyX2lkGAIgASgJUgpyZW'
-    'NlaXZlcklkEhsKCWNsaWVudF9pZBgDIAEoCVIIY2xpZW50SWQSGwoJc2VydmVyX2lkGAQgASgJ'
-    'UghzZXJ2ZXJJZBIfCgtjcmVhdGVfdGltZRgFIAEoA1IKY3JlYXRlVGltZRIbCglzZW5kX3RpbW'
-    'UYBiABKANSCHNlbmRUaW1lEhAKA3NlcRgHIAEoA1IDc2VxEisKCG1zZ190eXBlGAggASgOMhAu'
-    'bWVzc2FnZS5Nc2dUeXBlUgdtc2dUeXBlEjcKDGNvbnRlbnRfdHlwZRgJIAEoDjIULm1lc3NhZ2'
-    'UuQ29udGVudFR5cGVSC2NvbnRlbnRUeXBlEhgKB2NvbnRlbnQYCiABKAxSB2NvbnRlbnQSFwoH'
-    'aXNfcmVhZBgLIAEoCFIGaXNSZWFkEhkKCGdyb3VwX2lkGAwgASgJUgdncm91cElkEjEKCHBsYX'
-    'Rmb3JtGA0gASgOMhUubWVzc2FnZS5QbGF0Zm9ybVR5cGVSCHBsYXRmb3JtEhYKBmF2YXRhchgO'
-    'IAEoCVIGYXZhdGFyEhoKCG5pY2tuYW1lGA8gASgJUghuaWNrbmFtZRIpCg5yZWxhdGVkX21zZ1'
-    '9pZBgQIAEoCUgAUgxyZWxhdGVkTXNnSWSIAQESGQoIc2VuZF9zZXEYESABKANSB3NlbmRTZXFC'
-    'EQoPX3JlbGF0ZWRfbXNnX2lk');
+    'CgNNc2cSGwoJc2VuZGVyX2lkGAEgASgJUghzZW5kZXJJZBIfCgtyZWNlaXZlcl9pZBgCIAEoCV'
+    'IKcmVjZWl2ZXJJZBIbCgljbGllbnRfaWQYAyABKAlSCGNsaWVudElkEhsKCXNlcnZlcl9pZBgE'
+    'IAEoCVIIc2VydmVySWQSHwoLY3JlYXRlX3RpbWUYBSABKANSCmNyZWF0ZVRpbWUSGwoJc2VuZF'
+    '90aW1lGAYgASgDUghzZW5kVGltZRIQCgNzZXEYByABKANSA3NlcRIrCghtc2dfdHlwZRgIIAEo'
+    'DjIQLm1lc3NhZ2UuTXNnVHlwZVIHbXNnVHlwZRI3Cgxjb250ZW50X3R5cGUYCSABKA4yFC5tZX'
+    'NzYWdlLkNvbnRlbnRUeXBlUgtjb250ZW50VHlwZRIYCgdjb250ZW50GAogASgMUgdjb250ZW50'
+    'EhcKB2lzX3JlYWQYCyABKAhSBmlzUmVhZBIZCghncm91cF9pZBgMIAEoCVIHZ3JvdXBJZBIxCg'
+    'hwbGF0Zm9ybRgNIAEoDjIVLm1lc3NhZ2UuUGxhdGZvcm1UeXBlUghwbGF0Zm9ybRIWCgZhdmF0'
+    'YXIYDiABKAlSBmF2YXRhchIaCghuaWNrbmFtZRgPIAEoCVIIbmlja25hbWUSKQoOcmVsYXRlZF'
+    '9tc2dfaWQYECABKAlIAFIMcmVsYXRlZE1zZ0lkiAEBEhkKCHNlbmRfc2VxGBEgASgDUgdzZW5k'
+    'U2VxQhEKD19yZWxhdGVkX21zZ19pZA==');
 
 @$core.Deprecated('Use msgContentDescriptor instead')
 const MsgContent$json = {
   '1': 'MsgContent',
   '2': [
     {'1': 'content', '3': 1, '4': 1, '5': 9, '10': 'content'},
-    {
-      '1': 'mention',
-      '3': 2,
-      '4': 1,
-      '5': 11,
-      '6': '.message.Mention',
-      '9': 0,
-      '10': 'mention',
-      '17': true
-    },
+    {'1': 'mention', '3': 2, '4': 1, '5': 11, '6': '.message.Mention', '9': 0, '10': 'mention', '17': true},
   ],
   '8': [
     {'1': '_mention'},
@@ -284,24 +246,8 @@ const Candidate$json = {
   '1': 'Candidate',
   '2': [
     {'1': 'candidate', '3': 1, '4': 1, '5': 9, '10': 'candidate'},
-    {
-      '1': 'sdp_mid',
-      '3': 2,
-      '4': 1,
-      '5': 9,
-      '9': 0,
-      '10': 'sdpMid',
-      '17': true
-    },
-    {
-      '1': 'sdp_m_index',
-      '3': 3,
-      '4': 1,
-      '5': 5,
-      '9': 1,
-      '10': 'sdpMIndex',
-      '17': true
-    },
+    {'1': 'sdp_mid', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'sdpMid', '17': true},
+    {'1': 'sdp_m_index', '3': 3, '4': 1, '5': 5, '9': 1, '10': 'sdpMIndex', '17': true},
   ],
   '8': [
     {'1': '_sdp_mid'},
@@ -324,21 +270,14 @@ const AgreeSingleCall$json = {
 };
 
 /// Descriptor for `AgreeSingleCall`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List agreeSingleCallDescriptor =
-    $convert.base64Decode('Cg9BZ3JlZVNpbmdsZUNhbGwSEAoDc2RwGAEgASgJUgNzZHA=');
+final $typed_data.Uint8List agreeSingleCallDescriptor = $convert.base64Decode(
+    'Cg9BZ3JlZVNpbmdsZUNhbGwSEAoDc2RwGAEgASgJUgNzZHA=');
 
 @$core.Deprecated('Use singleCallInviteDescriptor instead')
 const SingleCallInvite$json = {
   '1': 'SingleCallInvite',
   '2': [
-    {
-      '1': 'invite_type',
-      '3': 1,
-      '4': 1,
-      '5': 14,
-      '6': '.message.SingleCallInviteType',
-      '10': 'inviteType'
-    },
+    {'1': 'invite_type', '3': 1, '4': 1, '5': 14, '6': '.message.SingleCallInviteType', '10': 'inviteType'},
   ],
 };
 
@@ -352,14 +291,7 @@ const SingleCallInviteAnswer$json = {
   '1': 'SingleCallInviteAnswer',
   '2': [
     {'1': 'agree', '3': 1, '4': 1, '5': 8, '10': 'agree'},
-    {
-      '1': 'invite_type',
-      '3': 2,
-      '4': 1,
-      '5': 14,
-      '6': '.message.SingleCallInviteType',
-      '10': 'inviteType'
-    },
+    {'1': 'invite_type', '3': 2, '4': 1, '5': 14, '6': '.message.SingleCallInviteType', '10': 'inviteType'},
   ],
 };
 
@@ -372,43 +304,27 @@ final $typed_data.Uint8List singleCallInviteAnswerDescriptor = $convert.base64De
 const SingleCallInviteNotAnswer$json = {
   '1': 'SingleCallInviteNotAnswer',
   '2': [
-    {
-      '1': 'invite_type',
-      '3': 1,
-      '4': 1,
-      '5': 14,
-      '6': '.message.SingleCallInviteType',
-      '10': 'inviteType'
-    },
+    {'1': 'invite_type', '3': 1, '4': 1, '5': 14, '6': '.message.SingleCallInviteType', '10': 'inviteType'},
   ],
 };
 
 /// Descriptor for `SingleCallInviteNotAnswer`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List singleCallInviteNotAnswerDescriptor =
-    $convert.base64Decode(
-        'ChlTaW5nbGVDYWxsSW52aXRlTm90QW5zd2VyEj4KC2ludml0ZV90eXBlGAEgASgOMh0ubWVzc2'
-        'FnZS5TaW5nbGVDYWxsSW52aXRlVHlwZVIKaW52aXRlVHlwZQ==');
+final $typed_data.Uint8List singleCallInviteNotAnswerDescriptor = $convert.base64Decode(
+    'ChlTaW5nbGVDYWxsSW52aXRlTm90QW5zd2VyEj4KC2ludml0ZV90eXBlGAEgASgOMh0ubWVzc2'
+    'FnZS5TaW5nbGVDYWxsSW52aXRlVHlwZVIKaW52aXRlVHlwZQ==');
 
 @$core.Deprecated('Use singleCallInviteCancelDescriptor instead')
 const SingleCallInviteCancel$json = {
   '1': 'SingleCallInviteCancel',
   '2': [
-    {
-      '1': 'invite_type',
-      '3': 2,
-      '4': 1,
-      '5': 14,
-      '6': '.message.SingleCallInviteType',
-      '10': 'inviteType'
-    },
+    {'1': 'invite_type', '3': 2, '4': 1, '5': 14, '6': '.message.SingleCallInviteType', '10': 'inviteType'},
   ],
 };
 
 /// Descriptor for `SingleCallInviteCancel`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List singleCallInviteCancelDescriptor =
-    $convert.base64Decode(
-        'ChZTaW5nbGVDYWxsSW52aXRlQ2FuY2VsEj4KC2ludml0ZV90eXBlGAIgASgOMh0ubWVzc2FnZS'
-        '5TaW5nbGVDYWxsSW52aXRlVHlwZVIKaW52aXRlVHlwZQ==');
+final $typed_data.Uint8List singleCallInviteCancelDescriptor = $convert.base64Decode(
+    'ChZTaW5nbGVDYWxsSW52aXRlQ2FuY2VsEj4KC2ludml0ZV90eXBlGAIgASgOMh0ubWVzc2FnZS'
+    '5TaW5nbGVDYWxsSW52aXRlVHlwZVIKaW52aXRlVHlwZQ==');
 
 @$core.Deprecated('Use singleCallOfferDescriptor instead')
 const SingleCallOffer$json = {
@@ -419,21 +335,14 @@ const SingleCallOffer$json = {
 };
 
 /// Descriptor for `SingleCallOffer`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List singleCallOfferDescriptor =
-    $convert.base64Decode('Cg9TaW5nbGVDYWxsT2ZmZXISEAoDc2RwGAEgASgJUgNzZHA=');
+final $typed_data.Uint8List singleCallOfferDescriptor = $convert.base64Decode(
+    'Cg9TaW5nbGVDYWxsT2ZmZXISEAoDc2RwGAEgASgJUgNzZHA=');
 
 @$core.Deprecated('Use hangupDescriptor instead')
 const Hangup$json = {
   '1': 'Hangup',
   '2': [
-    {
-      '1': 'invite_type',
-      '3': 1,
-      '4': 1,
-      '5': 14,
-      '6': '.message.SingleCallInviteType',
-      '10': 'inviteType'
-    },
+    {'1': 'invite_type', '3': 1, '4': 1, '5': 14, '6': '.message.SingleCallInviteType', '10': 'inviteType'},
     {'1': 'sustain', '3': 2, '4': 1, '5': 3, '10': 'sustain'},
   ],
 };
@@ -448,14 +357,7 @@ const Single$json = {
   '1': 'Single',
   '2': [
     {'1': 'content', '3': 2, '4': 1, '5': 9, '10': 'content'},
-    {
-      '1': 'content_type',
-      '3': 3,
-      '4': 1,
-      '5': 14,
-      '6': '.message.ContentType',
-      '10': 'contentType'
-    },
+    {'1': 'content_type', '3': 3, '4': 1, '5': 14, '6': '.message.ContentType', '10': 'contentType'},
   ],
 };
 
@@ -480,3 +382,4 @@ final $typed_data.Uint8List msgResponseDescriptor = $convert.base64Decode(
     'CgtNc2dSZXNwb25zZRIbCgljbGllbnRfaWQYASABKAlSCGNsaWVudElkEhsKCXNlcnZlcl9pZB'
     'gCIAEoCVIIc2VydmVySWQSGwoJc2VuZF90aW1lGAMgASgDUghzZW5kVGltZRIQCgNlcnIYBCAB'
     'KAlSA2Vycg==');
+
