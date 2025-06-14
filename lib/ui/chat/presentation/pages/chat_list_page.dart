@@ -2,12 +2,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sandcat/core/db/chat_repo.dart';
 import 'package:sandcat/core/network/socket_manager.dart';
 import 'package:sandcat/core/network/websocket_client.dart' as ws;
 import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/ui/auth/data/services/auth_service.dart';
-import 'package:sandcat/ui/chat/data/dao/chat_dao.dart';
-import 'package:sandcat/ui/chat/data/dao/test_dao.dart';
 import 'package:sandcat/ui/chat/presentation/widgets/chat_avatar.dart';
 import 'package:sandcat/ui/chat/presentation/widgets/connection_status_indicator.dart';
 import 'package:sandcat/ui/chat/presentation/widgets/swipeable_chat_item.dart';
@@ -40,20 +39,13 @@ class _ChatListPageState extends State<ChatListPage> {
 
   // 获取依赖实例
   final SocketManager _socketManager = GetIt.instance<SocketManager>();
-  final ChatDao _chatDao = GetIt.instance<ChatDao>();
+  final ChatRepository _chatRepo = GetIt.instance<ChatRepository>();
 
   @override
   void initState() {
     super.initState();
     _socketManager.addStateListener(_onSocketStateChanged);
     _searchController.addListener(_onSearchChanged);
-    // 添加测试数据
-    _loadTestData();
-  }
-
-  Future<void> _loadTestData() async {
-    final testHelper = TestDataHelper(_chatDao);
-    await testHelper.insertTestData();
   }
 
   void _onSearchChanged() {
@@ -86,10 +78,10 @@ class _ChatListPageState extends State<ChatListPage> {
               isDefaultAction: true,
               child: const Text('重新登录'),
               onPressed: () async {
-                final navigator = Navigator.of(ctx);
+                final navigator = Navigator.of(context);
                 navigator.pop();
 
-                final router = GoRouter.of(ctx);
+                final router = GoRouter.of(context);
 
                 try {
                   final authService = GetIt.instance<AuthService>();
@@ -151,15 +143,15 @@ class _ChatListPageState extends State<ChatListPage> {
   }
 
   Future<void> _handleMarkAsRead(String chatId) async {
-    await _chatDao.markAsRead(chatId);
+    await _chatRepo.markChatAsRead(chatId);
   }
 
   Future<void> _handlePinChat(String chatId, bool currentPinState) async {
-    await _chatDao.updatePinStatus(chatId, !currentPinState);
+    await _chatRepo.pinChat(chatId, !currentPinState);
   }
 
   Future<void> _handleMuteChat(String chatId, bool currentMuteState) async {
-    await _chatDao.updateMuteStatus(chatId, !currentMuteState);
+    await _chatRepo.muteChat(chatId, !currentMuteState);
   }
 
   Future<void> _handleDeleteChat(String chatId) async {
@@ -184,7 +176,7 @@ class _ChatListPageState extends State<ChatListPage> {
     );
 
     if (result == true) {
-      await _chatDao.deleteChat(chatId);
+      await _chatRepo.deleteChat(chatId);
     }
   }
 
@@ -278,7 +270,7 @@ class _ChatListPageState extends State<ChatListPage> {
 
   Widget _buildChatList() {
     return StreamBuilder<List<Chat>>(
-      stream: _chatDao.watchAllChats(),
+      stream: _chatRepo.watchChats(),
       builder: (context, snapshot) {
         // 只在连接状态为"active"之前且没有数据时显示加载器
         if (snapshot.connectionState != ConnectionState.active &&
@@ -301,7 +293,7 @@ class _ChatListPageState extends State<ChatListPage> {
 
   Widget _buildSearchResults() {
     return FutureBuilder<List<Chat>>(
-      future: _chatDao.searchChats(_searchQuery),
+      future: _chatRepo.searchChats(_searchQuery),
       builder: (context, snapshot) {
         // 只有在等待状态且之前没有数据时才显示加载器
         if (snapshot.connectionState == ConnectionState.waiting &&

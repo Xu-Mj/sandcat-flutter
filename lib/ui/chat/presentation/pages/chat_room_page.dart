@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:sandcat/core/db/message_repo.dart';
 import 'package:sandcat/core/di/injection.dart';
 import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/core/db/tables/chat_table.dart';
-import 'package:sandcat/ui/chat/data/dao/message_dao.dart';
 import 'package:sandcat/ui/chat/domain/services/chat_service.dart';
 import 'package:sandcat/ui/chat/presentation/widgets/chat_avatar.dart';
 import 'package:sandcat/ui/chat/presentation/widgets/chat_input_area.dart';
@@ -25,7 +25,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final ChatService _chatService = getIt<ChatService>();
-  final MessageDao _messageDao = getIt<MessageDao>();
+  final MessageRepository _messageDao = getIt<MessageRepository>();
 
   // 聊天信息
   Chat? _chatInfo;
@@ -40,6 +40,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
     // 标记所有消息为已读
     _chatService.markAllMessagesAsRead(widget.chatId);
+
+    // 滚动到最新消息
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom(needAnimate: false);
+    });
   }
 
   @override
@@ -80,7 +85,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     _chatService.sendTextMessage(
       chatId: widget.chatId,
       content: message,
-      senderId: _currentUserId ?? 'unknown',
+      senderId: _currentUserId!,
       receiverId: 'target_user', // 在实际应用中需要设置真实的接收者ID
       groupId:
           _chatInfo?.type.toString() == 'ChatType.group' ? widget.chatId : null,
@@ -94,35 +99,33 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   }
 
   /// 处理消息操作
-  void _handleMessageAction(String action, Map<String, dynamic> message) {
-    final messageId = message['id'] as String;
+  void _handleMessageAction(String action, Message message) {
+    final messageId = message.clientId;
 
     switch (action) {
       case 'tap':
-        debugPrint('Tapped message: ${message['content']}');
+        debugPrint('Tapped message: ${message.content}');
         break;
       case 'copy':
-        debugPrint('Copied: ${message['content']}');
+        debugPrint('Copied: ${message.content}');
         // TODO: 实现复制功能
         break;
       case 'forward':
-        debugPrint('Forward: ${message['content']}');
+        debugPrint('Forward: ${message.content}');
         // TODO: 实现转发功能
         break;
       case 'reply':
-        debugPrint('Reply to: ${message['content']}');
+        debugPrint('Reply to: ${message.content}');
         // TODO: 实现回复功能
         break;
       case 'edit':
-        if (message['senderId'] == _currentUserId) {
-          debugPrint('Edit: ${message['content']}');
+        if (message.senderId == _currentUserId) {
+          debugPrint('Edit: ${message.content}');
           // TODO: 实现编辑功能
         }
         break;
       case 'delete':
-        if (message['senderId'] == _currentUserId) {
-          _chatService.deleteMessage(messageId);
-        }
+        _chatService.deleteMessage(messageId);
         break;
     }
   }
@@ -196,9 +199,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   // 构建消息列表
   Widget _buildMessagesList() {
     return StreamBuilder<List<Message>>(
-      stream: _chatService.watchMessages(widget.chatId),
+      stream: _messageDao.watchMessagesByConversationId(widget.chatId),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
           return const Center(
             child: CupertinoActivityIndicator(),
           );
@@ -217,60 +221,40 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           );
         }
 
-        _scrollToBottom(needAnimate: false);
-        return GestureDetector(
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(16.0),
-            // 反转列表以使最新消息在底部
-            reverse: true,
-            itemCount: messages.length,
-            itemBuilder: (context, index) {
-              final message = messages[index];
-              final messageModel = _messageDao.messageToModel(message);
+        // 检查是否有新消息到达，如果有则滚动到底部
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (snapshot.connectionState == ConnectionState.active &&
+              snapshot.hasData &&
+              _scrollController.hasClients &&
+              _scrollController.position.pixels ==
+                  _scrollController.position.maxScrollExtent) {
+            _scrollToBottom(needAnimate: true);
+          }
+        });
 
-              // 转换为视图模型
-              final Map<String, dynamic> messageMap = {
-                'id': message.id,
-                'senderId': message.sendId,
-                'content': messageModel.textContent,
-                'timestamp':
-                    DateTime.fromMillisecondsSinceEpoch(message.createTime),
-                'status': _getMessageStatus(message.status.index),
-                'isRead': message.isRead,
-              };
+        return ListView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(16.0),
+          // 反转列表以使最新消息在底部
+          reverse: true,
+          itemCount: messages.length,
+          itemBuilder: (context, index) {
+            final message = messages[index];
 
-              return ChatMessageItem(
-                message: messageMap,
-                formatTimeFunc: _formatTime,
-                onAction: _handleMessageAction,
-              );
-            },
-          ),
+            // 收到新消息且是对方发送的，标记为已读
+            if (message.senderId != _currentUserId && message.isRead == false) {
+              _chatService.markMessageAsRead(message.clientId);
+            }
+
+            return ChatMessageItem(
+              message: message,
+              formatTimeFunc: _formatTime,
+              onAction: _handleMessageAction,
+            );
+          },
         );
       },
     );
-  }
-
-  // 获取消息状态字符串
-  String _getMessageStatus(int status) {
-    // 直接使用数字常量而不是枚举类型
-    switch (status) {
-      case 0: // created
-        return 'sending';
-      case 1: // sending
-        return 'sending';
-      case 2: // sent
-        return 'sent';
-      case 3: // delivered
-        return 'delivered';
-      case 4: // read
-        return 'read';
-      case 5: // failed
-        return 'failed';
-      default:
-        return 'unknown';
-    }
   }
 
   // 构建输入区域

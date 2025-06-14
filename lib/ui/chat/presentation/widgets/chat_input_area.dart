@@ -203,7 +203,6 @@ class _ChatInputAreaState extends ConsumerState<ChatInputArea>
                       Expanded(
                         child: ChatInputField(
                           controller: _messageController,
-                          placeholder: '输入信息 (按Enter发送，Shift+Enter换行)',
                           allowEnterNewline: true,
                           onSendMessage: (message) {
                             widget.onSendMessage(message);

@@ -65,7 +65,6 @@ class ChatInputFieldState extends State<ChatInputField> {
       },
       child: CupertinoTextField(
         controller: _controller,
-        placeholder: widget.placeholder ?? '输入消息...',
         decoration: const BoxDecoration(),
         maxLines: widget.allowEnterNewline ? 4 : 1,
         minLines: 1,
