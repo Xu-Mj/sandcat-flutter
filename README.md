@@ -181,6 +181,41 @@ or manually:
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
+## Message Architecture
+
+The message architecture in this project is designed with a three-layer approach to provide clean separation between protocol and application layers:
+
+### Layer 1: Protocol Messages
+- Raw protocol messages directly matching server formats
+- Located in `lib/core/message/protocol/`
+- Implemented using Protocol Buffers generated classes
+- Provides direct serialization/deserialization with the server
+
+### Layer 2: Parsed Messages
+- Translation layer between protocol messages and application models
+- Located in `lib/core/message/parsed/`
+- Extracts and normalizes data from protocol messages
+- Handles binary message parsing for different message types
+
+### Layer 3: Application Models
+- Application-specific models for UI and storage
+- Located in `lib/core/message/model/`
+- Freezed classes for immutability and JSON serialization
+- Used directly by UI components and database storage
+
+### Database Structure
+- Message table: Stores all types of messages
+- Conversation table: Manages chat conversations (single and group)
+
+### Services
+- MessageService: Handles message operations
+- ConversationService: Manages conversation operations
+
+### Proto Files Synchronization
+To keep the client definitions aligned with server changes:
+1. Run the update script: `./scripts/update_protos.sh` (or `./scripts/update_protos.ps1` on Windows)
+2. Generate Dart files: `flutter pub run build_runner build --delete-conflicting-outputs`
+
 ## Features
 
 - User authentication and management
