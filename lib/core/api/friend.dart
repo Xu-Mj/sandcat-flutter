@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:sandcat/core/protos/generated/client_messages.pb.dart';
 
 /// 好友关系API接口
 abstract class FriendApi {
@@ -30,7 +31,7 @@ abstract class FriendApi {
   /// [userId] 用户ID
   /// [friendId] 好友ID
   /// [fsId] 好友关系ID
-  Future<Response> agreeFriendRequest({
+  Future<Friend> agreeFriendRequest({
     required String userId,
     required String friendId,
     required String fsId,

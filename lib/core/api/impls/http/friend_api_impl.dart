@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:sandcat/core/api/friend.dart';
 import 'package:sandcat/core/network/api_client.dart';
 import 'package:injectable/injectable.dart';
+import 'package:sandcat/core/protos/ext/friend_ext.dart';
+import 'package:sandcat/core/protos/generated/client_messages.pb.dart';
 
 /// FriendApiHttp的实现
 @LazySingleton(as: FriendApi)
@@ -32,9 +34,9 @@ class FriendApiHttpImpl implements FriendApi {
     String source = 'AccountSearch',
   }) {
     final data = {
-      'user_id': userId,
-      'friend_id': friendId,
-      'apply_msg': applyMsg,
+      'userId': userId,
+      'friendId': friendId,
+      'applyMsg': applyMsg,
       'remark': remark,
       'source': source,
     };
@@ -42,13 +44,16 @@ class FriendApiHttpImpl implements FriendApi {
   }
 
   @override
-  Future<Response> agreeFriendRequest({
+  Future<Friend> agreeFriendRequest({
     required String userId,
     required String friendId,
     required String fsId,
   }) {
-    final data = {'user_id': userId, 'friend_id': friendId, 'fs_id': fsId};
-    return _apiClient.put('/friend/agree', data: data);
+    final data = {'userId': userId, 'friendId': friendId, 'fsId': fsId};
+    return _apiClient.put('/friend/agree', data: data).then((response) {
+      print('agreeFriendRequest: ${response.data}');
+      return FriendJson.fromJson(response.data);
+    });
   }
 
   @override
