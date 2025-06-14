@@ -155,7 +155,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
             children: [
               // 头像
               Hero(
-                tag: 'friend_avatar_${friend.id}',
+                tag: 'friend_avatar_${friend.remark}',
                 child: CircleAvatar(
                   radius: 40,
                   backgroundColor: CupertinoColors.systemBlue,
@@ -239,7 +239,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                 label: '发消息',
                 onTap: () {
                   // 导航到聊天页面
-                  Navigator.pop(context, friend.id);
+                  Navigator.pop(context, friend.fsId);
                 },
               ),
               _buildActionButton(
@@ -247,7 +247,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                 label: friend.isStarred ? '取消星标' : '设为星标',
                 onTap: () async {
                   await _friendRepository.toggleStarFriend(
-                      friend.id, !friend.isStarred);
+                      friend.fsId, !friend.isStarred);
                   _loadFriend();
                 },
               ),
@@ -621,7 +621,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
               // 更新备注
               await _friendRepository.updateFriend(
                 FriendsCompanion(
-                  id: Value(friend.id),
+                  fsId: Value(friend.fsId),
                   remark: Value(remark.isEmpty ? null : remark),
                 ),
               );
@@ -690,7 +690,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
             child: const Text('删除'),
             onPressed: () async {
               Navigator.pop(context);
-              await _friendRepository.deleteFriend(friend.id);
+              await _friendRepository.deleteFriend(friend.fsId);
               Navigator.pop(context); // 返回好友列表
             },
           ),

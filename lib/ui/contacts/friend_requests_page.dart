@@ -1,42 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:sandcat/core/network/api_client.dart';
+import 'package:sandcat/core/db/app.dart';
+import 'package:sandcat/core/db/friend_repo.dart';
 import 'package:sandcat/ui/auth/data/services/auth_service.dart';
 import 'package:sandcat/ui/utils/responsive_layout.dart';
-
-/// 好友请求模型
-class FriendRequest {
-  final String id;
-  final String userId;
-  final String friendId;
-  final String? applyMsg;
-  final String? remark;
-  final String status;
-  final int createTime;
-
-  FriendRequest({
-    required this.id,
-    required this.userId,
-    required this.friendId,
-    this.applyMsg,
-    this.remark,
-    required this.status,
-    required this.createTime,
-  });
-
-  factory FriendRequest.fromJson(Map<String, dynamic> json) {
-    return FriendRequest(
-      id: json['id'] as String,
-      userId: json['user_id'] as String,
-      friendId: json['friend_id'] as String,
-      applyMsg: json['apply_msg'] as String?,
-      remark: json['remark'] as String?,
-      status: json['status'] as String,
-      createTime: json['create_time'] as int,
-    );
-  }
-}
+import 'dart:async';
 
 /// 好友请求列表页面
 class FriendRequestsPage extends StatefulWidget {
@@ -47,48 +16,76 @@ class FriendRequestsPage extends StatefulWidget {
 }
 
 class _FriendRequestsPageState extends State<FriendRequestsPage> {
-  final ApiClient _apiClient = GetIt.instance<ApiClient>();
+  final FriendRepository _friendRepository = GetIt.instance<FriendRepository>();
   final AuthService _authService = GetIt.instance<AuthService>();
 
   bool _isLoading = true;
   String? _errorMessage;
   List<FriendRequest> _requests = [];
 
+  // 用于监听新的好友请求
+  Timer? _refreshTimer;
+  StreamSubscription? _friendRequestSubscription;
+
   @override
   void initState() {
     super.initState();
     _loadFriendRequests();
+    _setupFriendRequestListener();
   }
 
-  Future<void> _loadFriendRequests() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    _friendRequestSubscription?.cancel();
+    super.dispose();
+  }
 
+  void _setupFriendRequestListener() {
     try {
-      final userId = await _authService.getCurrentUserId();
-      if (userId == null) {
-        throw Exception('用户未登录');
-      }
-
-      // 获取好友申请列表
-      final response = await _apiClient.get('/api/v1/friends/apply/$userId/0');
-
-      final List<dynamic> data = response.data as List<dynamic>;
-      final requests = data
-          .map((item) => FriendRequest.fromJson(item as Map<String, dynamic>))
-          .toList();
-
-      setState(() {
-        _requests = requests;
-        _isLoading = false;
+      _friendRequestSubscription =
+          _friendRepository.watchFriendRequest().listen((_) {
+        if (mounted) {
+          _loadFriendRequests(silent: true);
+        }
       });
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = '加载好友请求失败: ${e.toString()}';
+      // 监听失败，继续使用定时刷新
+      debugPrint('无法设置好友请求监听: $e');
+      // 设置定时刷新
+      _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+        if (mounted) {
+          _loadFriendRequests(silent: true);
+        }
       });
+    }
+  }
+
+  Future<void> _loadFriendRequests({bool silent = false}) async {
+    if (!silent) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
+
+    try {
+      // 直接从数据库获取好友请求列表
+      final requests = await _friendRepository.getFriendRequests();
+
+      if (mounted) {
+        setState(() {
+          _requests = requests;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = '加载好友请求失败: ${e.toString()}';
+        });
+      }
     }
   }
 
@@ -103,26 +100,22 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
         throw Exception('用户未登录');
       }
 
-      if (accept) {
-        // 接受好友请求
-        await _apiClient.post('/api/v1/friends/agree', data: {
-          'fs_id': requestId,
-          'user_id': userId,
-        });
-      } else {
-        // 拒绝好友请求
-        await _apiClient.post('/api/v1/friends/reject', data: {
-          'fs_id': requestId,
-          'user_id': userId,
-        });
+      final status = accept ? 'Accepted' : 'Rejected';
+
+      // 直接更新数据库中的好友请求状态
+      final success = await _friendRepository.handleFriendRequest(
+          requestId, status,
+          respMsg: accept ? '已接受好友请求' : '已拒绝好友请求');
+
+      if (!success) {
+        throw Exception('处理好友请求失败');
       }
 
-      // 刷新列表
+      // 重新加载好友请求列表
       await _loadFriendRequests();
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = '处理好友请求失败: ${e.toString()}';
       });
 
       if (mounted) {
@@ -130,7 +123,7 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
           context: context,
           builder: (context) => CupertinoAlertDialog(
             title: const Text('操作失败'),
-            content: Text('发生错误: $e'),
+            content: const Text('处理请求时出现问题，请稍后重试'),
             actions: [
               CupertinoDialogAction(
                 child: const Text('确定'),
@@ -152,8 +145,8 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
         middle: const Text('好友请求'),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.refresh),
           onPressed: _loadFriendRequests,
+          child: const Icon(CupertinoIcons.refresh),
         ),
       ),
       child: SafeArea(
@@ -172,15 +165,32 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Icon(
+              CupertinoIcons.exclamationmark_circle,
+              size: 48,
+              color: CupertinoColors.systemGrey,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '加载请求列表失败',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
             Text(
-              _errorMessage!,
-              style: const TextStyle(color: CupertinoColors.destructiveRed),
+              '请检查网络连接后重试',
+              style: TextStyle(
+                color: CupertinoColors.systemGrey.resolveFrom(context),
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            CupertinoButton(
-              child: const Text('重试'),
+            CupertinoButton.filled(
               onPressed: _loadFriendRequests,
+              child: const Text('重新加载'),
             ),
           ],
         ),
@@ -227,16 +237,32 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const Icon(
+                      CupertinoIcons.exclamationmark_circle,
+                      size: 48,
+                      color: CupertinoColors.systemGrey,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      '加载请求列表失败',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
                     Text(
-                      _errorMessage!,
-                      style: const TextStyle(
-                          color: CupertinoColors.destructiveRed),
+                      '请检查网络连接后重试',
+                      style: TextStyle(
+                        color: CupertinoColors.systemGrey.resolveFrom(context),
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
-                    CupertinoButton(
-                      child: const Text('重试'),
+                    CupertinoButton.filled(
                       onPressed: _loadFriendRequests,
+                      child: const Text('重新加载'),
                     ),
                   ],
                 ),
@@ -279,6 +305,14 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
 
     final isPending = request.status == 'Pending';
 
+    // 使用新增的用户信息字段
+    final String displayName =
+        request.name.isNotEmpty ? request.name : request.userId;
+    final String avatarUrl = request.avatar;
+    final String gender = request.gender;
+    final int age = request.age;
+    final String? region = request.region;
+
     return Container(
       padding: EdgeInsets.all(isDesktop ? 16.0 : 12.0),
       decoration: BoxDecoration(
@@ -299,18 +333,27 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
         children: [
           Row(
             children: [
+              // 显示用户头像
               Container(
                 width: 50,
                 height: 50,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: CupertinoColors.systemBlue,
+                  image: avatarUrl.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(avatarUrl),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
-                child: const Icon(
-                  CupertinoIcons.person_fill,
-                  color: CupertinoColors.white,
-                  size: 30,
-                ),
+                child: avatarUrl.isEmpty
+                    ? const Icon(
+                        CupertinoIcons.person_fill,
+                        color: CupertinoColors.white,
+                        size: 30,
+                      )
+                    : null,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -318,11 +361,43 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      request.userId,
+                      displayName,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          gender,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color:
+                                CupertinoColors.systemGrey.resolveFrom(context),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '$age岁',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color:
+                                CupertinoColors.systemGrey.resolveFrom(context),
+                          ),
+                        ),
+                        if (region != null && region.isNotEmpty) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            region,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: CupertinoColors.systemGrey
+                                  .resolveFrom(context),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                     Text(
                       '请求时间: $formattedDate',
@@ -338,7 +413,7 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                 CupertinoButton(
                   padding: EdgeInsets.zero,
                   child: const Text('处理'),
-                  onPressed: () => _showActionSheet(request),
+                  onPressed: () => _showActionSheet(request, displayName),
                 ),
             ],
           ),
@@ -348,6 +423,17 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
               child: Text(
                 '附言: ${request.applyMsg}',
                 style: const TextStyle(fontSize: 14),
+              ),
+            ),
+          if (request.source != null && request.source!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0, left: 62),
+              child: Text(
+                '来源: ${request.source}',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: CupertinoColors.systemGrey.resolveFrom(context),
+                ),
               ),
             ),
           if (isDesktop && isPending)
@@ -387,12 +473,12 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
     );
   }
 
-  void _showActionSheet(FriendRequest request) {
+  void _showActionSheet(FriendRequest request, String displayName) {
     showCupertinoModalPopup(
       context: context,
       builder: (context) => CupertinoActionSheet(
         title: const Text('处理好友请求'),
-        message: Text('来自 ${request.userId} 的好友请求'),
+        message: Text('来自 $displayName 的好友请求'),
         actions: [
           CupertinoActionSheetAction(
             onPressed: () {

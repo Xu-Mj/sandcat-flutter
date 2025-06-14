@@ -50,17 +50,9 @@ class _FriendsPageState extends State<FriendsPage> {
   void initState() {
     super.initState();
 
-    // 创建测试数据
-    _createTestData();
-
     // 加载数据
     _loadFriends();
     _loadGroups();
-  }
-
-  // 创建测试数据
-  Future<void> _createTestData() async {
-    await _friendRepository.createTestData();
   }
 
   void _loadFriends() {
@@ -111,7 +103,9 @@ class _FriendsPageState extends State<FriendsPage> {
 
     // 在移动设备上，导航到详情页
     if (_isSmallScreen()) {
-      context.push('/contacts/detail/${friend.id}').then((_) => _loadFriends());
+      context
+          .push('/contacts/detail/${friend.fsId}')
+          .then((_) => _loadFriends());
     } else {
       // 在桌面设备上，更新选中的好友
       setState(() {
@@ -269,12 +263,42 @@ class _FriendsPageState extends State<FriendsPage> {
 
         // 错误信息
         if (_errorMessage != null)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              _errorMessage!,
-              style: const TextStyle(color: CupertinoColors.destructiveRed),
-              textAlign: TextAlign.center,
+          Container(
+            padding: const EdgeInsets.all(16),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  CupertinoIcons.exclamationmark_circle,
+                  size: 48,
+                  color: CupertinoColors.systemGrey,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '操作失败',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '请稍后重试',
+                  style: TextStyle(
+                    color: CupertinoColors.systemGrey.resolveFrom(context),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CupertinoButton.filled(
+                  onPressed: () {
+                    setState(() {
+                      _errorMessage = null;
+                    });
+                  },
+                  child: const Text('知道了'),
+                ),
+              ],
             ),
           ),
 
@@ -308,11 +332,11 @@ class _FriendsPageState extends State<FriendsPage> {
                   _buildRequestFormCard(),
                   const SizedBox(height: 24),
                   CupertinoButton.filled(
+                    onPressed: _isSending ? null : _showSendRequestDialog,
                     child: _isSending
                         ? const CupertinoActivityIndicator(
                             color: CupertinoColors.white)
                         : const Text('发送好友请求'),
-                    onPressed: _isSending ? null : _showSendRequestDialog,
                   ),
                 ],
               ),
@@ -384,13 +408,13 @@ class _FriendsPageState extends State<FriendsPage> {
                     const SizedBox(width: 8),
                     CupertinoButton(
                       padding: EdgeInsets.zero,
+                      onPressed: _toggleSearchMode,
                       child: Icon(
                         _isSearchMode
                             ? CupertinoIcons.xmark
                             : CupertinoIcons.person_add,
                         size: 24,
                       ),
-                      onPressed: _toggleSearchMode,
                     ),
                   ],
                 ),
@@ -405,24 +429,54 @@ class _FriendsPageState extends State<FriendsPage> {
                     child: CupertinoButton.filled(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       borderRadius: BorderRadius.circular(8),
+                      onPressed: _isSearching ? null : _searchUser,
                       child: _isSearching
                           ? const CupertinoActivityIndicator(
                               color: CupertinoColors.white)
                           : const Text('搜索用户'),
-                      onPressed: _isSearching ? null : _searchUser,
                     ),
                   ),
                 ),
 
               // 错误信息
               if (_errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    _errorMessage!,
-                    style:
-                        const TextStyle(color: CupertinoColors.destructiveRed),
-                    textAlign: TextAlign.center,
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        CupertinoIcons.exclamationmark_circle,
+                        size: 48,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        '操作失败',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '请稍后重试',
+                        style: TextStyle(
+                          color:
+                              CupertinoColors.systemGrey.resolveFrom(context),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      CupertinoButton.filled(
+                        onPressed: () {
+                          setState(() {
+                            _errorMessage = null;
+                          });
+                        },
+                        child: const Text('知道了'),
+                      ),
+                    ],
                   ),
                 ),
 
@@ -522,7 +576,7 @@ class _FriendsPageState extends State<FriendsPage> {
                     )
               : _selectedFriend != null
                   ? FriendDetailPage(
-                      friendId: _selectedFriend!.id,
+                      friendId: _selectedFriend!.fsId,
                       isEmbedded: true,
                     )
                   : const Center(
@@ -551,10 +605,10 @@ class _FriendsPageState extends State<FriendsPage> {
         SizedBox(
           width: 200,
           child: CupertinoButton.filled(
+            onPressed: _isSending ? null : _showSendRequestDialog,
             child: _isSending
                 ? const CupertinoActivityIndicator(color: CupertinoColors.white)
                 : const Text('发送好友请求'),
-            onPressed: _isSending ? null : _showSendRequestDialog,
           ),
         ),
       ],
@@ -1114,11 +1168,12 @@ class _FriendsPageState extends State<FriendsPage> {
                   final friend = friends[index];
                   return FriendListItem(
                     friend: friend,
-                    isSelected: isDesktop && _selectedFriend?.id == friend.id,
+                    isSelected:
+                        isDesktop && _selectedFriend?.fsId == friend.fsId,
                     onTap: () => _onFriendTap(friend),
                     onToggleStar: (isStarred) async {
                       await _friendRepository.toggleStarFriend(
-                        friend.id,
+                        friend.fsId,
                         isStarred,
                       );
                       _loadFriends();

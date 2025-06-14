@@ -53,6 +53,6 @@ class FriendApi1 {
       lastOperation: const Value('AccountSearch'),
     );
 
-    await friendRepo.sendFriendRequest(contact);
+    await friendRepo.saveFriendRequest(contact);
   }
 }

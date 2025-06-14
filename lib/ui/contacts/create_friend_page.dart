@@ -103,12 +103,29 @@ class _CreateFriendPageState extends State<CreateFriendPage> {
           _buildSearchSection(),
           const SizedBox(height: 16),
           if (_errorMessage != null)
-            Padding(
+            Container(
               padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Text(
-                _errorMessage!,
-                style: const TextStyle(color: CupertinoColors.destructiveRed),
-                textAlign: TextAlign.center,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    CupertinoIcons.exclamationmark_circle,
+                    size: 32,
+                    color: CupertinoColors.systemGrey,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _errorMessage?.contains('请输入搜索关键词') == true
+                        ? '请输入搜索关键词'
+                        : '搜索失败，请重试',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: CupertinoColors.systemGrey.resolveFrom(context),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           if (_isSearched && _searchResults.isEmpty && _errorMessage == null)
@@ -139,11 +156,11 @@ class _CreateFriendPageState extends State<CreateFriendPage> {
             _buildRequestFormSection(),
             const SizedBox(height: 24),
             CupertinoButton.filled(
+              onPressed: _isSending ? null : _showSendRequestDialog,
               child: _isSending
                   ? const CupertinoActivityIndicator(
                       color: CupertinoColors.white)
                   : const Text('发送好友请求'),
-              onPressed: _isSending ? null : _showSendRequestDialog,
             ),
           ],
         ],
@@ -176,13 +193,30 @@ class _CreateFriendPageState extends State<CreateFriendPage> {
                     child: _buildSearchRow(),
                   ),
                   if (_errorMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        _errorMessage!,
-                        style: const TextStyle(
-                            color: CupertinoColors.destructiveRed),
-                        textAlign: TextAlign.center,
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            CupertinoIcons.exclamationmark_circle,
+                            size: 32,
+                            color: CupertinoColors.systemGrey,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _errorMessage?.contains('请输入搜索关键词') == true
+                                ? '请输入搜索关键词'
+                                : '搜索失败，请重试',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: CupertinoColors.systemGrey
+                                  .resolveFrom(context),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     ),
                   // 搜索结果列表
@@ -222,11 +256,11 @@ class _CreateFriendPageState extends State<CreateFriendPage> {
                   SizedBox(
                     width: 200,
                     child: CupertinoButton.filled(
+                      onPressed: _isSending ? null : _showSendRequestDialog,
                       child: _isSending
                           ? const CupertinoActivityIndicator(
                               color: CupertinoColors.white)
                           : const Text('发送好友请求'),
-                      onPressed: _isSending ? null : _showSendRequestDialog,
                     ),
                   ),
                 ],
@@ -732,7 +766,6 @@ class _CreateFriendPageState extends State<CreateFriendPage> {
       final uuid = const Uuid().v4();
 
       final contact = FriendsCompanion(
-        id: Value(uuid),
         fsId: Value(uuid),
         userId: Value(currentUserId),
         friendId: Value(_selectedUser!.id),
