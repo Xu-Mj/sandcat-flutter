@@ -10,6 +10,7 @@ import 'package:sandcat/core/db/friend_repo.dart';
 import 'package:sandcat/ui/contacts/friend_detail_page.dart';
 import 'package:sandcat/ui/contacts/widgets/friend_list_item.dart';
 import 'package:sandcat/ui/utils/responsive_layout.dart';
+import 'package:sandcat/ui/contacts/friend_requests_page.dart';
 
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key});
@@ -31,6 +32,9 @@ class _FriendsPageState extends State<FriendsPage> {
 
   // 桌面端当前选中的好友
   Friend? _selectedFriend;
+
+  // 是否显示好友请求面板（桌面端）
+  bool _showFriendRequests = false;
 
   // 数据列表
   late Future<List<Friend>> _friendsFuture;
@@ -1309,5 +1313,43 @@ class _FriendsPageState extends State<FriendsPage> {
     _remarkController.dispose();
     _messageController.dispose();
     super.dispose();
+  }
+
+  // 好友请求面板
+  Widget _buildFriendRequestsPanel() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '好友请求列表',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: CupertinoColors.activeBlue.resolveFrom(context),
+                ),
+              ),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  setState(() {
+                    _showFriendRequests = false;
+                  });
+                },
+                child: const Icon(CupertinoIcons.xmark_circle),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Expanded(
+            child: FriendRequestsPage(isEmbedded: true),
+          ),
+        ],
+      ),
+    );
   }
 }

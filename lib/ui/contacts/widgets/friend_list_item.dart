@@ -31,14 +31,13 @@ class FriendListItem extends StatelessWidget {
           children: [
             // 好友头像 - 这里应该显示用户信息中的头像，暂时使用占位符
             Hero(
-              tag: 'friend_avatar_${friend.id}',
+              tag: 'friend_avatar_${friend.fsId}',
               child: CircleAvatar(
                 radius: 25,
                 backgroundColor: CupertinoColors.systemBlue,
                 child: Text(
-                  // 使用备注的第一个字符作为占位符
-                  friend.remark?.substring(0, 1).toUpperCase() ??
-                      friend.friendId.substring(0, 1).toUpperCase(),
+                  // 使用备注或ID的第一个字符作为占位符，确保不会出现空字符串
+                  _getAvatarText(friend),
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -56,7 +55,9 @@ class FriendListItem extends StatelessWidget {
                 children: [
                   Text(
                     // 优先显示备注，没有则显示好友ID
-                    friend.remark ?? friend.friendId,
+                    friend.remark == null || friend.remark!.isEmpty
+                        ? friend.name
+                        : friend.remark!,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -95,5 +96,15 @@ class FriendListItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getAvatarText(Friend friend) {
+    if (friend.remark != null && friend.remark!.isNotEmpty) {
+      return friend.remark!.substring(0, 1).toUpperCase();
+    } else if (friend.friendId.isNotEmpty) {
+      return friend.name.substring(0, 1).toUpperCase();
+    } else {
+      return '?';
+    }
   }
 }

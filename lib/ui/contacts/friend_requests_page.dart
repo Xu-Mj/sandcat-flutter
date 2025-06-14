@@ -1,15 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:sandcat/core/api/friend.dart';
 import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/core/db/friend_repo.dart';
+import 'package:sandcat/core/protos/ext/friend_ext.dart';
+import 'package:sandcat/core/services/logger_service.dart';
 import 'package:sandcat/ui/auth/data/services/auth_service.dart';
 import 'package:sandcat/ui/utils/responsive_layout.dart';
 import 'dart:async';
 
 /// 好友请求列表页面
 class FriendRequestsPage extends StatefulWidget {
-  const FriendRequestsPage({super.key});
+  final bool isEmbedded;
+
+  const FriendRequestsPage({super.key, this.isEmbedded = false});
 
   @override
   State<FriendRequestsPage> createState() => _FriendRequestsPageState();
@@ -18,6 +23,8 @@ class FriendRequestsPage extends StatefulWidget {
 class _FriendRequestsPageState extends State<FriendRequestsPage> {
   final FriendRepository _friendRepository = GetIt.instance<FriendRepository>();
   final AuthService _authService = GetIt.instance<AuthService>();
+  final FriendApi _friendApi = GetIt.instance<FriendApi>();
+  final LoggerService _logger = GetIt.instance<LoggerService>();
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -89,7 +96,8 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
     }
   }
 
-  Future<void> _handleRequest(String requestId, bool accept) async {
+  Future<void> _handleRequest(
+      String requestId, String friendId, bool accept) async {
     setState(() {
       _isLoading = true;
     });
@@ -101,6 +109,14 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
       }
 
       final status = accept ? 'Accepted' : 'Rejected';
+      if (accept) {
+        final friend = await _friendApi.agreeFriendRequest(
+            userId: userId, friendId: friendId, fsId: requestId);
+
+        // 保存好友信息
+        await _friendRepository
+            .addFriend(friend.toFriendDb().toCompanion(true));
+      }
 
       // 直接更新数据库中的好友请求状态
       final success = await _friendRepository.handleFriendRequest(
@@ -110,10 +126,8 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
       if (!success) {
         throw Exception('处理好友请求失败');
       }
-
-      // 重新加载好友请求列表
-      await _loadFriendRequests();
     } catch (e) {
+      _logger.e('处理好友请求失败: $e');
       setState(() {
         _isLoading = false;
       });
@@ -141,14 +155,16 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
     final bool isDesktop = ResponsiveLayout.isDesktop(context);
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: const Text('好友请求'),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: _loadFriendRequests,
-          child: const Icon(CupertinoIcons.refresh),
-        ),
-      ),
+      navigationBar: widget.isEmbedded
+          ? null
+          : CupertinoNavigationBar(
+              middle: const Text('好友请求'),
+              trailing: CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: _loadFriendRequests,
+                child: const Icon(CupertinoIcons.refresh),
+              ),
+            ),
       child: SafeArea(
         child: isDesktop ? _buildDesktopLayout() : _buildMobileLayout(),
       ),
@@ -444,13 +460,15 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
                   CupertinoButton.filled(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: const Text('接受'),
-                    onPressed: () => _handleRequest(request.id, true),
+                    onPressed: () =>
+                        _handleRequest(request.id, request.friendId, true),
                   ),
                   const SizedBox(width: 16),
                   CupertinoButton(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: const Text('拒绝'),
-                    onPressed: () => _handleRequest(request.id, false),
+                    onPressed: () =>
+                        _handleRequest(request.id, request.friendId, false),
                   ),
                 ],
               ),
@@ -483,7 +501,7 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
           CupertinoActionSheetAction(
             onPressed: () {
               Navigator.pop(context);
-              _handleRequest(request.id, true);
+              _handleRequest(request.id, request.friendId, true);
             },
             child: const Text('接受'),
           ),
@@ -491,7 +509,7 @@ class _FriendRequestsPageState extends State<FriendRequestsPage> {
             isDestructiveAction: true,
             onPressed: () {
               Navigator.pop(context);
-              _handleRequest(request.id, false);
+              _handleRequest(request.id, request.friendId, false);
             },
             child: const Text('拒绝'),
           ),

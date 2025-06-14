@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
     hide Column, Tab, TabBar, TabBarView, TabController;
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/core/db/friend_repo.dart';
 
@@ -160,8 +161,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                   radius: 40,
                   backgroundColor: CupertinoColors.systemBlue,
                   child: Text(
-                    friend.remark?.substring(0, 1).toUpperCase() ??
-                        friend.friendId.substring(0, 1).toUpperCase(),
+                    _safeGetAvatarText(friend),
                     style: const TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
@@ -239,7 +239,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                 label: '发消息',
                 onTap: () {
                   // 导航到聊天页面
-                  Navigator.pop(context, friend.fsId);
+                  context.push('/chat/${friend.fsId}');
                 },
               ),
               _buildActionButton(
@@ -742,6 +742,16 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
   String _formatTimestamp(int timestamp) {
     final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  String _safeGetAvatarText(Friend friend) {
+    if (friend.remark != null && friend.remark!.isNotEmpty) {
+      return friend.remark!.substring(0, 1).toUpperCase();
+    } else if (friend.friendId.isNotEmpty) {
+      return friend.friendId.substring(0, 1).toUpperCase();
+    } else {
+      return '?';
+    }
   }
 
   @override
