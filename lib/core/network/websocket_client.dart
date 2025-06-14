@@ -253,15 +253,14 @@ class WebSocketClient {
   }
 
   /// 发送消息
-  Future<bool> send(Map<String, dynamic> message) async {
+  Future<bool> send(dynamic message) async {
     if (!isConnected) {
       logger.w('Cannot send message, WebSocket not connected');
       return false;
     }
 
     try {
-      final jsonStr = jsonEncode(message);
-      _channel!.sink.add(jsonStr);
+      _channel!.sink.add(message);
       _triggerEvent(WebSocketEvent.messageSent, data: message);
       return true;
     } catch (e) {
@@ -269,6 +268,16 @@ class WebSocketClient {
       _triggerEvent(WebSocketEvent.error, data: e);
       return false;
     }
+  }
+
+  /// 发送消息
+  Future<bool> sendText(String message) async {
+    return send(message);
+  }
+
+  /// 发送消息
+  Future<bool> sendRaw(List<int> message) async {
+    return send(message);
   }
 
   /// 处理接收到的数据

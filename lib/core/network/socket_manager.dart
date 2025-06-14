@@ -1,7 +1,9 @@
 import 'dart:async';
 
-import 'package:sandcat/core/db/app.dart';
+import 'package:sandcat/core/message/message_processor.dart';
 import 'package:sandcat/core/network/websocket_client.dart';
+import 'package:sandcat/core/protos/ext/msg_ext.dart';
+import 'package:sandcat/core/protos/generated/common.pb.dart';
 import 'package:sandcat/core/services/logger_service.dart';
 import 'package:sandcat/core/utils/device_utils.dart';
 import 'package:sandcat/core/models/user/auth_token.dart';
@@ -11,7 +13,7 @@ import 'package:injectable/injectable.dart';
 typedef SocketStateListener = void Function(ConnectionState state);
 
 /// WebSocket消息监听
-typedef SocketMessageListener = void Function(Map<String, dynamic> message);
+typedef SocketMessageListener = void Function(Msg message);
 
 /// WebSocket连接管理器
 @lazySingleton
@@ -19,7 +21,8 @@ class SocketManager {
   /// 构造函数
   SocketManager({
     required this.logger,
-  });
+    required MessageProcessor messageProcessor,
+  }) : _messageProcessor = messageProcessor;
 
   final LoggerService logger;
 
@@ -33,6 +36,7 @@ class SocketManager {
   final List<SocketMessageListener> _messageListeners = [];
   final Map<String, StreamController<dynamic>> _topicControllers = {};
   Timer? _reconnectTimer;
+  final MessageProcessor _messageProcessor;
 
   /// 状态流，供外部监听 - 新增
   Stream<ConnectionStatusInfo> get statusStream =>
@@ -119,19 +123,14 @@ class SocketManager {
   }
 
   /// 发送消息
-  Future<bool> sendMessage(Message message) async {
+  Future<bool> sendMessage(String message) async {
     if (!isConnected) {
       logger.w('Cannot send message, socket not connected');
       return false;
     }
 
     try {
-      final payload = {
-        'type': 'message',
-        'payload': message.toJson(),
-      };
-
-      return await _client!.send(payload);
+      return await _client!.sendText(message);
     } catch (e) {
       logger.e('Error sending message', error: e);
       return false;
@@ -139,14 +138,14 @@ class SocketManager {
   }
 
   /// 发送原始消息数据
-  Future<bool> sendRaw(Map<String, dynamic> data) async {
+  Future<bool> sendRaw(List<int> data) async {
     if (!isConnected) {
       logger.w('Cannot send raw data, socket not connected');
       return false;
     }
 
     try {
-      return await _client!.send(data);
+      return await _client!.sendRaw(data);
     } catch (e) {
       logger.e('Error sending raw data', error: e);
       return false;
@@ -154,29 +153,29 @@ class SocketManager {
   }
 
   /// 发送输入状态
-  Future<bool> sendTypingStatus(String receiverId, bool isTyping) async {
-    return sendRaw({
-      'type': 'typing',
-      'payload': {
-        'receiver_id': receiverId,
-        'is_typing': isTyping,
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      }
-    });
-  }
+  // Future<bool> sendTypingStatus(String receiverId, bool isTyping) async {
+  //   return sendRaw({
+  //     'type': 'typing',
+  //     'payload': {
+  //       'receiver_id': receiverId,
+  //       'is_typing': isTyping,
+  //       'timestamp': DateTime.now().millisecondsSinceEpoch,
+  //     }
+  //   });
+  // }
 
-  /// 发送已读回执
-  Future<bool> sendReadReceipt(String messageId, String senderId) async {
-    return sendRaw({
-      'type': 'receipt',
-      'payload': {
-        'message_id': messageId,
-        'sender_id': senderId,
-        'status': 'read',
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      }
-    });
-  }
+  // /// 发送已读回执
+  // Future<bool> sendReadReceipt(String messageId, String senderId) async {
+  //   return sendRaw({
+  //     'type': 'receipt',
+  //     'payload': {
+  //       'message_id': messageId,
+  //       'sender_id': senderId,
+  //       'status': 'read',
+  //       'timestamp': DateTime.now().millisecondsSinceEpoch,
+  //     }
+  //   });
+  // }
 
   /// 订阅特定主题的消息
   Stream<dynamic> subscribeToTopic(String topic) {
@@ -242,23 +241,28 @@ class SocketManager {
 
   /// 处理接收到的WebSocket消息
   void _handleSocketMessage(Map<String, dynamic> message) {
+    final msg = MsgExtensions.fromMap(message);
+    // 处理消息
     try {
+      _messageProcessor.processMsg(msg!, true);
       // 通知所有消息监听器
+      // 我们目前采用的sqlite存储，sqlite支持直接监听消息
+      // 所以这里目前是空实现
       for (var listener in _messageListeners) {
-        listener(message);
+        listener(msg);
       }
 
-      // 获取消息类型
-      final type = message['type'] as String?;
-      if (type == null) {
-        logger.w('Received message without type: $message');
-        return;
-      }
+      // // 获取消息类型
+      // final type = message['type'] as String?;
+      // if (type == null) {
+      //   logger.w('Received message without type: $message');
+      //   return;
+      // }
 
-      // 转发到特定主题的流
-      if (_topicControllers.containsKey(type)) {
-        _topicControllers[type]!.add(message['payload']);
-      }
+      // // 转发到特定主题的流
+      // if (_topicControllers.containsKey(type)) {
+      //   _topicControllers[type]!.add(message['payload']);
+      // }
     } catch (e) {
       logger.e('Error handling socket message', error: e);
     }
