@@ -21,8 +21,10 @@ class Friends extends Table {
 
   // 好友ID
   TextColumn get friendId => text()();
+  TextColumn get account => text()();
   TextColumn get name => text()();
   TextColumn get avatar => text()();
+  TextColumn get signature => text().nullable()();
   TextColumn get gender => text()();
   IntColumn get age => integer()();
   TextColumn get region => text().nullable()();
@@ -56,6 +58,13 @@ class Friends extends Table {
 
   // 优先级
   IntColumn get priority => integer().withDefault(const Constant(0))();
+
+  // 互动评分
+  RealColumn get interactionScore => real().withDefault(const Constant(0.0))();
+
+  // 通知设置
+  BoolColumn get notificationsEnabled =>
+      boolean().withDefault(const Constant(true))();
 
   @override
   Set<Column> get primaryKey => {fsId};
