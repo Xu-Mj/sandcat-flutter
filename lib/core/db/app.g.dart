@@ -1299,6 +1299,12 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
   late final GeneratedColumn<String> friendId = GeneratedColumn<String>(
       'friend_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _accountMeta =
+      const VerificationMeta('account');
+  @override
+  late final GeneratedColumn<String> account = GeneratedColumn<String>(
+      'account', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -1309,6 +1315,12 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
   late final GeneratedColumn<String> avatar = GeneratedColumn<String>(
       'avatar', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _signatureMeta =
+      const VerificationMeta('signature');
+  @override
+  late final GeneratedColumn<String> signature = GeneratedColumn<String>(
+      'signature', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _genderMeta = const VerificationMeta('gender');
   @override
   late final GeneratedColumn<String> gender = GeneratedColumn<String>(
@@ -1388,13 +1400,33 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _interactionScoreMeta =
+      const VerificationMeta('interactionScore');
+  @override
+  late final GeneratedColumn<double> interactionScore = GeneratedColumn<double>(
+      'interaction_score', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
+  static const VerificationMeta _notificationsEnabledMeta =
+      const VerificationMeta('notificationsEnabled');
+  @override
+  late final GeneratedColumn<bool> notificationsEnabled = GeneratedColumn<bool>(
+      'notifications_enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("notifications_enabled" IN (0, 1))'),
+      defaultValue: const Constant(true));
   @override
   List<GeneratedColumn> get $columns => [
         fsId,
         userId,
         friendId,
+        account,
         name,
         avatar,
+        signature,
         gender,
         age,
         region,
@@ -1407,7 +1439,9 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
         deletedTime,
         isStarred,
         groupId,
-        priority
+        priority,
+        interactionScore,
+        notificationsEnabled
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1437,6 +1471,12 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
     } else if (isInserting) {
       context.missing(_friendIdMeta);
     }
+    if (data.containsKey('account')) {
+      context.handle(_accountMeta,
+          account.isAcceptableOrUnknown(data['account']!, _accountMeta));
+    } else if (isInserting) {
+      context.missing(_accountMeta);
+    }
     if (data.containsKey('name')) {
       context.handle(
           _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
@@ -1448,6 +1488,10 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
           avatar.isAcceptableOrUnknown(data['avatar']!, _avatarMeta));
     } else if (isInserting) {
       context.missing(_avatarMeta);
+    }
+    if (data.containsKey('signature')) {
+      context.handle(_signatureMeta,
+          signature.isAcceptableOrUnknown(data['signature']!, _signatureMeta));
     }
     if (data.containsKey('gender')) {
       context.handle(_genderMeta,
@@ -1517,6 +1561,18 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
       context.handle(_priorityMeta,
           priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta));
     }
+    if (data.containsKey('interaction_score')) {
+      context.handle(
+          _interactionScoreMeta,
+          interactionScore.isAcceptableOrUnknown(
+              data['interaction_score']!, _interactionScoreMeta));
+    }
+    if (data.containsKey('notifications_enabled')) {
+      context.handle(
+          _notificationsEnabledMeta,
+          notificationsEnabled.isAcceptableOrUnknown(
+              data['notifications_enabled']!, _notificationsEnabledMeta));
+    }
     return context;
   }
 
@@ -1532,10 +1588,14 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
           .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
       friendId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}friend_id'])!,
+      account: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       avatar: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}avatar'])!,
+      signature: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}signature']),
       gender: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}gender'])!,
       age: attachedDatabase.typeMapping
@@ -1562,6 +1622,10 @@ class $FriendsTable extends Friends with TableInfo<$FriendsTable, Friend> {
           .read(DriftSqlType.int, data['${effectivePrefix}group_id']),
       priority: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}priority'])!,
+      interactionScore: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}interaction_score'])!,
+      notificationsEnabled: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}notifications_enabled'])!,
     );
   }
 
@@ -1575,8 +1639,10 @@ class Friend extends DataClass implements Insertable<Friend> {
   final String fsId;
   final String userId;
   final String friendId;
+  final String account;
   final String name;
   final String avatar;
+  final String? signature;
   final String gender;
   final int age;
   final String? region;
@@ -1590,12 +1656,16 @@ class Friend extends DataClass implements Insertable<Friend> {
   final bool isStarred;
   final int? groupId;
   final int priority;
+  final double interactionScore;
+  final bool notificationsEnabled;
   const Friend(
       {required this.fsId,
       required this.userId,
       required this.friendId,
+      required this.account,
       required this.name,
       required this.avatar,
+      this.signature,
       required this.gender,
       required this.age,
       this.region,
@@ -1608,15 +1678,21 @@ class Friend extends DataClass implements Insertable<Friend> {
       this.deletedTime,
       required this.isStarred,
       this.groupId,
-      required this.priority});
+      required this.priority,
+      required this.interactionScore,
+      required this.notificationsEnabled});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['fs_id'] = Variable<String>(fsId);
     map['user_id'] = Variable<String>(userId);
     map['friend_id'] = Variable<String>(friendId);
+    map['account'] = Variable<String>(account);
     map['name'] = Variable<String>(name);
     map['avatar'] = Variable<String>(avatar);
+    if (!nullToAbsent || signature != null) {
+      map['signature'] = Variable<String>(signature);
+    }
     map['gender'] = Variable<String>(gender);
     map['age'] = Variable<int>(age);
     if (!nullToAbsent || region != null) {
@@ -1640,6 +1716,8 @@ class Friend extends DataClass implements Insertable<Friend> {
       map['group_id'] = Variable<int>(groupId);
     }
     map['priority'] = Variable<int>(priority);
+    map['interaction_score'] = Variable<double>(interactionScore);
+    map['notifications_enabled'] = Variable<bool>(notificationsEnabled);
     return map;
   }
 
@@ -1648,8 +1726,12 @@ class Friend extends DataClass implements Insertable<Friend> {
       fsId: Value(fsId),
       userId: Value(userId),
       friendId: Value(friendId),
+      account: Value(account),
       name: Value(name),
       avatar: Value(avatar),
+      signature: signature == null && nullToAbsent
+          ? const Value.absent()
+          : Value(signature),
       gender: Value(gender),
       age: Value(age),
       region:
@@ -1670,6 +1752,8 @@ class Friend extends DataClass implements Insertable<Friend> {
           ? const Value.absent()
           : Value(groupId),
       priority: Value(priority),
+      interactionScore: Value(interactionScore),
+      notificationsEnabled: Value(notificationsEnabled),
     );
   }
 
@@ -1680,8 +1764,10 @@ class Friend extends DataClass implements Insertable<Friend> {
       fsId: serializer.fromJson<String>(json['fsId']),
       userId: serializer.fromJson<String>(json['userId']),
       friendId: serializer.fromJson<String>(json['friendId']),
+      account: serializer.fromJson<String>(json['account']),
       name: serializer.fromJson<String>(json['name']),
       avatar: serializer.fromJson<String>(json['avatar']),
+      signature: serializer.fromJson<String?>(json['signature']),
       gender: serializer.fromJson<String>(json['gender']),
       age: serializer.fromJson<int>(json['age']),
       region: serializer.fromJson<String?>(json['region']),
@@ -1695,6 +1781,9 @@ class Friend extends DataClass implements Insertable<Friend> {
       isStarred: serializer.fromJson<bool>(json['isStarred']),
       groupId: serializer.fromJson<int?>(json['groupId']),
       priority: serializer.fromJson<int>(json['priority']),
+      interactionScore: serializer.fromJson<double>(json['interactionScore']),
+      notificationsEnabled:
+          serializer.fromJson<bool>(json['notificationsEnabled']),
     );
   }
   factory Friend.fromJsonString(String encodedJson,
@@ -1708,8 +1797,10 @@ class Friend extends DataClass implements Insertable<Friend> {
       'fsId': serializer.toJson<String>(fsId),
       'userId': serializer.toJson<String>(userId),
       'friendId': serializer.toJson<String>(friendId),
+      'account': serializer.toJson<String>(account),
       'name': serializer.toJson<String>(name),
       'avatar': serializer.toJson<String>(avatar),
+      'signature': serializer.toJson<String?>(signature),
       'gender': serializer.toJson<String>(gender),
       'age': serializer.toJson<int>(age),
       'region': serializer.toJson<String?>(region),
@@ -1723,6 +1814,8 @@ class Friend extends DataClass implements Insertable<Friend> {
       'isStarred': serializer.toJson<bool>(isStarred),
       'groupId': serializer.toJson<int?>(groupId),
       'priority': serializer.toJson<int>(priority),
+      'interactionScore': serializer.toJson<double>(interactionScore),
+      'notificationsEnabled': serializer.toJson<bool>(notificationsEnabled),
     };
   }
 
@@ -1730,8 +1823,10 @@ class Friend extends DataClass implements Insertable<Friend> {
           {String? fsId,
           String? userId,
           String? friendId,
+          String? account,
           String? name,
           String? avatar,
+          Value<String?> signature = const Value.absent(),
           String? gender,
           int? age,
           Value<String?> region = const Value.absent(),
@@ -1744,13 +1839,17 @@ class Friend extends DataClass implements Insertable<Friend> {
           Value<int?> deletedTime = const Value.absent(),
           bool? isStarred,
           Value<int?> groupId = const Value.absent(),
-          int? priority}) =>
+          int? priority,
+          double? interactionScore,
+          bool? notificationsEnabled}) =>
       Friend(
         fsId: fsId ?? this.fsId,
         userId: userId ?? this.userId,
         friendId: friendId ?? this.friendId,
+        account: account ?? this.account,
         name: name ?? this.name,
         avatar: avatar ?? this.avatar,
+        signature: signature.present ? signature.value : this.signature,
         gender: gender ?? this.gender,
         age: age ?? this.age,
         region: region.present ? region.value : this.region,
@@ -1764,14 +1863,18 @@ class Friend extends DataClass implements Insertable<Friend> {
         isStarred: isStarred ?? this.isStarred,
         groupId: groupId.present ? groupId.value : this.groupId,
         priority: priority ?? this.priority,
+        interactionScore: interactionScore ?? this.interactionScore,
+        notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       );
   Friend copyWithCompanion(FriendsCompanion data) {
     return Friend(
       fsId: data.fsId.present ? data.fsId.value : this.fsId,
       userId: data.userId.present ? data.userId.value : this.userId,
       friendId: data.friendId.present ? data.friendId.value : this.friendId,
+      account: data.account.present ? data.account.value : this.account,
       name: data.name.present ? data.name.value : this.name,
       avatar: data.avatar.present ? data.avatar.value : this.avatar,
+      signature: data.signature.present ? data.signature.value : this.signature,
       gender: data.gender.present ? data.gender.value : this.gender,
       age: data.age.present ? data.age.value : this.age,
       region: data.region.present ? data.region.value : this.region,
@@ -1788,6 +1891,12 @@ class Friend extends DataClass implements Insertable<Friend> {
       isStarred: data.isStarred.present ? data.isStarred.value : this.isStarred,
       groupId: data.groupId.present ? data.groupId.value : this.groupId,
       priority: data.priority.present ? data.priority.value : this.priority,
+      interactionScore: data.interactionScore.present
+          ? data.interactionScore.value
+          : this.interactionScore,
+      notificationsEnabled: data.notificationsEnabled.present
+          ? data.notificationsEnabled.value
+          : this.notificationsEnabled,
     );
   }
 
@@ -1797,8 +1906,10 @@ class Friend extends DataClass implements Insertable<Friend> {
           ..write('fsId: $fsId, ')
           ..write('userId: $userId, ')
           ..write('friendId: $friendId, ')
+          ..write('account: $account, ')
           ..write('name: $name, ')
           ..write('avatar: $avatar, ')
+          ..write('signature: $signature, ')
           ..write('gender: $gender, ')
           ..write('age: $age, ')
           ..write('region: $region, ')
@@ -1811,31 +1922,38 @@ class Friend extends DataClass implements Insertable<Friend> {
           ..write('deletedTime: $deletedTime, ')
           ..write('isStarred: $isStarred, ')
           ..write('groupId: $groupId, ')
-          ..write('priority: $priority')
+          ..write('priority: $priority, ')
+          ..write('interactionScore: $interactionScore, ')
+          ..write('notificationsEnabled: $notificationsEnabled')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      fsId,
-      userId,
-      friendId,
-      name,
-      avatar,
-      gender,
-      age,
-      region,
-      email,
-      status,
-      remark,
-      source,
-      createTime,
-      updateTime,
-      deletedTime,
-      isStarred,
-      groupId,
-      priority);
+  int get hashCode => Object.hashAll([
+        fsId,
+        userId,
+        friendId,
+        account,
+        name,
+        avatar,
+        signature,
+        gender,
+        age,
+        region,
+        email,
+        status,
+        remark,
+        source,
+        createTime,
+        updateTime,
+        deletedTime,
+        isStarred,
+        groupId,
+        priority,
+        interactionScore,
+        notificationsEnabled
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1843,8 +1961,10 @@ class Friend extends DataClass implements Insertable<Friend> {
           other.fsId == this.fsId &&
           other.userId == this.userId &&
           other.friendId == this.friendId &&
+          other.account == this.account &&
           other.name == this.name &&
           other.avatar == this.avatar &&
+          other.signature == this.signature &&
           other.gender == this.gender &&
           other.age == this.age &&
           other.region == this.region &&
@@ -1857,15 +1977,19 @@ class Friend extends DataClass implements Insertable<Friend> {
           other.deletedTime == this.deletedTime &&
           other.isStarred == this.isStarred &&
           other.groupId == this.groupId &&
-          other.priority == this.priority);
+          other.priority == this.priority &&
+          other.interactionScore == this.interactionScore &&
+          other.notificationsEnabled == this.notificationsEnabled);
 }
 
 class FriendsCompanion extends UpdateCompanion<Friend> {
   final Value<String> fsId;
   final Value<String> userId;
   final Value<String> friendId;
+  final Value<String> account;
   final Value<String> name;
   final Value<String> avatar;
+  final Value<String?> signature;
   final Value<String> gender;
   final Value<int> age;
   final Value<String?> region;
@@ -1879,13 +2003,17 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
   final Value<bool> isStarred;
   final Value<int?> groupId;
   final Value<int> priority;
+  final Value<double> interactionScore;
+  final Value<bool> notificationsEnabled;
   final Value<int> rowid;
   const FriendsCompanion({
     this.fsId = const Value.absent(),
     this.userId = const Value.absent(),
     this.friendId = const Value.absent(),
+    this.account = const Value.absent(),
     this.name = const Value.absent(),
     this.avatar = const Value.absent(),
+    this.signature = const Value.absent(),
     this.gender = const Value.absent(),
     this.age = const Value.absent(),
     this.region = const Value.absent(),
@@ -1899,14 +2027,18 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
     this.isStarred = const Value.absent(),
     this.groupId = const Value.absent(),
     this.priority = const Value.absent(),
+    this.interactionScore = const Value.absent(),
+    this.notificationsEnabled = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   FriendsCompanion.insert({
     required String fsId,
     required String userId,
     required String friendId,
+    required String account,
     required String name,
     required String avatar,
+    this.signature = const Value.absent(),
     required String gender,
     required int age,
     this.region = const Value.absent(),
@@ -1920,10 +2052,13 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
     this.isStarred = const Value.absent(),
     this.groupId = const Value.absent(),
     this.priority = const Value.absent(),
+    this.interactionScore = const Value.absent(),
+    this.notificationsEnabled = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : fsId = Value(fsId),
         userId = Value(userId),
         friendId = Value(friendId),
+        account = Value(account),
         name = Value(name),
         avatar = Value(avatar),
         gender = Value(gender),
@@ -1935,8 +2070,10 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
     Expression<String>? fsId,
     Expression<String>? userId,
     Expression<String>? friendId,
+    Expression<String>? account,
     Expression<String>? name,
     Expression<String>? avatar,
+    Expression<String>? signature,
     Expression<String>? gender,
     Expression<int>? age,
     Expression<String>? region,
@@ -1950,14 +2087,18 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
     Expression<bool>? isStarred,
     Expression<int>? groupId,
     Expression<int>? priority,
+    Expression<double>? interactionScore,
+    Expression<bool>? notificationsEnabled,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (fsId != null) 'fs_id': fsId,
       if (userId != null) 'user_id': userId,
       if (friendId != null) 'friend_id': friendId,
+      if (account != null) 'account': account,
       if (name != null) 'name': name,
       if (avatar != null) 'avatar': avatar,
+      if (signature != null) 'signature': signature,
       if (gender != null) 'gender': gender,
       if (age != null) 'age': age,
       if (region != null) 'region': region,
@@ -1971,6 +2112,9 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
       if (isStarred != null) 'is_starred': isStarred,
       if (groupId != null) 'group_id': groupId,
       if (priority != null) 'priority': priority,
+      if (interactionScore != null) 'interaction_score': interactionScore,
+      if (notificationsEnabled != null)
+        'notifications_enabled': notificationsEnabled,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1979,8 +2123,10 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
       {Value<String>? fsId,
       Value<String>? userId,
       Value<String>? friendId,
+      Value<String>? account,
       Value<String>? name,
       Value<String>? avatar,
+      Value<String?>? signature,
       Value<String>? gender,
       Value<int>? age,
       Value<String?>? region,
@@ -1994,13 +2140,17 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
       Value<bool>? isStarred,
       Value<int?>? groupId,
       Value<int>? priority,
+      Value<double>? interactionScore,
+      Value<bool>? notificationsEnabled,
       Value<int>? rowid}) {
     return FriendsCompanion(
       fsId: fsId ?? this.fsId,
       userId: userId ?? this.userId,
       friendId: friendId ?? this.friendId,
+      account: account ?? this.account,
       name: name ?? this.name,
       avatar: avatar ?? this.avatar,
+      signature: signature ?? this.signature,
       gender: gender ?? this.gender,
       age: age ?? this.age,
       region: region ?? this.region,
@@ -2014,6 +2164,8 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
       isStarred: isStarred ?? this.isStarred,
       groupId: groupId ?? this.groupId,
       priority: priority ?? this.priority,
+      interactionScore: interactionScore ?? this.interactionScore,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2030,11 +2182,17 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
     if (friendId.present) {
       map['friend_id'] = Variable<String>(friendId.value);
     }
+    if (account.present) {
+      map['account'] = Variable<String>(account.value);
+    }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
     if (avatar.present) {
       map['avatar'] = Variable<String>(avatar.value);
+    }
+    if (signature.present) {
+      map['signature'] = Variable<String>(signature.value);
     }
     if (gender.present) {
       map['gender'] = Variable<String>(gender.value);
@@ -2075,6 +2233,12 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
     if (priority.present) {
       map['priority'] = Variable<int>(priority.value);
     }
+    if (interactionScore.present) {
+      map['interaction_score'] = Variable<double>(interactionScore.value);
+    }
+    if (notificationsEnabled.present) {
+      map['notifications_enabled'] = Variable<bool>(notificationsEnabled.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2087,8 +2251,10 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
           ..write('fsId: $fsId, ')
           ..write('userId: $userId, ')
           ..write('friendId: $friendId, ')
+          ..write('account: $account, ')
           ..write('name: $name, ')
           ..write('avatar: $avatar, ')
+          ..write('signature: $signature, ')
           ..write('gender: $gender, ')
           ..write('age: $age, ')
           ..write('region: $region, ')
@@ -2102,6 +2268,8 @@ class FriendsCompanion extends UpdateCompanion<Friend> {
           ..write('isStarred: $isStarred, ')
           ..write('groupId: $groupId, ')
           ..write('priority: $priority, ')
+          ..write('interactionScore: $interactionScore, ')
+          ..write('notificationsEnabled: $notificationsEnabled, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8129,8 +8297,10 @@ typedef $$FriendsTableCreateCompanionBuilder = FriendsCompanion Function({
   required String fsId,
   required String userId,
   required String friendId,
+  required String account,
   required String name,
   required String avatar,
+  Value<String?> signature,
   required String gender,
   required int age,
   Value<String?> region,
@@ -8144,14 +8314,18 @@ typedef $$FriendsTableCreateCompanionBuilder = FriendsCompanion Function({
   Value<bool> isStarred,
   Value<int?> groupId,
   Value<int> priority,
+  Value<double> interactionScore,
+  Value<bool> notificationsEnabled,
   Value<int> rowid,
 });
 typedef $$FriendsTableUpdateCompanionBuilder = FriendsCompanion Function({
   Value<String> fsId,
   Value<String> userId,
   Value<String> friendId,
+  Value<String> account,
   Value<String> name,
   Value<String> avatar,
+  Value<String?> signature,
   Value<String> gender,
   Value<int> age,
   Value<String?> region,
@@ -8165,6 +8339,8 @@ typedef $$FriendsTableUpdateCompanionBuilder = FriendsCompanion Function({
   Value<bool> isStarred,
   Value<int?> groupId,
   Value<int> priority,
+  Value<double> interactionScore,
+  Value<bool> notificationsEnabled,
   Value<int> rowid,
 });
 
@@ -8186,11 +8362,17 @@ class $$FriendsTableFilterComposer
   ColumnFilters<String> get friendId => $composableBuilder(
       column: $table.friendId, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get account => $composableBuilder(
+      column: $table.account, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get avatar => $composableBuilder(
       column: $table.avatar, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get signature => $composableBuilder(
+      column: $table.signature, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get gender => $composableBuilder(
       column: $table.gender, builder: (column) => ColumnFilters(column));
@@ -8230,6 +8412,14 @@ class $$FriendsTableFilterComposer
 
   ColumnFilters<int> get priority => $composableBuilder(
       column: $table.priority, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get interactionScore => $composableBuilder(
+      column: $table.interactionScore,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get notificationsEnabled => $composableBuilder(
+      column: $table.notificationsEnabled,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$FriendsTableOrderingComposer
@@ -8250,11 +8440,17 @@ class $$FriendsTableOrderingComposer
   ColumnOrderings<String> get friendId => $composableBuilder(
       column: $table.friendId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get account => $composableBuilder(
+      column: $table.account, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get avatar => $composableBuilder(
       column: $table.avatar, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get signature => $composableBuilder(
+      column: $table.signature, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get gender => $composableBuilder(
       column: $table.gender, builder: (column) => ColumnOrderings(column));
@@ -8294,6 +8490,14 @@ class $$FriendsTableOrderingComposer
 
   ColumnOrderings<int> get priority => $composableBuilder(
       column: $table.priority, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get interactionScore => $composableBuilder(
+      column: $table.interactionScore,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get notificationsEnabled => $composableBuilder(
+      column: $table.notificationsEnabled,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$FriendsTableAnnotationComposer
@@ -8314,11 +8518,17 @@ class $$FriendsTableAnnotationComposer
   GeneratedColumn<String> get friendId =>
       $composableBuilder(column: $table.friendId, builder: (column) => column);
 
+  GeneratedColumn<String> get account =>
+      $composableBuilder(column: $table.account, builder: (column) => column);
+
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
   GeneratedColumn<String> get avatar =>
       $composableBuilder(column: $table.avatar, builder: (column) => column);
+
+  GeneratedColumn<String> get signature =>
+      $composableBuilder(column: $table.signature, builder: (column) => column);
 
   GeneratedColumn<String> get gender =>
       $composableBuilder(column: $table.gender, builder: (column) => column);
@@ -8358,6 +8568,12 @@ class $$FriendsTableAnnotationComposer
 
   GeneratedColumn<int> get priority =>
       $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<double> get interactionScore => $composableBuilder(
+      column: $table.interactionScore, builder: (column) => column);
+
+  GeneratedColumn<bool> get notificationsEnabled => $composableBuilder(
+      column: $table.notificationsEnabled, builder: (column) => column);
 }
 
 class $$FriendsTableTableManager extends RootTableManager<
@@ -8386,8 +8602,10 @@ class $$FriendsTableTableManager extends RootTableManager<
             Value<String> fsId = const Value.absent(),
             Value<String> userId = const Value.absent(),
             Value<String> friendId = const Value.absent(),
+            Value<String> account = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String> avatar = const Value.absent(),
+            Value<String?> signature = const Value.absent(),
             Value<String> gender = const Value.absent(),
             Value<int> age = const Value.absent(),
             Value<String?> region = const Value.absent(),
@@ -8401,14 +8619,18 @@ class $$FriendsTableTableManager extends RootTableManager<
             Value<bool> isStarred = const Value.absent(),
             Value<int?> groupId = const Value.absent(),
             Value<int> priority = const Value.absent(),
+            Value<double> interactionScore = const Value.absent(),
+            Value<bool> notificationsEnabled = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               FriendsCompanion(
             fsId: fsId,
             userId: userId,
             friendId: friendId,
+            account: account,
             name: name,
             avatar: avatar,
+            signature: signature,
             gender: gender,
             age: age,
             region: region,
@@ -8422,14 +8644,18 @@ class $$FriendsTableTableManager extends RootTableManager<
             isStarred: isStarred,
             groupId: groupId,
             priority: priority,
+            interactionScore: interactionScore,
+            notificationsEnabled: notificationsEnabled,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String fsId,
             required String userId,
             required String friendId,
+            required String account,
             required String name,
             required String avatar,
+            Value<String?> signature = const Value.absent(),
             required String gender,
             required int age,
             Value<String?> region = const Value.absent(),
@@ -8443,14 +8669,18 @@ class $$FriendsTableTableManager extends RootTableManager<
             Value<bool> isStarred = const Value.absent(),
             Value<int?> groupId = const Value.absent(),
             Value<int> priority = const Value.absent(),
+            Value<double> interactionScore = const Value.absent(),
+            Value<bool> notificationsEnabled = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               FriendsCompanion.insert(
             fsId: fsId,
             userId: userId,
             friendId: friendId,
+            account: account,
             name: name,
             avatar: avatar,
+            signature: signature,
             gender: gender,
             age: age,
             region: region,
@@ -8464,6 +8694,8 @@ class $$FriendsTableTableManager extends RootTableManager<
             isStarred: isStarred,
             groupId: groupId,
             priority: priority,
+            interactionScore: interactionScore,
+            notificationsEnabled: notificationsEnabled,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
