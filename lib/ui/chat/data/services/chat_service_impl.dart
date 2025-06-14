@@ -1,64 +1,67 @@
-import 'dart:typed_data';
 import 'package:sandcat/core/db/app.dart';
-import 'package:sandcat/ui/chat/data/dao/chat_dao.dart';
-import 'package:sandcat/ui/chat/data/dao/message_dao.dart';
-import 'package:sandcat/core/models/message/message_model.dart';
-import 'package:sandcat/core/models/message/enums.dart';
+import 'package:sandcat/core/db/chat_repo.dart';
+import 'package:sandcat/core/db/message_repo.dart';
+import 'package:sandcat/core/db/tables/message_table.dart';
+import 'package:sandcat/core/network/socket_manager.dart';
+import 'package:sandcat/core/protos/ext/msg_ext.dart';
+import 'package:sandcat/core/protos/generated/common.pbenum.dart';
 import 'package:sandcat/ui/chat/domain/services/chat_service.dart';
 import 'package:uuid/uuid.dart';
-import 'package:drift/drift.dart';
 
 /// ChatService实现类
 class ChatServiceImpl implements ChatService {
-  final ChatDao _chatDao;
-  final MessageDao _messageDao;
+  final ChatRepository _chatRepository;
+  final MessageRepository _messageRepository;
   final DatabaseProvider _databaseProvider;
   final Uuid _uuid = const Uuid();
   String? _currentUserId;
+  final SocketManager _socketManager;
 
   ChatServiceImpl({
-    required ChatDao chatDao,
-    required MessageDao messageDao,
+    required ChatRepository chatRepository,
+    required MessageRepository messageRepository,
     required DatabaseProvider databaseProvider,
-  })  : _chatDao = chatDao,
-        _messageDao = messageDao,
-        _databaseProvider = databaseProvider;
+    required SocketManager socketManager,
+  })  : _chatRepository = chatRepository,
+        _databaseProvider = databaseProvider,
+        _messageRepository = messageRepository,
+        _socketManager = socketManager;
 
   @override
   Future<List<Chat>> getChats() {
-    return _chatDao.getAllChats();
+    return _chatRepository.getChats();
   }
 
   @override
   Future<Chat?> getChatById(String chatId) {
-    return _chatDao.getChatById(chatId);
+    return _chatRepository.getChatById(chatId);
   }
 
   @override
-  Future<List<MessageModel>> getMessages(String chatId,
+  Future<List<Message>> getMessages(String chatId,
       {int limit = 20, int offset = 0}) async {
-    final messages = await _messageDao.getMessagesByChatId(chatId,
-        limit: limit, offset: offset);
-    return messages.map(_messageDao.messageToModel).toList();
+    return await _messageRepository.getMessagesByConversationIdWithPagination(
+        chatId, limit, offset);
   }
 
   @override
   Stream<List<Chat>> watchChats() {
-    return _chatDao.watchAllChats();
+    return _chatRepository.watchChats();
   }
 
   @override
   Stream<Chat?> watchChat(String chatId) {
-    return _chatDao.watchChat(chatId);
+    return _chatRepository.watchChat(chatId);
   }
 
   @override
   Stream<List<Message>> watchMessages(String chatId) {
-    return _messageDao.watchMessagesByChatId(chatId);
+    // 使用新的MessageRepository监听消息
+    return _messageRepository.watchMessagesByConversationId(chatId);
   }
 
   @override
-  Future<MessageModel> sendTextMessage({
+  Future<Message> sendTextMessage({
     required String chatId,
     required String content,
     required String senderId,
@@ -67,100 +70,118 @@ class ChatServiceImpl implements ChatService {
   }) async {
     // 创建消息模型
     final clientId = _uuid.v4();
-    final messageModel = MessageModel.text(
-      sendId: senderId,
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final message = Message(
+      senderId: senderId,
       receiverId: receiverId,
-      content: content,
       clientId: clientId,
+      serverId: null,
+      createTime: now,
+      sendTime: now,
+      seq: 0,
+      msgType: groupId != null && groupId.isNotEmpty
+          ? MsgType.MsgTypeGroupMsg.value
+          : MsgType.MsgTypeSingleMsg.value,
+      contentType: ContentType.Text.value,
+      content: content,
+      isRead: false,
       groupId: groupId,
-      platform: PlatformType.desktop,
+      platform: PlatformType.Desktop.value,
+      conversationId: chatId,
+      isSelf: senderId == _currentUserId,
+      status: MessageStatus.sending.value,
+      relatedMsgId: null,
+      sendSeq: null,
+      isDeleted: false,
+      updatedTime: now,
     );
 
     // 将消息保存到数据库
-    await _messageDao.saveMessage(
-      _messageDao.messageModelToCompanion(messageModel, chatId),
-    );
-
+    await _messageRepository.insertMessage(message.toCompanion(true));
+    // 这里应该调用websocket发送消息
+    // message 转为 proto Msg
+    _socketManager.sendRaw(message.toProtoMsg().toBincode());
     // 更新会话的最后消息
-    await _chatDao.updateLastMessage(
+    await _chatRepository.updateLastMessage(
       chatId,
       preview: content,
       type: 'text',
-      time: DateTime.fromMillisecondsSinceEpoch(messageModel.createTime),
+      time: DateTime.fromMillisecondsSinceEpoch(message.createTime),
     );
 
-    // 如果是接收方的消息，更新未读计数
-    if (senderId != _currentUserId) {
-      await _chatDao.incrementUnreadCount(chatId);
-    }
-
-    return messageModel;
+    return message;
   }
 
   @override
-  Future<MessageModel> sendImageMessage({
+  Future<Message> sendImageMessage({
     required String chatId,
-    required Uint8List imageData,
+    required String localPath,
     required String senderId,
     required String receiverId,
     String? groupId,
   }) async {
+    // 上传图片
+    // read local image file
+
+    // final imageUrl = await _uploadImage(imageData);
+    final imageUrl = '';
     // 创建图片消息模型
     final clientId = _uuid.v4();
-    final messageModel = MessageModel(
-      sendId: senderId,
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final message = Message(
+      senderId: senderId,
       receiverId: receiverId,
       clientId: clientId,
-      createTime: DateTime.now().millisecondsSinceEpoch,
+      serverId: null,
+      createTime: now,
+      sendTime: now,
+      seq: 0,
       msgType: groupId != null && groupId.isNotEmpty
-          ? MsgType.groupMsg
-          : MsgType.singleMsg,
-      contentType: ContentType.image,
-      content: imageData,
-      groupId: groupId ?? '',
-      platform: PlatformType.desktop,
+          ? MsgType.MsgTypeGroupMsg.value
+          : MsgType.MsgTypeSingleMsg.value,
+      contentType: ContentType.Text.value,
+      content: imageUrl,
+      remoteUrl: imageUrl,
+      localPath: localPath,
+      isRead: false,
+      groupId: groupId,
+      platform: PlatformType.Desktop.value,
+      conversationId: chatId,
+      isSelf: senderId == _currentUserId,
+      status: MessageStatus.sending.value,
+      relatedMsgId: null,
+      sendSeq: null,
+      isDeleted: false,
+      updatedTime: now,
     );
 
     // 将消息保存到数据库
-    await _messageDao.saveMessage(
-      _messageDao.messageModelToCompanion(messageModel, chatId),
-    );
+    await _messageRepository.insertMessage(message.toCompanion(true));
 
     // 更新会话的最后消息
-    await _chatDao.updateLastMessage(
+    await _chatRepository.updateLastMessage(
       chatId,
       preview: '[图片]',
       type: 'image',
-      time: DateTime.fromMillisecondsSinceEpoch(messageModel.createTime),
+      time: DateTime.fromMillisecondsSinceEpoch(message.createTime),
     );
-
-    // 如果是接收方的消息，更新未读计数
-    if (senderId != _currentUserId) {
-      await _chatDao.incrementUnreadCount(chatId);
-    }
-
-    return messageModel;
+    return message;
   }
 
   @override
   Future<bool> deleteMessage(String messageId) async {
-    return await _messageDao.deleteMessage(messageId) > 0;
+    return await _messageRepository.deleteMessage(messageId);
   }
 
   @override
   Future<bool> markMessageAsRead(String messageId) async {
-    return await _messageDao.updateMessageReadStatus(messageId, true);
+    return await _messageRepository.markMessageAsRead(messageId);
   }
 
   @override
-  Future<int> markAllMessagesAsRead(String chatId) async {
-    // 标记所有消息为已读
-    final count = await _messageDao.markAllMessagesAsRead(chatId);
-
+  Future<void> markAllMessagesAsRead(String chatId) async {
     // 重置会话未读计数
-    await _chatDao.markAsRead(chatId);
-
-    return count;
+    await _chatRepository.markChatAsRead(chatId);
   }
 
   @override

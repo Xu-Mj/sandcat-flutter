@@ -1,6 +1,4 @@
-import 'dart:typed_data';
 import 'package:sandcat/core/db/app.dart';
-import 'package:sandcat/core/models/message/message_model.dart';
 
 /// 聊天服务抽象类 - 提供聊天功能的核心接口
 abstract class ChatService {
@@ -11,7 +9,7 @@ abstract class ChatService {
   Future<Chat?> getChatById(String chatId);
 
   /// 获取会话的消息
-  Future<List<MessageModel>> getMessages(String chatId,
+  Future<List<Message>> getMessages(String chatId,
       {int limit = 20, int offset = 0});
 
   /// 监听会话列表变化
@@ -24,7 +22,7 @@ abstract class ChatService {
   Stream<List<Message>> watchMessages(String chatId);
 
   /// 发送文本消息
-  Future<MessageModel> sendTextMessage({
+  Future<Message> sendTextMessage({
     required String chatId,
     required String content,
     required String senderId,
@@ -33,9 +31,9 @@ abstract class ChatService {
   });
 
   /// 发送图片消息
-  Future<MessageModel> sendImageMessage({
+  Future<Message> sendImageMessage({
     required String chatId,
-    required Uint8List imageData,
+    required String localPath,
     required String senderId,
     required String receiverId,
     String? groupId,
@@ -48,7 +46,7 @@ abstract class ChatService {
   Future<bool> markMessageAsRead(String messageId);
 
   /// 标记会话所有消息为已读
-  Future<int> markAllMessagesAsRead(String chatId);
+  Future<void> markAllMessagesAsRead(String chatId);
 
   /// 获取当前用户ID
   String? getCurrentUserId();
