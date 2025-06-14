@@ -94,7 +94,9 @@ class FriendRepositoryImpl implements FriendRepository {
   @override
   Future<int> addFriend(FriendsCompanion friend) async {
     try {
-      return await _database.into(_database.friends).insert(friend);
+      return await _database
+          .into(_database.friends)
+          .insertOnConflictUpdate(friend);
     } catch (e) {
       _log.e('Error adding friend: $e');
       return -1;
