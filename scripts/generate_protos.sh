@@ -1,0 +1,1 @@
+protoc --proto_path=lib\core\protos\src --dart_out=lib\core\protos\generated lib\core\protos\src\*.proto
