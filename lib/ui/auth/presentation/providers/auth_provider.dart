@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sandcat/ui/auth/data/services/auth_service.dart';
 import 'package:sandcat/core/services/logger_service.dart';
 import 'package:sandcat/core/di/injection.dart';
-import 'package:sandcat/core/sync/sync_manager.dart';
 
 /// 认证状态
 enum AuthState {
@@ -30,11 +29,15 @@ class AuthStateData {
   /// 是否正在加载
   final bool isLoading;
 
+  /// 当前用户ID
+  final String? userId;
+
   /// 创建认证状态数据
   AuthStateData({
     this.state = AuthState.initial,
     this.error,
     this.isLoading = false,
+    this.userId,
   });
 
   /// 创建副本
@@ -42,11 +45,13 @@ class AuthStateData {
     AuthState? state,
     String? error,
     bool? isLoading,
+    String? userId,
   }) {
     return AuthStateData(
       state: state ?? this.state,
       error: error,
       isLoading: isLoading ?? this.isLoading,
+      userId: userId ?? this.userId,
     );
   }
 
@@ -67,9 +72,10 @@ class AuthStateData {
   }
 
   /// 创建已认证状态
-  AuthStateData authenticated() {
+  AuthStateData authenticated(String userId) {
     return copyWith(
       state: AuthState.authenticated,
+      userId: userId,
       error: null,
       isLoading: false,
     );
@@ -79,6 +85,7 @@ class AuthStateData {
   AuthStateData unauthenticated() {
     return copyWith(
       state: AuthState.unauthenticated,
+      userId: null,
       isLoading: false,
     );
   }
@@ -96,15 +103,19 @@ class AuthStateData {
 /// 认证状态提供者
 final authStateProvider =
     StateNotifierProvider<AuthNotifier, AuthStateData>((ref) {
-  return AuthNotifier(getIt<AuthService>());
+  return AuthNotifier(
+    getIt<AuthService>(),
+    getIt<LoggerService>(),
+  );
 });
 
 /// 认证状态管理器
 class AuthNotifier extends StateNotifier<AuthStateData> {
   final AuthService _authService;
+  final LoggerService _logger;
 
   /// 创建认证状态管理器
-  AuthNotifier(this._authService) : super(AuthStateData()) {
+  AuthNotifier(this._authService, this._logger) : super(AuthStateData()) {
     // 初始化时检查登录状态
     _checkLoginStatus();
   }
@@ -114,9 +125,16 @@ class AuthNotifier extends StateNotifier<AuthStateData> {
     state = state.loading();
     try {
       final isLoggedIn = await _authService.isLoggedIn();
-      state = isLoggedIn ? state.authenticated() : state.unauthenticated();
+      if (isLoggedIn) {
+        final userId = await _authService.getCurrentUserId();
+        state = userId != null
+            ? state.authenticated(userId)
+            : state.unauthenticated();
+      } else {
+        state = state.unauthenticated();
+      }
     } catch (e) {
-      log.e('检查登录状态失败', error: e, tag: 'AuthProvider');
+      _logger.e('检查登录状态失败', error: e, tag: 'AuthProvider');
       state = state.unauthenticated();
     }
   }
@@ -154,28 +172,13 @@ class AuthNotifier extends StateNotifier<AuthStateData> {
         rememberMe: rememberMe,
       );
 
-      state = state.authenticated();
-
-      // 登录成功后执行数据同步
-      _performInitialSync(token.userId);
+      state = state.authenticated(token.userId);
 
       return true;
     } catch (e) {
-      log.e('登录失败', error: e, tag: 'AuthProvider');
+      _logger.e('登录失败', error: e, tag: 'AuthProvider');
       state = state.withError('登录失败：${e.toString()}');
       return false;
-    }
-  }
-
-  /// 执行初始数据同步
-  Future<void> _performInitialSync(String userId) async {
-    try {
-      // 获取SyncManager实例并执行同步
-      final syncManager = getIt<SyncManager>();
-      await syncManager.performInitialSync(userId);
-    } catch (e) {
-      log.e('初始数据同步失败', error: e, tag: 'AuthProvider');
-      // 同步失败不影响登录状态
     }
   }
 
@@ -187,9 +190,53 @@ class AuthNotifier extends StateNotifier<AuthStateData> {
       await _authService.logout();
       state = state.unauthenticated();
     } catch (e) {
-      log.e('登出失败', error: e, tag: 'AuthProvider');
+      _logger.e('登出失败', error: e, tag: 'AuthProvider');
       // 即使失败也视为已登出
       state = state.unauthenticated();
+    }
+  }
+
+  /// 注册
+  Future<bool> register({
+    required String name,
+    required String email,
+    required String code,
+    required String password,
+    String? avatar,
+  }) async {
+    state = state.loading();
+
+    try {
+      await _authService.register(
+        name: name,
+        email: email,
+        code: code,
+        password: password,
+        avatar: avatar,
+      );
+
+      // 注册成功后不自动登录，保持未认证状态
+      state = state.unauthenticated();
+      return true;
+    } catch (e) {
+      _logger.e('注册失败', error: e, tag: 'AuthProvider');
+      state = state.withError('注册失败：${e.toString()}');
+      return false;
+    }
+  }
+
+  /// 发送注册验证码
+  Future<bool> sendRegisterCode(String email) async {
+    state = state.loading();
+
+    try {
+      await _authService.sendRegisterCode(email);
+      state = state.copyWith(isLoading: false);
+      return true;
+    } catch (e) {
+      _logger.e('发送验证码失败', error: e, tag: 'AuthProvider');
+      state = state.withError('发送验证码失败：${e.toString()}');
+      return false;
     }
   }
 }

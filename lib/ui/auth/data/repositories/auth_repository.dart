@@ -1,79 +1,74 @@
 import '../api/auth_api.dart';
-import '../models/register_request.dart';
-import '../models/user_model.dart';
-import '../models/login_request.dart';
-import '../models/auth_token.dart';
+import '../../../../core/models/user/register_request.dart';
+import '../../../../core/models/user/user_model.dart';
+import '../../../../core/models/user/login_request.dart';
+import '../../../../core/models/user/auth_token.dart';
 
-/// 认证仓库
+/// 认证仓库 - 负责数据转换和简单缓存
 class AuthRepository {
   /// API服务
   final AuthApi _authApi;
-
-  /// 当前认证令牌
-  AuthToken? _currentToken;
-
-  /// 当前用户ID
-  String? get userId => _currentToken?.userId;
 
   /// 创建仓库
   AuthRepository({required AuthApi authApi}) : _authApi = authApi;
 
   /// 发送验证码
-  Future<void> sendRegisterCode(String email) async {
-    try {
-      await _authApi.sendRegisterCode(email);
-    } catch (e) {
-      rethrow;
-    }
-  }
+  Future<void> sendRegisterCode(String email) =>
+      _authApi.sendRegisterCode(email);
 
   /// 注册用户
-  Future<UserModel> register({
+  Future<UserModel> register(RegisterRequest request) =>
+      _authApi.register(request);
+
+  /// 创建注册请求对象
+  RegisterRequest createRegisterRequest({
     required String name,
     required String email,
     required String code,
     required String password,
     String? avatar,
-  }) async {
-    try {
-      final request = RegisterRequest(
-        name: name,
-        email: email,
-        code: code,
-        password: password,
-        avatar: avatar,
-      );
-      return await _authApi.register(request);
-    } catch (e) {
-      rethrow;
-    }
+  }) {
+    return RegisterRequest(
+      name: name,
+      email: email,
+      code: code,
+      password: password,
+      avatar: avatar,
+    );
   }
 
   /// 用户登录
-  Future<AuthToken> login({
+  Future<AuthToken> login(LoginRequest request) => _authApi.login(request);
+
+  /// 创建登录请求对象
+  LoginRequest createLoginRequest({
     required String account,
     required String password,
-  }) async {
-    try {
-      final request = LoginRequest(
-        account: account,
+  }) {
+    return LoginRequest(
+      account: account,
+      password: password,
+    );
+  }
+
+  /// 用户登出
+  Future<void> logout(String uuid) => _authApi.logout(uuid);
+
+  /// 刷新令牌
+  Future<String> refreshToken(String token, bool isRefresh) =>
+      _authApi.refreshToken(token, isRefresh);
+
+  /// 修改密码
+  Future<void> modifyPassword({
+    required String userId,
+    required String email,
+    required String password,
+    required String code,
+  }) =>
+      _authApi.modifyPassword(
+        userId: userId,
+        email: email,
         password: password,
+        code: code,
       );
-      final token = await _authApi.login(request);
-      _currentToken = token;
-      return token;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// 设置当前令牌
-  void setToken(AuthToken token) {
-    _currentToken = token;
-  }
-
-  /// 清除令牌
-  void clearToken() {
-    _currentToken = null;
-  }
 }
