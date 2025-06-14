@@ -1,0 +1,47 @@
+{
+  "@@locale": "en",
+  "appTitle": "SandCat",
+  "@appTitle": {
+    "description": "Application title"
+  },
+  "login": "Login",
+  "@login": {
+    "description": "Login button text"
+  },
+  "register": "Register",
+  "@register": {
+    "description": "Register button text"
+  },
+  "username": "Username",
+  "@username": {
+    "description": "Username input label"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password input label"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings menu item"
+  },
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Dark mode setting"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language setting"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm button"
+  }
+} 

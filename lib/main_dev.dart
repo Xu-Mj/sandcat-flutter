@@ -2,12 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:sandcat/app/config/api_config.dart';
 import 'package:sandcat/app/config/app_config.dart';
 import 'package:sandcat/core/di/injection.dart';
 import 'package:sandcat/app/theme/theme_provider.dart';
+import 'package:sandcat/app/providers/locale_provider.dart';
 import 'package:sandcat/ui/auth/data/services/auth_service.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:sandcat/core/i18n/app_localizations.dart';
 import 'app/router/app_router.dart';
 
 void main() async {
@@ -15,6 +18,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   const instance = String.fromEnvironment('INSTANCE', defaultValue: '2');
+  print('Starting application instance: $instance');
+
   // 初始化配置（开发环境）
   AppConfig.initialize(
     environment: Environment.development,
@@ -52,7 +57,7 @@ void main() async {
 }
 
 class IMApp extends ConsumerWidget {
-  final dynamic instance;
+  final String instance;
 
   const IMApp({super.key, required this.instance});
 
@@ -61,14 +66,44 @@ class IMApp extends ConsumerWidget {
     // 获取当前主题
     final theme = ref.watch(themeProvider);
 
+    // 获取当前语言
+    final locale = ref.watch(localeProvider);
+
     // 创建路由器
     final router = AppRouter.createRouter(ref);
 
     return CupertinoApp.router(
-      title: '${AppConfig.instance.appName} (Dev) $instance',
-      theme: theme,
-      debugShowCheckedModeBanner: true, // 显示debug标识
+      title: '${AppConfig.instance.appName} $instance',
+      theme: theme, // 使用提供者中的主题
+      debugShowCheckedModeBanner: false,
       routerConfig: router,
+
+      // 国际化配置
+      locale: locale, // 当前语言
+      supportedLocales: supportedLocales, // 支持的语言列表
+      localizationsDelegates: const [
+        AppLocalizations.delegate, // 应用本地化代理
+        GlobalMaterialLocalizations.delegate, // Material组件本地化
+        GlobalWidgetsLocalizations.delegate, // 基础组件本地化
+        GlobalCupertinoLocalizations.delegate, // Cupertino组件本地化
+      ],
+      // 如果用户设备语言不在支持列表中，则选择回退语言
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        // 优先使用用户已经选择的语言
+        if (locale != const Locale('zh')) {
+          return locale;
+        }
+
+        // 尝试匹配设备语言
+        for (final supportedLocale in supportedLocales) {
+          if (supportedLocale.languageCode == deviceLocale?.languageCode) {
+            return supportedLocale;
+          }
+        }
+
+        // 默认使用中文
+        return const Locale('zh');
+      },
     );
   }
 }

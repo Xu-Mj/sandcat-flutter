@@ -1,0 +1,47 @@
+{
+  "@@locale": "zh",
+  "appTitle": "SandCat",
+  "@appTitle": {
+    "description": "应用程序标题"
+  },
+  "login": "登录",
+  "@login": {
+    "description": "登录按钮文本"
+  },
+  "register": "注册",
+  "@register": {
+    "description": "注册按钮文本"
+  },
+  "username": "用户名",
+  "@username": {
+    "description": "用户名输入框标签"
+  },
+  "password": "密码",
+  "@password": {
+    "description": "密码输入框标签"
+  },
+  "settings": "设置",
+  "@settings": {
+    "description": "设置菜单项"
+  },
+  "darkMode": "深色模式",
+  "@darkMode": {
+    "description": "深色模式设置项"
+  },
+  "language": "语言",
+  "@language": {
+    "description": "语言设置项"
+  },
+  "logout": "退出登录",
+  "@logout": {
+    "description": "退出登录按钮"
+  },
+  "cancel": "取消",
+  "@cancel": {
+    "description": "取消按钮"
+  },
+  "confirm": "确认",
+  "@confirm": {
+    "description": "确认按钮"
+  }
+} 
