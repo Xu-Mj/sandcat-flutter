@@ -53,6 +53,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildMobileLayout() {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
+        border: null,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -63,17 +64,14 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.chat_bubble_2),
             activeIcon: Icon(CupertinoIcons.chat_bubble_2_fill),
-            label: '消息',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.person_2),
             activeIcon: Icon(CupertinoIcons.person_2_fill),
-            label: '好友',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.settings),
             activeIcon: Icon(CupertinoIcons.settings_solid),
-            label: '设置',
           ),
         ],
       ),
