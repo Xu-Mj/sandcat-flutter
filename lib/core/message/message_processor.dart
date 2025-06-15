@@ -317,8 +317,6 @@ class MessageProcessor {
 
         await _messageRepository.updateMessage(updatedMessage);
       }
-      _logger.d('Message receipt processing not implemented yet',
-          tag: 'MessageProcessor');
     } catch (e) {
       _logger.e('Error processing message receipt',
           error: e, tag: 'MessageProcessor');
