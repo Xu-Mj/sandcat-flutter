@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sandcat/ui/utils/responsive_layout.dart';
 import 'package:sandcat/app/widgets/app_scaffold.dart';
@@ -150,10 +151,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     color: CupertinoColors.systemBlue.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    CupertinoIcons.chat_bubble_2_fill,
-                    size: 60,
-                    color: CupertinoColors.systemBlue,
+                  padding: const EdgeInsets.all(8),
+                  child: SvgPicture.asset(
+                    'assets/icons/sandcat_logo.svg',
+                    fit: BoxFit.contain,
+                    colorFilter: const ColorFilter.mode(
+                      CupertinoColors.systemBlue,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
               ),
@@ -230,38 +235,81 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               const SizedBox(height: 8),
 
               // 记住我 & 忘记密码
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () =>
-                            setState(() => _rememberMe = !_rememberMe),
-                        child: Icon(
-                          _rememberMe
-                              ? CupertinoIcons.checkmark_square_fill
-                              : CupertinoIcons.square,
-                          color: _rememberMe
-                              ? CupertinoColors.systemBlue
-                              : CupertinoColors.systemGrey,
-                          size: 22,
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // 如果宽度小于200，使用垂直布局
+                  if (constraints.maxWidth < 200) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CupertinoButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () =>
+                                  setState(() => _rememberMe = !_rememberMe),
+                              child: Icon(
+                                _rememberMe
+                                    ? CupertinoIcons.checkmark_square_fill
+                                    : CupertinoIcons.square,
+                                color: _rememberMe
+                                    ? CupertinoColors.systemBlue
+                                    : CupertinoColors.systemGrey,
+                                size: 22,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Text('记住我'),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 4),
-                      const Text('记住我'),
-                    ],
-                  ),
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    child: const Text('忘记密码?'),
-                    onPressed: () {
-                      // TODO: 实现忘记密码逻辑
-                      debugPrint('忘记密码');
-                    },
-                  ),
-                ],
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          alignment: Alignment.centerLeft,
+                          child: const Text('忘记密码?'),
+                          onPressed: () {
+                            // TODO: 实现忘记密码逻辑
+                            debugPrint('忘记密码');
+                          },
+                        ),
+                      ],
+                    );
+                  } else {
+                    // 默认水平布局
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            CupertinoButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () =>
+                                  setState(() => _rememberMe = !_rememberMe),
+                              child: Icon(
+                                _rememberMe
+                                    ? CupertinoIcons.checkmark_square_fill
+                                    : CupertinoIcons.square,
+                                color: _rememberMe
+                                    ? CupertinoColors.systemBlue
+                                    : CupertinoColors.systemGrey,
+                                size: 22,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Text('记住我'),
+                          ],
+                        ),
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          child: const Text('忘记密码?'),
+                          onPressed: () {
+                            // TODO: 实现忘记密码逻辑
+                            debugPrint('忘记密码');
+                          },
+                        ),
+                      ],
+                    );
+                  }
+                },
               ),
 
               const SizedBox(height: 24),
@@ -291,16 +339,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
               // 注册账号
               Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('还没有账号?'),
-                    CupertinoButton(
-                      padding: const EdgeInsets.only(left: 4),
-                      onPressed: () => context.push('/register'),
-                      child: const Text('立即注册'),
-                    ),
-                  ],
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    // 如果宽度小于160，使用垂直布局
+                    if (constraints.maxWidth < 160) {
+                      return Column(
+                        children: [
+                          const Text('还没有账号?'),
+                          CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () => context.push('/register'),
+                            child: const Text('立即注册'),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('还没有账号?'),
+                          CupertinoButton(
+                            padding: const EdgeInsets.only(left: 4),
+                            onPressed: () => context.push('/register'),
+                            child: const Text('立即注册'),
+                          ),
+                        ],
+                      );
+                    }
+                  },
                 ),
               ),
             ],
@@ -339,10 +405,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          CupertinoIcons.chat_bubble_2_fill,
-                          size: 80,
-                          color: CupertinoColors.systemBlue,
+                        padding: const EdgeInsets.all(15),
+                        child: SvgPicture.asset(
+                          'assets/icons/sandcat_logo.svg',
+                          fit: BoxFit.contain,
+                          colorFilter: const ColorFilter.mode(
+                            CupertinoColors.systemBlue,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 30),
@@ -512,37 +582,81 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           const SizedBox(height: 16),
 
           // 记住我 & 忘记密码
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () => setState(() => _rememberMe = !_rememberMe),
-                    child: Icon(
-                      _rememberMe
-                          ? CupertinoIcons.checkmark_square_fill
-                          : CupertinoIcons.square,
-                      color: _rememberMe
-                          ? CupertinoColors.systemBlue
-                          : CupertinoColors.systemGrey,
-                      size: 22,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // 如果宽度小于200，使用垂直布局
+              if (constraints.maxWidth < 200) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () =>
+                              setState(() => _rememberMe = !_rememberMe),
+                          child: Icon(
+                            _rememberMe
+                                ? CupertinoIcons.checkmark_square_fill
+                                : CupertinoIcons.square,
+                            color: _rememberMe
+                                ? CupertinoColors.systemBlue
+                                : CupertinoColors.systemGrey,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Text('记住我'),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Text('记住我'),
-                ],
-              ),
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: const Text('忘记密码?'),
-                onPressed: () {
-                  // TODO: 实现忘记密码逻辑
-                  debugPrint('忘记密码');
-                },
-              ),
-            ],
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.centerLeft,
+                      child: const Text('忘记密码?'),
+                      onPressed: () {
+                        // TODO: 实现忘记密码逻辑
+                        debugPrint('忘记密码');
+                      },
+                    ),
+                  ],
+                );
+              } else {
+                // 默认水平布局
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () =>
+                              setState(() => _rememberMe = !_rememberMe),
+                          child: Icon(
+                            _rememberMe
+                                ? CupertinoIcons.checkmark_square_fill
+                                : CupertinoIcons.square,
+                            color: _rememberMe
+                                ? CupertinoColors.systemBlue
+                                : CupertinoColors.systemGrey,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Text('记住我'),
+                      ],
+                    ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: const Text('忘记密码?'),
+                      onPressed: () {
+                        // TODO: 实现忘记密码逻辑
+                        debugPrint('忘记密码');
+                      },
+                    ),
+                  ],
+                );
+              }
+            },
           ),
 
           const SizedBox(height: 30),
@@ -571,16 +685,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
           // 注册账号
           Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('还没有账号?'),
-                CupertinoButton(
-                  padding: const EdgeInsets.only(left: 4),
-                  onPressed: _toggleAuthForm,
-                  child: const Text('立即注册'),
-                ),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // 如果宽度小于160，使用垂直布局
+                if (constraints.maxWidth < 160) {
+                  return Column(
+                    children: [
+                      const Text('还没有账号?'),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: _toggleAuthForm,
+                        child: const Text('立即注册'),
+                      ),
+                    ],
+                  );
+                } else {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('还没有账号?'),
+                      CupertinoButton(
+                        padding: const EdgeInsets.only(left: 4),
+                        onPressed: _toggleAuthForm,
+                        child: const Text('立即注册'),
+                      ),
+                    ],
+                  );
+                }
+              },
             ),
           ),
         ],

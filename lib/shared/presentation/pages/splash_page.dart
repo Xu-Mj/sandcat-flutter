@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sandcat/ui/auth/presentation/providers/auth_provider.dart';
 
@@ -23,45 +24,58 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     // Simulate loading time
     await Future.delayed(const Duration(seconds: 1));
 
+    // 确保组件仍然挂载，否则不继续执行
+    if (!mounted) return;
+
     // 检查认证状态提供者中的状态
     final authState = ref.read(authStateProvider);
 
-    if (mounted) {
-      if (authState.state == AuthState.authenticated) {
-        context.go('/home');
-      } else {
-        context.go('/login');
-      }
+    if (authState.state == AuthState.authenticated) {
+      context.go('/home');
+    } else {
+      context.go('/login');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const CupertinoPageScaffold(
+    return CupertinoPageScaffold(
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // App logo
-            Icon(
-              CupertinoIcons.chat_bubble_2_fill,
-              size: 100,
-              color: CupertinoColors.systemBlue,
+            Container(
+              width: 120,
+              height: 120,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: CupertinoColors.systemBlue.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: SvgPicture.asset(
+                'assets/icons/sandcat_logo.svg',
+                fit: BoxFit.contain,
+                colorFilter: const ColorFilter.mode(
+                  CupertinoColors.systemBlue,
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // App name
-            Text(
+            const Text(
               'SandCat',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 48),
+            const SizedBox(height: 48),
 
             // Loading indicator
-            CupertinoActivityIndicator(radius: 16),
+            const CupertinoActivityIndicator(radius: 16),
           ],
         ),
       ),

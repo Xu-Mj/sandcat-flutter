@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter/material.dart' show Colors;
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// 自定义Windows标题栏组件
 class CustomTitleBar extends StatelessWidget {
@@ -44,15 +45,18 @@ class CustomTitleBar extends StatelessWidget {
         child: Row(
           children: [
             // 应用图标
-            const Padding(
-              padding: EdgeInsets.only(left: 8.0, right: 12.0),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 12.0),
               child: SizedBox(
-                height: 24,
-                width: 24,
-                child: Icon(
-                  CupertinoIcons.chat_bubble_2_fill,
-                  color: CupertinoColors.activeBlue,
-                  size: 18,
+                height: 16,
+                width: 16,
+                child: SvgPicture.asset(
+                  'assets/icons/sandcat_logo.svg',
+                  fit: BoxFit.contain,
+                  colorFilter: const ColorFilter.mode(
+                    CupertinoColors.activeBlue,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ),
