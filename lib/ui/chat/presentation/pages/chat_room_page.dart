@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:sandcat/core/db/friend_repo.dart';
 import 'package:sandcat/core/db/message_repo.dart';
 import 'package:sandcat/core/di/injection.dart';
 import 'package:sandcat/core/db/app.dart';
@@ -26,12 +27,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   final ScrollController _scrollController = ScrollController();
   final ChatService _chatService = getIt<ChatService>();
   final MessageRepository _messageDao = getIt<MessageRepository>();
+  final FriendRepository _friendRepository = getIt<FriendRepository>();
+  Friend? _friend;
 
   // 聊天信息
   Chat? _chatInfo;
 
   // 当前用户ID
-  String? get _currentUserId => _chatService.getCurrentUserId();
+  String? _currentUserId;
 
   @override
   void initState() {
@@ -64,9 +67,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
   Future<void> _loadChatInfo() async {
     final chat = await _chatService.getChatById(widget.chatId);
+    final currentUserId = await _chatService.getCurrentUserId();
+    final friend = await _friendRepository.getFriend(widget.chatId);
     if (mounted) {
       setState(() {
         _chatInfo = chat;
+        _currentUserId = currentUserId;
+        _friend = friend;
       });
     }
   }
@@ -83,12 +90,13 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
     // 发送消息到数据库
     _chatService.sendTextMessage(
+      name: _chatInfo?.name ?? _friend?.name ?? '',
       chatId: widget.chatId,
       content: message,
       senderId: _currentUserId!,
-      receiverId: 'target_user', // 在实际应用中需要设置真实的接收者ID
-      groupId:
-          _chatInfo?.type.toString() == 'ChatType.group' ? widget.chatId : null,
+      receiverId:
+          _chatInfo?.id ?? _friend?.friendId ?? '', // 在实际应用中需要设置真实的接收者ID
+      groupId: _chatInfo?.type == ChatType.group ? widget.chatId : null,
     );
 
     _scrollToBottom();
@@ -143,7 +151,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         children: [
           // 用户头像
           ChatAvatar(
-            chatType: _chatInfo?.type ?? ChatType.direct,
+            chatType: _chatInfo?.type ?? ChatType.single,
             avatarUrl: _chatInfo?.avatarUrl,
             radius: 18,
           ),
@@ -226,8 +234,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           if (snapshot.connectionState == ConnectionState.active &&
               snapshot.hasData &&
               _scrollController.hasClients &&
-              _scrollController.position.pixels ==
-                  _scrollController.position.maxScrollExtent) {
+              _scrollController.position.pixels == 0) {
+            // 反转列表后，0位置是底部
             _scrollToBottom(needAnimate: true);
           }
         });
@@ -242,7 +250,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             final message = messages[index];
 
             // 收到新消息且是对方发送的，标记为已读
-            if (message.senderId != _currentUserId && message.isRead == false) {
+            if (message.isRead == false) {
               _chatService.markMessageAsRead(message.clientId);
             }
 
@@ -270,12 +278,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       if (_scrollController.hasClients) {
         if (needAnimate) {
           _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
+            0, // 由于列表被反转，滚动到0位置才是底部
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOut,
           );
         } else {
-          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+          _scrollController.jumpTo(0); // 直接跳转到0位置
         }
       }
     });
@@ -313,7 +321,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ChatAvatar(
-              chatType: _chatInfo?.type ?? ChatType.direct,
+              chatType: _chatInfo?.type ?? ChatType.single,
               avatarUrl: _chatInfo?.avatarUrl,
               radius: 14,
             ),
