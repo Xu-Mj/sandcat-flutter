@@ -102,7 +102,6 @@ class ChatServiceImpl implements ChatService {
       updatedTime: now,
     );
 
-    _logger.d('sendTextMessage: ${message.toProtoMsg()}');
     // 将消息保存到数据库
     await _messageRepository.insertMessage(message.toCompanion(true));
     // 这里应该调用websocket发送消息
