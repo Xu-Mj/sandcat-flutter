@@ -2,10 +2,8 @@ import 'package:drift/drift.dart';
 
 enum MessageStatus {
   sending(0),
-  sent(1),
-  delivered(2),
-  read(3),
-  failed(4);
+  success(1),
+  failed(2);
 
   final int value;
 
