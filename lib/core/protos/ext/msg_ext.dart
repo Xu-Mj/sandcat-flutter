@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:d_bincode/d_bincode.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:sandcat/core/db/app.dart';
@@ -81,24 +84,92 @@ extension MsgBincode on Msg {
     return writer.toBytes();
   }
 
+  static Msg fromBincode(Uint8List bytes) {
+    final reader = BincodeReader(bytes);
+    return decodeFromBincode(reader);
+  }
+
   void encodeToBincode(BincodeWriter writer) {
     writer.writeString(senderId);
+
     writer.writeString(receiverId);
+
     writer.writeString(clientId);
+
     writer.writeString(serverId);
+
     writer.writeI64(createTime.toInt());
+
     writer.writeI64(sendTime.toInt());
+
     writer.writeI64(seq.toInt());
-    writer.writeU32(msgType.value);
-    writer.writeU32(contentType.value);
-    writer.writeBytes(content);
+
+    writer.writeI32(msgType.value);
+
+    writer.writeI32(contentType.value);
+
+    List<int> contentBytes;
+    if (content is String) {
+      contentBytes = utf8.encode(content as String);
+    } else {
+      throw Exception("content类型不支持: ${content.runtimeType}");
+    }
+
+    writer.writeList(contentBytes, (byte) => writer.writeU8(byte));
+
     writer.writeBool(isRead);
+
     writer.writeString(groupId);
-    writer.writeU32(platform.value);
+
+    writer.writeI32(platform.value);
+
     writer.writeString(avatar);
+
     writer.writeString(nickname);
-    writer.writeString(relatedMsgId);
+
+    writer.writeOptionString(relatedMsgId);
+
     writer.writeI64(sendSeq.toInt());
+  }
+
+  static Msg decodeFromBincode(BincodeReader reader) {
+    final senderId = reader.readString();
+    final receiverId = reader.readString();
+    final clientId = reader.readString();
+    final serverId = reader.readString();
+    final createTimeInt = reader.readI64();
+    final sendTimeInt = reader.readI64();
+    final seqInt = reader.readI64();
+    final msgTypeValue = reader.readI32();
+    final contentTypeValue = reader.readI32();
+    final content = reader.readList(() => reader.readU8());
+    final isRead = reader.readBool();
+    final groupId = reader.readString();
+    final platformValue = reader.readI32();
+    final avatar = reader.readString();
+    final nickname = reader.readString();
+    final relatedMsgId = reader.readOptionString();
+    final sendSeqInt = reader.readI64();
+    return Msg(
+      senderId: senderId,
+      receiverId: receiverId,
+      clientId: clientId,
+      serverId: serverId,
+      createTime: Int64(createTimeInt),
+      sendTime: Int64(sendTimeInt),
+      seq: Int64(seqInt),
+      msgType: MsgType.values.firstWhere((e) => e.value == msgTypeValue),
+      contentType:
+          ContentType.values.firstWhere((e) => e.value == contentTypeValue),
+      content: content,
+      isRead: isRead,
+      groupId: groupId,
+      platform: PlatformType.values.firstWhere((e) => e.value == platformValue),
+      avatar: avatar,
+      nickname: nickname,
+      relatedMsgId: relatedMsgId,
+      sendSeq: Int64(sendSeqInt),
+    );
   }
 }
 
@@ -110,19 +181,20 @@ extension MessageToMsgExtension on Message {
       clientId: clientId,
       senderId: senderId,
       receiverId: receiverId,
+      content: utf8.encode(content),
       serverId: serverId,
       groupId: groupId,
       isRead: isRead,
       relatedMsgId: relatedMsgId,
+      avatar: '',
+      nickname: '',
     );
 
     // 转换Int64类型字段
     msg.createTime = Int64(createTime);
     msg.sendTime = Int64(sendTime);
     msg.seq = Int64(seq);
-    if (sendSeq != null) {
-      msg.sendSeq = Int64(sendSeq!);
-    }
+    msg.sendSeq = Int64(sendSeq ?? 0);
 
     // 转换枚举类型
     // MsgType转换
@@ -148,26 +220,6 @@ extension MessageToMsgExtension on Message {
           orElse: () => PlatformType.Desktop);
     } catch (e) {
       msg.platform = PlatformType.Desktop; // 设置默认值
-    }
-
-    // 处理内容 - 如果content是JSON字符串或纯文本
-    if (content.isNotEmpty) {
-      // 如果内容是二进制格式，需要转换为List<int>
-      try {
-        // 尝试将内容作为UTF-8文本处理
-        msg.content = content.codeUnits;
-      } catch (e) {
-        // 如果失败，可能需要其他处理方式
-        print('Error converting message content: $e');
-      }
-    }
-
-    // 设置其他可能有用的字段到extra字段或相关字段
-    if (localPath != null) {
-      // 可能需要添加到扩展字段或元数据中
-    }
-    if (remoteUrl != null) {
-      // 可能需要添加到扩展字段或元数据中
     }
 
     return msg;
