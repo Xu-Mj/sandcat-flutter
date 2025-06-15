@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sandcat/ui/auth/data/api/auth_api.dart';
+import 'package:sandcat/ui/auth/data/repositories/auth_repository.dart';
 import 'package:sandcat/ui/auth/data/services/auth_service.dart';
 import 'package:sandcat/core/services/logger_service.dart';
 import 'package:sandcat/core/di/injection.dart';
+import 'package:sandcat/ui/auth/presentation/controllers/register_controller.dart';
 
 /// 认证状态
 enum AuthState {
@@ -100,6 +103,24 @@ class AuthStateData {
   }
 }
 
+/// Auth API provider - 从依赖注入容器获取
+final authApiProvider = Provider<AuthApi>((ref) {
+  return getIt<AuthApi>();
+});
+
+/// Auth repository provider
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  final api = ref.watch(authApiProvider);
+  return AuthRepository(authApi: api);
+});
+
+/// Register controller provider
+final registerControllerProvider =
+    StateNotifierProvider<RegisterController, AsyncValue<void>>((ref) {
+  final repository = ref.watch(authRepositoryProvider);
+  return RegisterController(authRepository: repository);
+});
+
 /// 认证状态提供者
 final authStateProvider =
     StateNotifierProvider<AuthNotifier, AuthStateData>((ref) {
@@ -193,50 +214,6 @@ class AuthNotifier extends StateNotifier<AuthStateData> {
       _logger.e('登出失败', error: e, tag: 'AuthProvider');
       // 即使失败也视为已登出
       state = state.unauthenticated();
-    }
-  }
-
-  /// 注册
-  Future<bool> register({
-    required String name,
-    required String email,
-    required String code,
-    required String password,
-    String? avatar,
-  }) async {
-    state = state.loading();
-
-    try {
-      await _authService.register(
-        name: name,
-        email: email,
-        code: code,
-        password: password,
-        avatar: avatar,
-      );
-
-      // 注册成功后不自动登录，保持未认证状态
-      state = state.unauthenticated();
-      return true;
-    } catch (e) {
-      _logger.e('注册失败', error: e, tag: 'AuthProvider');
-      state = state.withError('注册失败：${e.toString()}');
-      return false;
-    }
-  }
-
-  /// 发送注册验证码
-  Future<bool> sendRegisterCode(String email) async {
-    state = state.loading();
-
-    try {
-      await _authService.sendRegisterCode(email);
-      state = state.copyWith(isLoading: false);
-      return true;
-    } catch (e) {
-      _logger.e('发送验证码失败', error: e, tag: 'AuthProvider');
-      state = state.withError('发送验证码失败：${e.toString()}');
-      return false;
     }
   }
 }

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sandcat/ui/utils/responsive_layout.dart';
 import 'package:sandcat/app/widgets/app_scaffold.dart';
 import 'package:sandcat/core/services/logger_service.dart';
-import '../providers/auth_providers.dart';
+import '../providers/auth_provider.dart';
 
 /// 用户注册页面
 class RegisterPage extends ConsumerStatefulWidget {
