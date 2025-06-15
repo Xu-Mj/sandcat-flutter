@@ -1,10 +1,14 @@
 import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/core/db/chat_repo.dart';
 import 'package:sandcat/core/db/message_repo.dart';
+import 'package:sandcat/core/db/tables/chat_table.dart';
 import 'package:sandcat/core/db/tables/message_table.dart';
+import 'package:sandcat/core/di/injection.dart';
 import 'package:sandcat/core/network/socket_manager.dart';
 import 'package:sandcat/core/protos/ext/msg_ext.dart';
 import 'package:sandcat/core/protos/generated/common.pbenum.dart';
+import 'package:sandcat/core/services/logger_service.dart';
+import 'package:sandcat/ui/auth/data/services/auth_service.dart';
 import 'package:sandcat/ui/chat/domain/services/chat_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,6 +20,7 @@ class ChatServiceImpl implements ChatService {
   final Uuid _uuid = const Uuid();
   String? _currentUserId;
   final SocketManager _socketManager;
+  final LoggerService _logger = getIt<LoggerService>();
 
   ChatServiceImpl({
     required ChatRepository chatRepository,
@@ -62,6 +67,7 @@ class ChatServiceImpl implements ChatService {
 
   @override
   Future<Message> sendTextMessage({
+    required String name,
     required String chatId,
     required String content,
     required String senderId,
@@ -96,20 +102,54 @@ class ChatServiceImpl implements ChatService {
       updatedTime: now,
     );
 
+    _logger.d('sendTextMessage: ${message.toProtoMsg()}');
     // 将消息保存到数据库
     await _messageRepository.insertMessage(message.toCompanion(true));
     // 这里应该调用websocket发送消息
     // message 转为 proto Msg
     _socketManager.sendRaw(message.toProtoMsg().toBincode());
-    // 更新会话的最后消息
-    await _chatRepository.updateLastMessage(
-      chatId,
-      preview: content,
-      type: 'text',
-      time: DateTime.fromMillisecondsSinceEpoch(message.createTime),
-    );
+    await _updateConversationLastMessage(message, chatId, name);
 
     return message;
+  }
+
+  Future<void> _updateConversationLastMessage(
+      Message message, String chatId, String name) async {
+    // 更新会话的最后一条消息
+    try {
+      final chat = await _chatRepository.getChatById(chatId);
+
+      if (chat != null) {
+        // 更新现有会话
+        await _chatRepository.updateLastMessage(
+          chatId,
+          preview: message.content,
+          type: message.contentType.toString(),
+          time: DateTime.fromMillisecondsSinceEpoch(message.createTime),
+        );
+      } else {
+        // 创建新会话
+        final isSingle = message.msgType == MsgType.MsgTypeSingleMsg.value;
+        final chatType = isSingle ? ChatType.single : ChatType.group;
+
+        await _chatRepository.createOrUpdateChat(Chat(
+          id: chatId,
+          name: name, // 临时使用ID作为名称，后续可以更新
+          type: chatType,
+          lastMessagePreview: message.content,
+          lastMessageType: message.contentType.toString(),
+          lastMessageTime:
+              DateTime.fromMillisecondsSinceEpoch(message.createTime),
+          unreadCount: message.senderId == _currentUserId ? 0 : 1,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(), isPinned: false, isMuted: false,
+          mentionsMe: false,
+        ));
+      }
+    } catch (e) {
+      _logger.e('Error updating conversation',
+          error: e, tag: 'MessageProcessor');
+    }
   }
 
   @override
@@ -185,7 +225,8 @@ class ChatServiceImpl implements ChatService {
   }
 
   @override
-  String? getCurrentUserId() {
+  Future<String?> getCurrentUserId() async {
+    _currentUserId = await getIt<AuthService>().getCurrentUserId();
     return _currentUserId;
   }
 
