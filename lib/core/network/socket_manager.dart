@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:sandcat/core/message/message_processor.dart';
 import 'package:sandcat/core/network/websocket_client.dart';
-import 'package:sandcat/core/protos/ext/msg_ext.dart';
 import 'package:sandcat/core/protos/generated/common.pb.dart';
 import 'package:sandcat/core/services/logger_service.dart';
 import 'package:sandcat/core/utils/device_utils.dart';
@@ -53,7 +52,7 @@ class SocketManager {
 
   /// 初始化WebSocket连接
   Future<bool> initialize(AuthToken token) async {
-    logger.i('SocketManager initializing with token: $token');
+    logger.i('SocketManager initializing with token: ${token.userId}');
     _token = token;
     _userId = token.userId;
     _wsEndpoint = token.wsEndpoint;
@@ -103,7 +102,13 @@ class SocketManager {
   /// 断开WebSocket连接
   Future<void> disconnect() async {
     _reconnectTimer?.cancel();
-    await _client?.disconnect();
+
+    // 禁用自动重连并断开连接
+    if (_client != null) {
+      _client!.autoReconnect = false;
+      await _client?.disconnect();
+    }
+
     _notifyStateListeners();
   }
 
@@ -240,16 +245,15 @@ class SocketManager {
   }
 
   /// 处理接收到的WebSocket消息
-  void _handleSocketMessage(Map<String, dynamic> message) {
-    final msg = MsgExtensions.fromMap(message);
+  void _handleSocketMessage(Msg message) {
     // 处理消息
     try {
-      _messageProcessor.processMsg(msg!, true);
+      _messageProcessor.processMsg(message, true);
       // 通知所有消息监听器
       // 我们目前采用的sqlite存储，sqlite支持直接监听消息
       // 所以这里目前是空实现
       for (var listener in _messageListeners) {
-        listener(msg);
+        listener(message);
       }
 
       // // 获取消息类型
