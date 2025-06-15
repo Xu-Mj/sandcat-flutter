@@ -108,14 +108,7 @@ extension MsgBincode on Msg {
 
     writer.writeI32(contentType.value);
 
-    List<int> contentBytes;
-    if (content is String) {
-      contentBytes = utf8.encode(content as String);
-    } else {
-      throw Exception("content类型不支持: ${content.runtimeType}");
-    }
-
-    writer.writeList(contentBytes, (byte) => writer.writeU8(byte));
+    writer.writeList(content, (byte) => writer.writeU8(byte));
 
     writer.writeBool(isRead);
 
