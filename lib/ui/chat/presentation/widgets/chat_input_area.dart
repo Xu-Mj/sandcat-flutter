@@ -91,6 +91,9 @@ class _ChatInputAreaState extends ConsumerState<ChatInputArea>
     if (message.isEmpty || message == '\n') return;
 
     widget.onSendMessage(message);
+
+    // 清除输入框文字
+    _messageController.clear();
   }
 
   // 插入表情到输入框
@@ -206,6 +209,7 @@ class _ChatInputAreaState extends ConsumerState<ChatInputArea>
                           allowEnterNewline: true,
                           onSendMessage: (message) {
                             widget.onSendMessage(message);
+                            _messageController.clear();
                           },
                         ),
                       ),
