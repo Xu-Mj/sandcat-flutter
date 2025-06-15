@@ -1,14 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-import 'package:sandcat/core/services/logger_service.dart';
-import 'package:sandcat/core/utils/device_utils.dart';
-import 'package:sandcat/core/models/user/auth_token.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
+import 'package:flutter/foundation.dart';
+
+import 'package:sandcat/core/protos/ext/msg_ext.dart';
+import 'package:sandcat/core/protos/generated/common.pb.dart';
+import 'package:sandcat/core/services/logger_service.dart';
+import 'package:sandcat/core/utils/device_utils.dart';
+import 'package:sandcat/core/models/user/auth_token.dart';
 
 /// WebSocket连接状态信息
 class ConnectionStatusInfo {
@@ -82,7 +84,7 @@ typedef WebSocketEventCallback = void Function(WebSocketEvent event,
     {dynamic data});
 
 /// WebSocket消息回调
-typedef WebSocketMessageCallback = void Function(Map<String, dynamic> message);
+typedef WebSocketMessageCallback = void Function(Msg message);
 
 /// WebSocket客户端实现
 class WebSocketClient {
@@ -95,6 +97,7 @@ class WebSocketClient {
     required this.deviceId,
     WebSocketEventCallback? onEvent,
     WebSocketMessageCallback? onMessage,
+    this.autoReconnect = true,
   })  : _onEvent = onEvent,
         _onMessage = onMessage,
         _state = ConnectionState.disconnected {
@@ -112,6 +115,9 @@ class WebSocketClient {
   final String userId;
   final String deviceId;
 
+  /// 是否自动重连
+  bool autoReconnect;
+
   // 私有变量
   WebSocketChannel? _channel;
   ConnectionState _state;
@@ -120,8 +126,8 @@ class WebSocketClient {
   final int _maxReconnectAttempts = 5;
   final Duration _pingInterval = const Duration(seconds: 30);
   final Duration _initialReconnectDelay = const Duration(seconds: 1);
-  final StreamController<Map<String, dynamic>> _messageController =
-      StreamController<Map<String, dynamic>>.broadcast();
+  final StreamController<Msg> _messageController =
+      StreamController<Msg>.broadcast();
 
   // 状态流相关
   late ConnectionStatusInfo _statusInfo;
@@ -133,7 +139,7 @@ class WebSocketClient {
   final WebSocketMessageCallback? _onMessage;
 
   /// 消息流
-  Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
+  Stream<Msg> get messageStream => _messageController.stream;
 
   /// 状态流 - 供外部监听
   Stream<ConnectionStatusInfo> get statusStream => _statusController.stream;
@@ -283,11 +289,13 @@ class WebSocketClient {
   /// 处理接收到的数据
   void _onData(dynamic data) {
     try {
-      if (data is String) {
-        final jsonData = jsonDecode(data) as Map<String, dynamic>;
-        _onMessage?.call(jsonData);
-        _messageController.add(jsonData);
-        _triggerEvent(WebSocketEvent.messageReceived, data: jsonData);
+      if (data is List<int>) {
+        final msg = MsgBincode.fromBincode(Uint8List.fromList(data));
+        _onMessage?.call(msg);
+        _messageController.add(msg);
+        _triggerEvent(WebSocketEvent.messageReceived, data: msg);
+      } else if (data is String) {
+        logger.w('Received string WebSocket message: $data');
       } else {
         logger.w('Received non-string WebSocket message: $data');
       }
@@ -338,12 +346,22 @@ class WebSocketClient {
     _updateStatus(state: ConnectionState.disconnected);
     if (wasConnected) {
       _triggerEvent(WebSocketEvent.disconnected);
-      _scheduleReconnect();
+
+      // 只有在允许自动重连的情况下才尝试重连
+      if (autoReconnect) {
+        _scheduleReconnect();
+      }
     }
   }
 
   /// 安排重连
   void _scheduleReconnect() {
+    // 如果禁用了自动重连，则不执行重连
+    if (!autoReconnect) {
+      logger.i('自动重连已禁用，不会尝试重连');
+      return;
+    }
+
     // 先增加重连尝试次数
     _reconnectAttempts++;
 
