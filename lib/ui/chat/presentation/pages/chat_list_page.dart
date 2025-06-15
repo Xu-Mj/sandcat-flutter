@@ -33,6 +33,7 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
+  final _searchFocusNode = FocusNode();
   bool _isSearching = false;
   bool _showingLoginExpiredDialog = false;
   String _searchQuery = '';
@@ -184,6 +185,7 @@ class _ChatListPageState extends State<ChatListPage> {
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _searchFocusNode.dispose();
     _socketManager.removeStateListener(_onSocketStateChanged);
     _scrollController.dispose();
     super.dispose();
@@ -197,6 +199,7 @@ class _ChatListPageState extends State<ChatListPage> {
         middle: _isSearching
             ? CupertinoSearchTextField(
                 controller: _searchController,
+                focusNode: _searchFocusNode,
                 placeholder: '搜索会话',
                 onSubmitted: (_) {},
               )
@@ -218,7 +221,7 @@ class _ChatListPageState extends State<ChatListPage> {
                   const Duration(milliseconds: 100),
                   () {
                     if (mounted) {
-                      FocusScope.of(context).requestFocus();
+                      _searchFocusNode.requestFocus();
                     }
                   },
                 );
