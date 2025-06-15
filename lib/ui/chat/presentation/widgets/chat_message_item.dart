@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
+import 'dart:async';
 
 import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/ui/utils/responsive_layout.dart';
 import 'package:sandcat/core/db/tables/message_table.dart';
+import 'package:sandcat/core/di/injection.dart';
+import 'package:sandcat/ui/chat/domain/services/chat_service.dart';
 
 /// 聊天消息组件
 class ChatMessageItem extends StatefulWidget {
@@ -17,12 +20,24 @@ class ChatMessageItem extends StatefulWidget {
   /// 格式化时间的函数
   final String Function(DateTime) formatTimeFunc;
 
+  /// 是否正在发送中（等待状态更新）
+  final bool isPending;
+
+  /// 是否显示发送中指示器（1秒后显示）
+  final bool showSendingIndicator;
+
+  /// 简化后的消息发送状态
+  final MessageStatus sendStatus;
+
   /// 创建消息组件
   const ChatMessageItem({
     super.key,
     required this.message,
     this.onAction,
     required this.formatTimeFunc,
+    this.isPending = false,
+    this.showSendingIndicator = false,
+    this.sendStatus = MessageStatus.success, // 默认为成功
   });
 
   @override
@@ -38,6 +53,73 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
 
   /// 是否显示消息详情（时间等）
   bool _showMessageDetails = false;
+
+  /// 是否显示发送中指示器（1秒后显示）
+  bool _showSendingIndicator = false;
+
+  /// 状态计时器
+  Timer? _statusTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _initStatusTimer();
+  }
+
+  @override
+  void didUpdateWidget(ChatMessageItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // 如果消息状态发生变化，更新计时器
+    if (oldWidget.message.status != widget.message.status) {
+      _cancelStatusTimer();
+      _initStatusTimer();
+    }
+  }
+
+  // 初始化消息状态计时器
+  void _initStatusTimer() {
+    // 只对发送中状态的消息设置计时器
+    if (widget.message.status == MessageStatus.sending.value &&
+        widget.message.isSelf) {
+      // 1秒后显示发送中指示器
+      _statusTimer = Timer(const Duration(seconds: 1), () {
+        if (mounted && widget.message.status == MessageStatus.sending.value) {
+          setState(() {
+            _showSendingIndicator = true;
+          });
+
+          // 再过4秒（总共5秒）后，如果状态仍为发送中，则标记为失败
+          Timer(const Duration(seconds: 4), () {
+            _checkAndMarkAsFailed();
+          });
+        }
+      });
+    }
+  }
+
+  // 检查并将消息标记为失败
+  void _checkAndMarkAsFailed() async {
+    if (!mounted) return;
+
+    // 检查当前消息状态
+    if (widget.message.status == MessageStatus.sending.value) {
+      // 使用ChatService标记消息为失败
+      final chatService = getIt<ChatService>();
+      await chatService.markMessageAsFailed(widget.message.clientId);
+    }
+  }
+
+  // 取消状态计时器
+  void _cancelStatusTimer() {
+    _statusTimer?.cancel();
+    _statusTimer = null;
+  }
+
+  /// 重新发送消息
+  void _resendMessage() {
+    widget.onAction?.call('resend', widget.message);
+  }
 
   /// 显示自定义气泡菜单
   void _showCustomBubbleMenu(BuildContext context, Offset position) {
@@ -153,6 +235,7 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
 
   @override
   void dispose() {
+    _cancelStatusTimer();
     // 确保在组件销毁时移除全局监听器
     if (_isMenuVisible) {
       GestureBinding.instance.pointerRouter.removeGlobalRoute(_handleGlobalTap);
@@ -188,6 +271,13 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
               // 发件人头像 - 对方消息时显示在左侧
               if (!isMe) _buildAvatar(),
 
+              // 我发送的消息且状态为发送中(过1秒)或失败才显示状态指示器
+              if (isMe &&
+                  (widget.sendStatus == MessageStatus.failed ||
+                      (widget.sendStatus == MessageStatus.sending &&
+                          _showSendingIndicator)))
+                _buildStatusIcon(widget.message.status, false),
+
               // 消息气泡主体
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -201,9 +291,19 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                   ),
                   decoration: BoxDecoration(
                     color: isMe
-                        ? CupertinoColors.systemBlue
+                        ? widget.message.status == MessageStatus.failed.value
+                            // 失败状态使用红色背景
+                            ? CupertinoColors.systemRed.withOpacity(0.8)
+                            : CupertinoColors.systemBlue
                         : CupertinoColors.systemGrey6,
                     borderRadius: BorderRadius.circular(18.0),
+                    // 失败状态添加红色边框
+                    border:
+                        widget.message.status == MessageStatus.failed.value &&
+                                isMe
+                            ? Border.all(
+                                color: CupertinoColors.systemRed, width: 1.5)
+                            : null,
                   ),
                   child: Stack(
                     children: [
@@ -234,49 +334,50 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                         ),
                       ),
 
-                      // 时间和状态 - 绝对定位，根据hover状态或点击状态决定是否显示
-                      if (_showMessageDetails)
+                      // 时间显示 - 在气泡底部
+                      Positioned(
+                        right: 0,
+                        bottom: -16, // 位于文本下方
+                        child: Text(
+                          widget.formatTimeFunc(
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  widget.message.sendTime == 0
+                                      ? widget.message.createTime
+                                      : widget.message.sendTime)),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isMe
+                                ? CupertinoColors.white.withValues(alpha: 0.7)
+                                : CupertinoColors.systemGrey,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+
+                      // 失败消息显示重发按钮
+                      if (isMe &&
+                          widget.message.status == MessageStatus.failed.value)
                         Positioned(
-                          right: 0,
-                          bottom: -16, // 位于文本下方，不占用消息区域
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  widget.formatTimeFunc(
-                                      DateTime.fromMillisecondsSinceEpoch(
-                                          widget.message.sendTime == 0
-                                              ? widget.message.createTime
-                                              : widget.message.sendTime)),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: isMe
-                                        ? CupertinoColors.white
-                                            .withValues(alpha: 0.7)
-                                        : CupertinoColors.systemGrey,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                          left: 0,
+                          top: -20,
+                          child: GestureDetector(
+                            onTap: _resendMessage,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: CupertinoColors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                '重新发送',
+                                style: TextStyle(
+                                  color: CupertinoColors.systemRed,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              if (isMe) ...[
-                                const SizedBox(width: 4),
-                                Icon(
-                                  widget.message.status ==
-                                          MessageStatus.read.value
-                                      ? CupertinoIcons.checkmark_alt_circle_fill
-                                      : widget.message.status == 2
-                                          ? CupertinoIcons.checkmark_alt_circle
-                                          : widget.message.status ==
-                                                  MessageStatus.sent.value
-                                              ? CupertinoIcons.checkmark_circle
-                                              : CupertinoIcons.clock,
-                                  size: 10,
-                                  color: CupertinoColors.white
-                                      .withValues(alpha: 0.7),
-                                ),
-                              ],
-                            ],
+                            ),
                           ),
                         ),
                     ],
@@ -293,8 +394,66 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
     );
   }
 
+  // 构建状态图标 - 只显示发送中和失败状态
+  Widget _buildStatusIcon(int status, bool showSendingIndicator) {
+    Widget icon;
+
+    // 使用当前消息状态和内部计时状态
+    if (widget.sendStatus == MessageStatus.failed) {
+      // 发送失败状态 - Failed - 显示红色感叹号
+      icon = GestureDetector(
+        onTap: _resendMessage,
+        child: Container(
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: CupertinoColors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            CupertinoIcons.exclamationmark_circle_fill,
+            size: 24,
+            color: CupertinoColors.systemRed,
+          ),
+        ),
+      );
+    }
+    // 发送中状态且已过1秒才显示指示器
+    else if (widget.sendStatus == MessageStatus.sending &&
+        _showSendingIndicator) {
+      // 发送中状态 - Sending - 显示蓝色加载动画
+      icon = Container(
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          color: CupertinoColors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const SizedBox(
+          width: 24,
+          height: 24,
+          child: CupertinoActivityIndicator(
+            radius: 12,
+            color: CupertinoColors.activeBlue,
+          ),
+        ),
+      );
+    } else {
+      // 成功状态或其他状态不显示任何图标
+      return const SizedBox.shrink();
+    }
+
+    // 添加边距使图标位置更好
+    return Padding(
+      padding: const EdgeInsets.only(right: 4, top: 10),
+      child: icon,
+    );
+  }
+
   /// 构建自定义菜单气泡
   Widget _buildCustomMenuBubble(bool isMe) {
+    // 只有自己发送的消息且状态为失败时才显示重发选项
+    final bool showResendOption =
+        isMe && widget.message.status == MessageStatus.failed.value;
+
     return Container(
       decoration: BoxDecoration(
         color: CupertinoColors.systemBackground,
@@ -311,6 +470,15 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (showResendOption) ...[
+            _buildMenuItem(
+              icon: CupertinoIcons.arrow_clockwise,
+              text: '重新发送',
+              onTap: () => _handleMenuAction('resend'),
+              isHighlighted: true,
+            ),
+            _buildDivider(),
+          ],
           _buildMenuItem(
             icon: CupertinoIcons.doc_on_doc,
             text: '复制',
@@ -346,6 +514,7 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
     required String text,
     required VoidCallback onTap,
     bool isDestructive = false,
+    bool isHighlighted = false,
   }) {
     bool isHovering = false;
     bool isPressed = false;
@@ -362,7 +531,7 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
             onTapCancel: () => setState(() => isPressed = false),
             behavior: HitTestBehavior.opaque,
             child: Container(
-              width: 80, // 固定宽度
+              width: 100, // 稍微增加宽度以适应"重新发送"
               height: 30, // 固定高度
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
@@ -383,7 +552,9 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                     icon,
                     color: isDestructive
                         ? CupertinoColors.destructiveRed
-                        : CupertinoColors.activeBlue,
+                        : isHighlighted
+                            ? CupertinoColors.systemGreen
+                            : CupertinoColors.activeBlue,
                     size: 12,
                   ),
                   const SizedBox(width: 12),
@@ -393,7 +564,9 @@ class _ChatMessageItemState extends State<ChatMessageItem> {
                       fontSize: 12,
                       color: isDestructive
                           ? CupertinoColors.destructiveRed
-                          : CupertinoColors.black,
+                          : isHighlighted
+                              ? CupertinoColors.systemGreen
+                              : CupertinoColors.black,
                     ),
                   ),
                 ],
