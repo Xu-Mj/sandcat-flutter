@@ -310,7 +310,7 @@ class MessageProcessor {
           sendTime: Value(msg.sendTime.toInt()),
           status: Value(msg.contentType == ContentType.Error
               ? MessageStatus.failed.value
-              : MessageStatus.sent.value),
+              : MessageStatus.success.value),
           sendSeq: Value(msg.sendSeq.toInt()),
           updatedTime: Value(DateTime.now().millisecondsSinceEpoch),
         );
@@ -367,7 +367,7 @@ class MessageProcessor {
       isSelf: Value(isSelf),
       status: Value(msg.serverId.isEmpty
           ? MessageStatus.sending.value
-          : MessageStatus.sent.value),
+          : MessageStatus.success.value),
       updatedTime: Value(DateTime.now().millisecondsSinceEpoch),
     );
   }
