@@ -111,7 +111,10 @@ class MessageRepositoryImpl implements MessageRepository {
   @override
   Future<bool> updateMessage(MessagesCompanion message) async {
     try {
-      await _database.update(_database.messages).replace(message);
+      // 使用clientId作为条件，只更新提供的字段
+      final query = _database.update(_database.messages)
+        ..where((tbl) => tbl.clientId.equals(message.clientId.value));
+      await query.write(message);
       return true;
     } catch (e) {
       log.e('Failed to update message', error: e, tag: 'MessageRepository');
