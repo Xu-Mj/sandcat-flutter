@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/core/db/message_repo.dart';
-import 'package:sandcat/core/db/tables/message_table.dart';
 import 'package:sandcat/core/services/logger_service.dart';
 
 /// SQLite implementation of the MessageRepository interface
@@ -172,94 +171,11 @@ class MessageRepositoryImpl implements MessageRepository {
       await query.write(
         const MessagesCompanion(
           isRead: Value(true),
-          status: Value(3), // Read status
         ),
       );
       return true;
     } catch (e) {
       log.e('Failed to mark message as read',
-          error: e, tag: 'MessageRepository');
-      return false;
-    }
-  }
-
-  @override
-  Future<bool> markMessagesAsReadByConversationId(String conversationId) async {
-    try {
-      final query = _database.update(_database.messages)
-        ..where((tbl) =>
-            tbl.conversationId.equals(conversationId) &
-            tbl.isRead.equals(false));
-      await query.write(
-        const MessagesCompanion(
-          isRead: Value(true),
-          status: Value(3), // Read status
-        ),
-      );
-      return true;
-    } catch (e) {
-      log.e('Failed to mark conversation messages as read',
-          error: e, tag: 'MessageRepository');
-      return false;
-    }
-  }
-
-  @override
-  Future<bool> markMessageAsSent(String clientId, String? serverId) async {
-    try {
-      final query = _database.update(_database.messages)
-        ..where((tbl) => tbl.clientId.equals(clientId));
-
-      final companion = MessagesCompanion(
-        status: Value(MessageStatus.sent.value), // Sent status
-      );
-
-      // Add serverId if available
-      if (serverId != null) {
-        query.write(companion.copyWith(serverId: Value(serverId)));
-      } else {
-        query.write(companion);
-      }
-
-      return true;
-    } catch (e) {
-      log.e('Failed to mark message as sent',
-          error: e, tag: 'MessageRepository');
-      return false;
-    }
-  }
-
-  @override
-  Future<bool> markMessageAsDelivered(String clientId) async {
-    try {
-      final query = _database.update(_database.messages)
-        ..where((tbl) => tbl.clientId.equals(clientId));
-      await query.write(
-        const MessagesCompanion(
-          status: Value(2), // Delivered status
-        ),
-      );
-      return true;
-    } catch (e) {
-      log.e('Failed to mark message as delivered',
-          error: e, tag: 'MessageRepository');
-      return false;
-    }
-  }
-
-  @override
-  Future<bool> markMessageAsFailed(String clientId) async {
-    try {
-      final query = _database.update(_database.messages)
-        ..where((tbl) => tbl.clientId.equals(clientId));
-      await query.write(
-        const MessagesCompanion(
-          status: Value(4), // Failed status
-        ),
-      );
-      return true;
-    } catch (e) {
-      log.e('Failed to mark message as failed',
           error: e, tag: 'MessageRepository');
       return false;
     }

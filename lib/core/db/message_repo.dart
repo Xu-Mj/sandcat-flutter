@@ -39,18 +39,6 @@ abstract class MessageRepository {
   /// 将消息标记为已读
   Future<bool> markMessageAsRead(String clientId);
 
-  /// 将会话的所有消息标记为已读
-  Future<bool> markMessagesAsReadByConversationId(String conversationId);
-
-  /// 将消息标记为已发送
-  Future<bool> markMessageAsSent(String clientId, String? serverId);
-
-  /// 将消息标记为已送达
-  Future<bool> markMessageAsDelivered(String clientId);
-
-  /// 将消息标记为发送失败
-  Future<bool> markMessageAsFailed(String clientId);
-
   /// 获取会话未读消息数
   Future<int> getUnreadMessageCountByConversationId(String conversationId);
 
