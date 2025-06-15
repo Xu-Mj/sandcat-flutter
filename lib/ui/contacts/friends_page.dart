@@ -114,6 +114,7 @@ class _FriendsPageState extends State<FriendsPage> {
       // 在桌面设备上，更新选中的好友
       setState(() {
         _selectedFriend = friend;
+        _showFriendRequests = false; // 关闭好友请求面板，显示好友详情
       });
     }
   }
@@ -133,7 +134,16 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   void _viewFriendRequests() {
-    context.push('/contacts/requests').then((_) => _loadFriends());
+    if (_isSmallScreen()) {
+      // 在移动设备上，导航到好友请求页面
+      context.push('/contacts/requests').then((_) => _loadFriends());
+    } else {
+      // 在桌面设备上，显示好友请求面板
+      setState(() {
+        _showFriendRequests = true;
+        _selectedFriend = null; // 清除选中的好友
+      });
+    }
   }
 
   void _createNewGroup() {
@@ -578,20 +588,22 @@ class _FriendsPageState extends State<FriendsPage> {
                         ],
                       ),
                     )
-              : _selectedFriend != null
-                  ? FriendDetailPage(
-                      friendId: _selectedFriend!.fsId,
-                      isEmbedded: true,
-                    )
-                  : const Center(
-                      child: Text(
-                        '选择一个好友查看详情',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: CupertinoColors.systemGrey,
+              : _showFriendRequests
+                  ? _buildFriendRequestsPanel()
+                  : _selectedFriend != null
+                      ? FriendDetailPage(
+                          friendId: _selectedFriend!.fsId,
+                          isEmbedded: true,
+                        )
+                      : const Center(
+                          child: Text(
+                            '选择一个好友查看详情',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: CupertinoColors.systemGrey,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
         ),
       ],
     );
