@@ -54,4 +54,7 @@ abstract class ChatService {
 
   /// 设置当前用户ID
   void setCurrentUserId(String userId);
+
+  /// 重发消息
+  Future<bool> resendMessage(Message message);
 }
