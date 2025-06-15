@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 
 /// 会话类型枚举
 enum ChatType {
-  direct, // 单聊
+  single, // 单聊
   group, // 群聊
   system, // 系统通知
 }
