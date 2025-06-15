@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'dart:async';
 import 'package:sandcat/core/db/friend_repo.dart';
 import 'package:sandcat/core/db/message_repo.dart';
 import 'package:sandcat/core/di/injection.dart';
 import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/core/db/tables/chat_table.dart';
+import 'package:sandcat/core/db/tables/message_table.dart';
 import 'package:sandcat/ui/chat/domain/services/chat_service.dart';
 import 'package:sandcat/ui/chat/presentation/widgets/chat_avatar.dart';
 import 'package:sandcat/ui/chat/presentation/widgets/chat_input_area.dart';
@@ -85,21 +87,25 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     super.dispose();
   }
 
-  void _sendMessage(String message) {
+  void _sendMessage(String message) async {
     if (message.isEmpty) return;
 
-    // 发送消息到数据库
-    _chatService.sendTextMessage(
-      name: _chatInfo?.name ?? _friend?.name ?? '',
-      chatId: widget.chatId,
-      content: message,
-      senderId: _currentUserId!,
-      receiverId:
-          _chatInfo?.id ?? _friend?.friendId ?? '', // 在实际应用中需要设置真实的接收者ID
-      groupId: _chatInfo?.type == ChatType.group ? widget.chatId : null,
-    );
+    try {
+      // 发送消息到数据库
+      await _chatService.sendTextMessage(
+        name: _chatInfo?.name ?? _friend?.name ?? '',
+        chatId: widget.chatId,
+        content: message,
+        senderId: _currentUserId!,
+        receiverId:
+            _chatInfo?.id ?? _friend?.friendId ?? '', // 在实际应用中需要设置真实的接收者ID
+        groupId: _chatInfo?.type == ChatType.group ? widget.chatId : null,
+      );
 
-    _scrollToBottom();
+      _scrollToBottom();
+    } catch (e) {
+      debugPrint('Error sending message: $e');
+    }
   }
 
   String _formatTime(DateTime dateTime) {
@@ -107,7 +113,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   }
 
   /// 处理消息操作
-  void _handleMessageAction(String action, Message message) {
+  void _handleMessageAction(String action, Message message) async {
     final messageId = message.clientId;
 
     switch (action) {
@@ -135,7 +141,87 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       case 'delete':
         _chatService.deleteMessage(messageId);
         break;
+      case 'resend':
+        // 重新发送失败的消息
+        if (message.status == MessageStatus.failed.value) {
+          try {
+            await _chatService.resendMessage(message);
+          } catch (e) {
+            debugPrint('Error resending message: $e');
+          }
+        }
+        break;
     }
+  }
+
+  // 构建消息列表
+  Widget _buildMessagesList() {
+    return StreamBuilder<List<Message>>(
+      stream: _messageDao.watchMessagesByConversationId(widget.chatId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
+          return const Center(
+            child: CupertinoActivityIndicator(),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        }
+
+        final messages = snapshot.data ?? [];
+        if (messages.isEmpty) {
+          return const Center(
+            child: Text('No messages yet'),
+          );
+        }
+
+        // 检查是否有新消息到达，如果有则滚动到底部
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (snapshot.connectionState == ConnectionState.active &&
+              snapshot.hasData &&
+              _scrollController.hasClients &&
+              _scrollController.position.pixels == 0) {
+            // 反转列表后，0位置是底部
+            _scrollToBottom(needAnimate: true);
+          }
+        });
+
+        return ListView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(16.0),
+          // 反转列表以使最新消息在底部
+          reverse: true,
+          itemCount: messages.length,
+          itemBuilder: (context, index) {
+            final message = messages[index];
+
+            // 收到新消息且是对方发送的，标记为已读
+            if (message.isRead == false) {
+              _chatService.markMessageAsRead(message.clientId);
+            }
+
+            // 将DB状态映射到MessageStatus
+            MessageStatus messageStatus = MessageStatus.success;
+            if (message.status == MessageStatus.sending.value) {
+              messageStatus = MessageStatus.sending;
+            } else if (message.status == MessageStatus.failed.value) {
+              messageStatus = MessageStatus.failed;
+            }
+
+            return ChatMessageItem(
+              message: message,
+              formatTimeFunc: _formatTime,
+              onAction: _handleMessageAction,
+              sendStatus: messageStatus,
+            );
+          },
+        );
+      },
+    );
   }
 
   // 构建聊天头部
@@ -201,67 +287,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           ),
         ],
       ),
-    );
-  }
-
-  // 构建消息列表
-  Widget _buildMessagesList() {
-    return StreamBuilder<List<Message>>(
-      stream: _messageDao.watchMessagesByConversationId(widget.chatId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting &&
-            !snapshot.hasData) {
-          return const Center(
-            child: CupertinoActivityIndicator(),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-            child: Text('Error: ${snapshot.error}'),
-          );
-        }
-
-        final messages = snapshot.data ?? [];
-        if (messages.isEmpty) {
-          return const Center(
-            child: Text('No messages yet'),
-          );
-        }
-
-        // 检查是否有新消息到达，如果有则滚动到底部
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (snapshot.connectionState == ConnectionState.active &&
-              snapshot.hasData &&
-              _scrollController.hasClients &&
-              _scrollController.position.pixels == 0) {
-            // 反转列表后，0位置是底部
-            _scrollToBottom(needAnimate: true);
-          }
-        });
-
-        return ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(16.0),
-          // 反转列表以使最新消息在底部
-          reverse: true,
-          itemCount: messages.length,
-          itemBuilder: (context, index) {
-            final message = messages[index];
-
-            // 收到新消息且是对方发送的，标记为已读
-            if (message.isRead == false) {
-              _chatService.markMessageAsRead(message.clientId);
-            }
-
-            return ChatMessageItem(
-              message: message,
-              formatTimeFunc: _formatTime,
-              onAction: _handleMessageAction,
-            );
-          },
-        );
-      },
     );
   }
 
