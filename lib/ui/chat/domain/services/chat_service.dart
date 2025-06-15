@@ -57,4 +57,7 @@ abstract class ChatService {
 
   /// 重发消息
   Future<bool> resendMessage(Message message);
+
+  /// 标记消息为失败状态
+  Future<bool> markMessageAsFailed(String messageId);
 }

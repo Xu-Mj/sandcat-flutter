@@ -78,6 +78,14 @@ class ChatServiceImpl implements ChatService {
     // 创建消息模型
     final clientId = _uuid.v4();
     final now = DateTime.now().millisecondsSinceEpoch;
+
+    // 检查WebSocket连接状态
+    final bool isConnected = _socketManager.isConnected;
+
+    // 根据连接状态设置消息初始状态
+    final initialStatus =
+        isConnected ? MessageStatus.sending.value : MessageStatus.failed.value;
+
     final message = Message(
       senderId: senderId,
       receiverId: receiverId,
@@ -96,58 +104,38 @@ class ChatServiceImpl implements ChatService {
       platform: PlatformType.Desktop.value,
       conversationId: chatId,
       isSelf: senderId == _currentUserId,
-      status: MessageStatus.sending.value,
+      status: initialStatus,
       relatedMsgId: null,
       sendSeq: null,
       isDeleted: false,
       updatedTime: now,
     );
 
-    // 先检查WebSocket是否已连接
-    if (!_socketManager.isConnected) {
-      final failedMessage =
-          message.copyWith(status: MessageStatus.failed.value);
-      await _messageRepository.insertMessage(failedMessage.toCompanion(true));
-      await _updateConversationLastMessage(failedMessage, chatId, name);
-      return failedMessage;
-    }
+    // 将消息保存到数据库
+    await _messageRepository.insertMessage(message.toCompanion(true));
 
-    try {
-      // 将消息保存到数据库
-      await _messageRepository.insertMessage(message.toCompanion(true));
-      _logger.d('发送消息: ${message.clientId}，当前状态: ${message.status}',
-          tag: 'ChatService');
-
-      // 这里应该调用websocket发送消息
-      // message 转为 proto Msg
-      _socketManager.sendRaw(message.toProtoMsg().toBincode());
-      await _updateConversationLastMessage(message, chatId, name);
-
-      return message;
-    } catch (e) {
-      // 发送异常，标记为失败
-      _logger.e('Error sending message', error: e, tag: 'ChatService');
-
-      // 检查消息是否已存入数据库
-      final existingMessage = await _messageRepository.getMessageById(clientId);
-      if (existingMessage != null) {
-        // 更新消息状态为失败
+    // 只有在连接可用时才尝试发送
+    if (isConnected) {
+      try {
+        // 发送消息
+        _socketManager.sendRaw(message.toProtoMsg().toBincode());
+      } catch (e) {
+        _logger.e('Error sending message', error: e, tag: 'ChatService');
+        // 发送失败，更新状态
         final failedMessage = MessagesCompanion(
           clientId: Value(clientId),
           status: Value(MessageStatus.failed.value),
-          updatedTime: Value(now),
+          updatedTime: Value(DateTime.now().millisecondsSinceEpoch),
         );
         await _messageRepository.updateMessage(failedMessage);
-      } else {
-        // 插入失败的消息
-        final failedMessage =
-            message.copyWith(status: MessageStatus.failed.value);
-        await _messageRepository.insertMessage(failedMessage.toCompanion(true));
       }
-
-      // 返回失败消息
-      return message.copyWith(status: MessageStatus.failed.value);
+    } else {
+      _logger.w('WebSocket未连接，消息已标记为失败', tag: 'ChatService');
     }
+
+    await _updateConversationLastMessage(message, chatId, name);
+
+    return message;
   }
 
   Future<void> _updateConversationLastMessage(
@@ -309,6 +297,28 @@ class ChatServiceImpl implements ChatService {
       );
 
       await _messageRepository.updateMessage(failedMessage);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> markMessageAsFailed(String messageId) async {
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      // 更新消息状态为失败
+      final failedMessage = MessagesCompanion(
+        clientId: Value(messageId),
+        status: Value(MessageStatus.failed.value),
+        updatedTime: Value(now),
+      );
+
+      await _messageRepository.updateMessage(failedMessage);
+      _logger.d('Message $messageId marked as failed', tag: 'ChatService');
+      return true;
+    } catch (e) {
+      _logger.e('Error marking message as failed: $messageId',
+          error: e, tag: 'ChatService');
       return false;
     }
   }
