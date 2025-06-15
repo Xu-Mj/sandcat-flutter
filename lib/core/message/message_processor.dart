@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:injectable/injectable.dart';
 import 'package:drift/drift.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/core/db/message_repo.dart';
 import 'package:sandcat/core/db/friend_repo.dart';
@@ -301,7 +300,23 @@ class MessageProcessor {
   /// 处理消息回执
   Future<void> _processMessageReceipt(Msg msg) async {
     try {
-      // TODO: 实现消息回执处理
+      // 更新消息发送状态，
+      Message? message = await _messageRepository.getMessageById(msg.clientId);
+      if (message != null) {
+        // 创建MessagesCompanion对象进行更新，只包含需要更新的字段
+        final updatedMessage = MessagesCompanion(
+          clientId: Value(message.clientId), // 用作查询条件
+          serverId: Value(msg.serverId),
+          sendTime: Value(msg.sendTime.toInt()),
+          status: Value(msg.contentType == ContentType.Error
+              ? MessageStatus.failed.value
+              : MessageStatus.sent.value),
+          sendSeq: Value(msg.sendSeq.toInt()),
+          updatedTime: Value(DateTime.now().millisecondsSinceEpoch),
+        );
+
+        await _messageRepository.updateMessage(updatedMessage);
+      }
       _logger.d('Message receipt processing not implemented yet',
           tag: 'MessageProcessor');
     } catch (e) {
@@ -408,7 +423,7 @@ class MessageProcessor {
       } else {
         // 创建新会话
         final isSingle = msg.msgType == MsgType.MsgTypeSingleMsg;
-        final chatType = isSingle ? ChatType.direct : ChatType.group;
+        final chatType = isSingle ? ChatType.single : ChatType.group;
         final targetId = isSingle
             ? (msg.senderId == _currentUserId ? msg.receiverId : msg.senderId)
             : msg.groupId;
@@ -439,36 +454,5 @@ class MessageProcessor {
     // TODO: 实现发送消息回执的逻辑
     _logger.d('Message receipt sending not implemented yet',
         tag: 'MessageProcessor');
-  }
-
-  /// 将数据库消息转换为Protocol Buffer消息
-  Msg convertDbMessageToProto(Message dbMessage) {
-    // 解析内容
-    List<int> content;
-    if (dbMessage.contentType == ContentType.Text.value) {
-      content = utf8.encode(dbMessage.content);
-    } else {
-      content = base64Decode(dbMessage.content);
-    }
-
-    return Msg(
-      senderId: dbMessage.senderId,
-      receiverId: dbMessage.receiverId,
-      clientId: dbMessage.clientId,
-      serverId: dbMessage.serverId ?? '',
-      createTime: Int64(dbMessage.createTime),
-      sendTime: Int64(dbMessage.sendTime),
-      seq: Int64(dbMessage.seq),
-      msgType: MsgType.valueOf(dbMessage.msgType) ?? MsgType.MsgTypeSingleMsg,
-      contentType:
-          ContentType.valueOf(dbMessage.contentType) ?? ContentType.Text,
-      content: content,
-      isRead: dbMessage.isRead,
-      groupId: dbMessage.groupId ?? '',
-      platform:
-          PlatformType.valueOf(dbMessage.platform) ?? PlatformType.Desktop,
-      relatedMsgId: dbMessage.relatedMsgId ?? '',
-      sendSeq: Int64(dbMessage.sendSeq ?? 0),
-    );
   }
 }
