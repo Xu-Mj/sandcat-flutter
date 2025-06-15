@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Colors;
+import 'package:flutter_svg/svg.dart';
 
 import '../../app/widgets/app_scaffold.dart';
 import '../utils/responsive_layout.dart';
@@ -211,17 +212,22 @@ class _HomePageState extends State<HomePage> {
   Widget _buildEmptyChatPanel() {
     return Container(
       color: CupertinoColors.systemGroupedBackground,
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              CupertinoIcons.chat_bubble_text,
-              size: 80,
-              color: CupertinoColors.systemGrey,
+            SvgPicture.asset(
+              'assets/icons/sandcat_logo.svg',
+              fit: BoxFit.contain,
+              width: 100,
+              height: 100,
+              colorFilter: const ColorFilter.mode(
+                CupertinoColors.systemGrey,
+                BlendMode.srcIn,
+              ),
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               '选择一个会话开始聊天',
               style: TextStyle(
                 fontSize: 18,
