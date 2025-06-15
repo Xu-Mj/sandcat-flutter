@@ -23,6 +23,7 @@ abstract class ChatService {
 
   /// 发送文本消息
   Future<Message> sendTextMessage({
+    required String name,
     required String chatId,
     required String content,
     required String senderId,
@@ -49,7 +50,7 @@ abstract class ChatService {
   Future<void> markAllMessagesAsRead(String chatId);
 
   /// 获取当前用户ID
-  String? getCurrentUserId();
+  Future<String?> getCurrentUserId();
 
   /// 设置当前用户ID
   void setCurrentUserId(String userId);
