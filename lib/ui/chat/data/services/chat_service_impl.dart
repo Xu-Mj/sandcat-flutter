@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:sandcat/core/db/app.dart';
 import 'package:sandcat/core/db/chat_repo.dart';
 import 'package:sandcat/core/db/message_repo.dart';
@@ -102,14 +103,51 @@ class ChatServiceImpl implements ChatService {
       updatedTime: now,
     );
 
-    // 将消息保存到数据库
-    await _messageRepository.insertMessage(message.toCompanion(true));
-    // 这里应该调用websocket发送消息
-    // message 转为 proto Msg
-    _socketManager.sendRaw(message.toProtoMsg().toBincode());
-    await _updateConversationLastMessage(message, chatId, name);
+    // 先检查WebSocket是否已连接
+    if (!_socketManager.isConnected) {
+      final failedMessage =
+          message.copyWith(status: MessageStatus.failed.value);
+      await _messageRepository.insertMessage(failedMessage.toCompanion(true));
+      await _updateConversationLastMessage(failedMessage, chatId, name);
+      return failedMessage;
+    }
 
-    return message;
+    try {
+      // 将消息保存到数据库
+      await _messageRepository.insertMessage(message.toCompanion(true));
+      _logger.d('发送消息: ${message.clientId}，当前状态: ${message.status}',
+          tag: 'ChatService');
+
+      // 这里应该调用websocket发送消息
+      // message 转为 proto Msg
+      _socketManager.sendRaw(message.toProtoMsg().toBincode());
+      await _updateConversationLastMessage(message, chatId, name);
+
+      return message;
+    } catch (e) {
+      // 发送异常，标记为失败
+      _logger.e('Error sending message', error: e, tag: 'ChatService');
+
+      // 检查消息是否已存入数据库
+      final existingMessage = await _messageRepository.getMessageById(clientId);
+      if (existingMessage != null) {
+        // 更新消息状态为失败
+        final failedMessage = MessagesCompanion(
+          clientId: Value(clientId),
+          status: Value(MessageStatus.failed.value),
+          updatedTime: Value(now),
+        );
+        await _messageRepository.updateMessage(failedMessage);
+      } else {
+        // 插入失败的消息
+        final failedMessage =
+            message.copyWith(status: MessageStatus.failed.value);
+        await _messageRepository.insertMessage(failedMessage.toCompanion(true));
+      }
+
+      // 返回失败消息
+      return message.copyWith(status: MessageStatus.failed.value);
+    }
   }
 
   Future<void> _updateConversationLastMessage(
@@ -235,6 +273,43 @@ class ChatServiceImpl implements ChatService {
     // 更新数据库上下文的当前用户ID
     if (_databaseProvider is DatabaseContextImpl) {
       (_databaseProvider as DatabaseContextImpl).setCurrentUserId(userId);
+    }
+  }
+
+  @override
+  Future<bool> resendMessage(Message message) async {
+    try {
+      // 检查WebSocket连接
+      if (!_socketManager.isConnected) {
+        _logger.w('Cannot resend message, socket not connected',
+            tag: 'ChatService');
+        return false;
+      }
+
+      // 更新消息状态为发送中
+      final updatedMessage = MessagesCompanion(
+        clientId: Value(message.clientId),
+        status: Value(MessageStatus.sending.value),
+        updatedTime: Value(DateTime.now().millisecondsSinceEpoch),
+      );
+
+      await _messageRepository.updateMessage(updatedMessage);
+
+      // 重新发送消息
+      _socketManager.sendRaw(message.toProtoMsg().toBincode());
+
+      return true;
+    } catch (e) {
+      _logger.e('Error resending message', error: e, tag: 'ChatService');
+      // 如果重发失败，将状态更新回失败
+      final failedMessage = MessagesCompanion(
+        clientId: Value(message.clientId),
+        status: Value(MessageStatus.failed.value),
+        updatedTime: Value(DateTime.now().millisecondsSinceEpoch),
+      );
+
+      await _messageRepository.updateMessage(failedMessage);
+      return false;
     }
   }
 }
